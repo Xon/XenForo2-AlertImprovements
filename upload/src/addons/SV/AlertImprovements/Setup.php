@@ -8,7 +8,11 @@ class Setup extends AbstractSetup
 {
 	public function install(array $stepParams = [])
 	{
-		// TODO: Implement install() method.
+		$sm = \XF::db()->getSchemaManager();
+		$sm->alterTable('xf_user_option', function(\XF\Db\Schema\Alter $table)
+		{
+			$table->addColumn('sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(0);
+		});
 	}
 
 	public function upgrade(array $stepParams = [])
@@ -18,6 +22,10 @@ class Setup extends AbstractSetup
 
 	public function uninstall(array $stepParams = [])
 	{
-		// TODO: Implement uninstall() method.
+		$sm = \XF::db()->getSchemaManager();
+		$sm->alterTable('xf_user_option', function(\XF\Db\Schema\Alter $table)
+		{
+			$table->dropColumns('sv_alerts_page_skips_mark_read');
+		});
 	}
 }
