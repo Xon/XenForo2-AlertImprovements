@@ -1,5 +1,9 @@
 {
     "title": "Alert Improvements",
     "version_string": "2.0.0",
-    "version_id": 2000070
+    "version_id": 2000070,
+    "dev" : "Xon",
+    "require" : {
+        "php": ["5.6.0", "PHP 5.6.0+"]
+    }
 }
