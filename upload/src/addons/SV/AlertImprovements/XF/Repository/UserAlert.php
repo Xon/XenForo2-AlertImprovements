@@ -19,8 +19,10 @@ class UserAlert extends XFCP_UserAlert
 		$db = $this->db();
 		$db->beginTransaction();
 
-		$contentIds = $db->fetchAllColumn("
-            SELECT content_id
+		// Do a select first to reduce the amount of rows that can be touched for the update.
+		// This hopefully reduces contention as must of the time it should just be a select, without any updates
+		$alertIds = $db->fetchAllColumn("
+            SELECT alert_id
             FROM xf_user_alert
             WHERE alerted_user_id = ? 
             AND view_date = 0 
@@ -29,7 +31,7 @@ class UserAlert extends XFCP_UserAlert
             AND content_id IN (". $db->quote($contentIds) .")
         ", array($visitor->user_id, \XF::$time));
 
-		if (empty($contentIds))
+		if (empty($alertIds))
 		{
 			return;
 		}
@@ -37,12 +39,8 @@ class UserAlert extends XFCP_UserAlert
 		$stmt = $db->query("
             UPDATE IGNORE xf_user_alert
             SET view_date = ?
-            WHERE alerted_user_id = ?
-            AND view_date = 0
-            AND event_date < ?
-            AND content_type IN (". $db->quote($contentType) .")
-            AND content_id IN (". $db->quote($contentIds) .")
-        ", array(\XF::$time, $visitor->user_id, \XF::$time));
+            where view_date = 0 and alert_id in (". $db->quote($alertIds) .")
+        ", array(\XF::$time));
 
 		$rowsAffected = $stmt->rowsAffected();
 
