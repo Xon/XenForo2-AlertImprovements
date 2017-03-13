@@ -6,9 +6,9 @@ Note; Do not use MySQL statement-based replication with this add-on.
 
 ##Features
 - Automatically marks alerts as read from content on a given page when viewed for:
-- Threads
-- Conversations
-- Reports
+ - Threads
+ - Conversations
+ - Reports
 - Mark as unread link for individual alerts
 
 ##Performance impact
