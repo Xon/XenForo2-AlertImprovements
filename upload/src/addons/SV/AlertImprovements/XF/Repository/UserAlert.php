@@ -79,9 +79,15 @@ class UserAlert extends XFCP_UserAlert
 			[$user->user_id, $alertId]
 		);
 
-		$user->alerts_unread += 1;
-		$user->save(true, false);
+		// avoid race condition as xf_user row isn't selected in this transaction.
+		$db->query("
+			update xf_user
+			set alerts_unread = LEAST(alerts_unread + 1, 65535)
+			where user_id = ?
+		", $user->user_id);
 
 		$db->commit();
+        
+		$user->alerts_unread += 1;
 	}
 }
