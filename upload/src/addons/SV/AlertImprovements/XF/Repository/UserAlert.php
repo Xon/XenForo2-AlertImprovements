@@ -25,8 +25,8 @@ class UserAlert extends XFCP_UserAlert
             WHERE alerted_user_id = ? 
             AND view_date = 0 
             AND event_date < ? 
-            AND content_type in (". $db->quote($contentType) .") 
-            AND content_id in (". $db->quote($contentIds) .")
+            AND content_type IN (". $db->quote($contentType) .") 
+            AND content_id IN (". $db->quote($contentIds) .")
         ", array($visitor->user_id, \XF::$time));
 
 		if (empty($contentIds))
@@ -38,10 +38,10 @@ class UserAlert extends XFCP_UserAlert
             UPDATE IGNORE xf_user_alert
             SET view_date = ?
             WHERE alerted_user_id = ?
-            and view_date = 0
-            and event_date < ?
-            and content_type in (". $db->quote($contentType) .")
-            and content_id in (". $db->quote($contentIds) .")
+            AND view_date = 0
+            AND event_date < ?
+            AND content_type IN (". $db->quote($contentType) .")
+            AND content_id IN (". $db->quote($contentIds) .")
         ", array(\XF::$time, $visitor->user_id, \XF::$time));
 
 		$rowsAffected = $stmt->rowsAffected();
