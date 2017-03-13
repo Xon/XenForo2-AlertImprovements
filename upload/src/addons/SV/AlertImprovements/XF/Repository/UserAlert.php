@@ -24,10 +24,10 @@ class UserAlert extends XFCP_UserAlert
 		$alertIds = $db->fetchAllColumn("
             SELECT alert_id
             FROM xf_user_alert
-            WHERE alerted_user_id = ? 
-            AND view_date = 0 
-            AND event_date < ? 
-            AND content_type IN (". $db->quote($contentType) .") 
+            WHERE alerted_user_id = ?
+            AND view_date = 0
+            AND event_date < ?
+            AND content_type IN (". $db->quote($contentType) .")
             AND content_id IN (". $db->quote($contentIds) .")
         ", array($visitor->user_id, \XF::$time));
 
@@ -87,7 +87,7 @@ class UserAlert extends XFCP_UserAlert
 		", $user->user_id);
 
 		$db->commit();
-        
+
 		$user->alerts_unread += 1;
 	}
 }
