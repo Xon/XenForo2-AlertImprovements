@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<class_extensions>
+  <extension from_class="XF\Pub\Controller\Account" to_class="SV\AlertImprovements\XF\Pub\Account" execute_order="10" active="1"/>
+  <extension from_class="XF\Pub\Controller\Thread" to_class="SV\AlertImprovements\XF\Pub\Thread" execute_order="10" active="1"/>
+  <extension from_class="XF\Repository\UserAlert" to_class="SV\AlertImprovements\XF\Repository\UserAlert" execute_order="10" active="1"/>
+</class_extensions>

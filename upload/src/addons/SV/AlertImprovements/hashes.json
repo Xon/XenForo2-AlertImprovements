@@ -5,5 +5,9 @@
     "src/addons/SV/AlertImprovements/XF/Pub/Account.php": "a398465730b59f1fd7b81330f1ded40a1b42a779e9104fc5da3f3f6b75a5d666",
     "src/addons/SV/AlertImprovements/XF/Pub/Conversation.php": "b76e2cd393dd66fcb0dbfebbbbd8d9a4b527c653ac6a63f323f79aa37c83d47c",
     "src/addons/SV/AlertImprovements/XF/Pub/Thread.php": "acb73e4a1cbf8443704cb9a6cd426c19a3a9de4ad732684a027149a19515c952",
-    "src/addons/SV/AlertImprovements/XF/Repository/UserAlert.php": "14e51d44fdb75ec115c5e9cc3cd324c5c94a320ff0feb337ce726bf6294b8022"
+    "src/addons/SV/AlertImprovements/XF/Repository/UserAlert.php": "14e51d44fdb75ec115c5e9cc3cd324c5c94a320ff0feb337ce726bf6294b8022",
+    "src/addons/SV/AlertImprovements/_data/class_extensions.xml": "890b39778493c5e712db1f40afb643a00168b1b6eb9104b492668c6f8be40fac",
+    "src/addons/SV/AlertImprovements/_data/code_event_listeners.xml": "b4ba32da67d79f0e8376b0f0103bfe2598aa3017ff2e6f221b49e2b354491f94",
+    "src/addons/SV/AlertImprovements/_data/phrases.xml": "1749e3518a2bc8f1f2563af9932a70887b3e6d46a91abee71da237d60f53fbc8",
+    "src/addons/SV/AlertImprovements/_data/template_modifications.xml": "c3a15ab3926db3bf4e9e9d1b08c5bd6be3124e2af28a7e5a2da742ebf0018731"
 }
