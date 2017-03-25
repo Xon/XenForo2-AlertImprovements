@@ -1,6 +1,6 @@
 <?php
 
-namespace SV\AlertImprovements\XF\Pub;
+namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use XF\Mvc\ParameterBag;
 use XF\Mvc\FormAction;
