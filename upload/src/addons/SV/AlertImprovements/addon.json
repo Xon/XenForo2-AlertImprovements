@@ -1,5 +1,6 @@
 {
     "title": "Alert Improvements",
+    "description": "A collection of improvements to the XenForo 2 Alerts system.",
     "version_string": "2.0.0",
     "version_id": 2000070,
     "dev" : "Xon",
