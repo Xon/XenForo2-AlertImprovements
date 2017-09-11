@@ -2,8 +2,6 @@
 
 namespace SV\AlertImprovements\XF\Repository;
 
-use XF\Mvc\Entity\Finder;
-use XF\Mvc\Entity\Repository;
 
 class UserAlert extends XFCP_UserAlert
 {
@@ -73,11 +71,11 @@ class UserAlert extends XFCP_UserAlert
         $db = $this->db();
         $db->beginTransaction();
 
-        $db->update('xf_user_alert',
-                    ['view_date' => 0],
-                    'alerted_user_id = ? AND alert_id = ?',
-                    [$user->user_id, $alertId]
-        );
+        $db->query('
+            UPDATE xf_user_alert
+            SET view_date = 0
+            WHERE alerted_user_id = ?  AND alert_id = ? 
+        ', [$user->user_id, $alertId]);
 
         // avoid race condition as xf_user row isn't selected in this transaction.
         $db->query("

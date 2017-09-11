@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\View;
 
 class Thread extends XFCP_Thread
 {
@@ -11,7 +12,7 @@ class Thread extends XFCP_Thread
     {
         $reply = parent::actionIndex($params);
 
-        if ($reply instanceof \XF\Mvc\Reply\View && !empty($posts = $reply->getParam('posts')))
+        if ($reply instanceof View && !empty($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
@@ -33,7 +34,7 @@ class Thread extends XFCP_Thread
     {
         $reply = parent::getNewPostsReply($thread, $lastDate);
 
-        if ($reply instanceof \XF\Mvc\Reply\View && !empty($posts = $reply->getParam('posts')))
+        if ($reply instanceof View && !empty($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 

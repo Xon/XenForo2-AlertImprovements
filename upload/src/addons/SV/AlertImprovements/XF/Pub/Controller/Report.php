@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\View;
 
 class Report extends XFCP_Report
 {
@@ -11,7 +12,7 @@ class Report extends XFCP_Report
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof \XF\Mvc\Reply\View && !empty($report = $reply->getParam('report')))
+        if ($reply instanceof View && !empty($report = $reply->getParam('report')))
         {
             $visitor = \XF::visitor();
 

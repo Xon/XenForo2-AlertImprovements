@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\View;
 
 class Member extends XFCP_Member
 {
@@ -11,7 +12,7 @@ class Member extends XFCP_Member
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof \XF\Mvc\Reply\View && !empty($profilePosts = $reply->getParam('profilePosts')))
+        if ($reply instanceof View && !empty($profilePosts = $reply->getParam('profilePosts')))
         {
             $visitor = \XF::visitor();
 
