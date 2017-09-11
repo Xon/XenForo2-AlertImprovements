@@ -1,0 +1,14 @@
+{
+    "sv_alert_page_skip_mark_read.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "5a0ed05a29f1f5f63cc075ac7fcf7d3c"
+    },
+    "sv_mark_unread.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "f951ed19d25e093831266bef02a78309"
+    }
+}

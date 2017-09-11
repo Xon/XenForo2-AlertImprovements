@@ -1,0 +1,20 @@
+{
+    "XF-Pub-Controller-Account_SV-AlertImprovements-XF-Pub-Controller-Account.json": {
+        "hash": "f57adc677bb88d5219343a6a5169c20f"
+    },
+    "XF-Pub-Controller-Conversation_SV-AlertImprovements-XF-Pub-Controller-Conversation.json": {
+        "hash": "58a7cf99578d5351c2eb689ee57914ba"
+    },
+    "XF-Pub-Controller-Member_SV-AlertImprovements-XF-Pub-Controller-Member.json": {
+        "hash": "ee78dcb4974b0bd0a07f07ca2bb72984"
+    },
+    "XF-Pub-Controller-Report_SV-AlertImprovements-XF-Pub-Controller-Report.json": {
+        "hash": "9a07cae45a67873818996cad9741bcbf"
+    },
+    "XF-Pub-Controller-Thread_SV-AlertImprovements-XF-Pub-Controller-Thread.json": {
+        "hash": "a2b0b61a06678b45af518d0c25ee3fd1"
+    },
+    "XF-Repository-UserAlert_SV-AlertImprovements-XF-Repository-UserAlert.json": {
+        "hash": "ecfe9ea351ab8423c0ede7b88638b251"
+    }
+}

@@ -1,1 +1,5 @@
-/upload/src/addons/SV/AlertImprovements/_output
+addon-*.zip
+_releases
+_data
+hashes.json
+/.idea/
