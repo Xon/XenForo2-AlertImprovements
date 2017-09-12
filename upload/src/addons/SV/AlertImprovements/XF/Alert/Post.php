@@ -12,12 +12,12 @@ class Post extends XFCP_Post implements ISummarizeAlert
         return empty($optOuts['post_like']);
     }
 
-    public function canSummarizeItem(UserAlert $alert)
+    public function canSummarizeItem(array $alert)
     {
-        return $alert->action == 'like';
+        return $alert['action'] == 'like';
     }
 
-    public function consolidateAlert(&$contentType, &$contentId, UserAlert $item)
+    public function consolidateAlert(&$contentType, &$contentId, array $item)
     {
         switch($contentType)
         {

@@ -115,9 +115,11 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
+     * Summarizes alerts, does not use entities due to the overhead
+     *
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
-     * @return Alerts[]
+     * @return array
      */
     public function summarizeAlerts($ignoreReadState = false, $summaryAlertViewDate = 0)
     {
@@ -134,8 +136,8 @@ class UserAlert extends XFCP_UserAlert
         $finder->where('summerize_id', null);
 
 
-        /** @var Alerts[] $alerts */
-        $alerts = $finder->fetch();
+        /** @var array $alerts */
+        $alerts = $finder->fetchRaw();
 
         $outputAlerts = [];
 
@@ -154,34 +156,35 @@ class UserAlert extends XFCP_UserAlert
         $groupedAlerts = false;
         foreach ($alerts AS $id => $item)
         {
-            if ((!$ignoreReadState && $item->view_date) ||
-                empty($handlers[$item->content_type]) ||
-                $item->IsSummary)
+            if ((!$ignoreReadState && $item['view_date']) ||
+                empty($handlers[$item['content_type']]) ||
+                (bool)preg_match('/^.*_summary$/', $item['action']))
             {
                 $outputAlerts[$id] = $item;
                 continue;
             }
-            $handler = $handlers[$item->content_type];
+            $handler = $handlers[$item['content_type']];
             if (!$handler->canSummarizeItem($item))
             {
                 $outputAlerts[$id] = $item;
                 continue;
             }
 
-            $contentType = $item->content_type;
-            $contentId = $item->content_id;
+            $contentType = $item['content_type'];
+            $contentId = $item['content_id'];
+            $contentUserd = $item['user_id'];
             if ($handler->consolidateAlert($contentType, $contentId, $item))
             {
                 $groupedContentAlerts[$contentType][$contentId][$id] = $item;
 
                 if ($userHandler && $userHandler->canSummarizeItem($item))
                 {
-                    if (!isset($groupedUserAlerts[$item->user_id]))
+                    if (!isset($groupedUserAlerts[$contentUserd]))
                     {
-                        $groupedUserAlerts[$item->user_id] = ['c' => 0, 'd' => []];
+                        $groupedUserAlerts[$contentUserd] = ['c' => 0, 'd' => []];
                     }
-                    $groupedUserAlerts[$item->user_id]['c'] += 1;
-                    $groupedUserAlerts[$item->user_id]['d'][$contentType][$contentId][$id] = $item;
+                    $groupedUserAlerts[$contentUserd]['c'] += 1;
+                    $groupedUserAlerts[$contentUserd]['d'][$contentType][$contentId][$id] = $item;
                 }
             }
             else
@@ -331,11 +334,13 @@ class UserAlert extends XFCP_UserAlert
         }
         // database update
         /** @var Alerts alert */
-        $alert = $this->em->create('UserAlert');
+        $alert = $this->em->create('XF:UserAlert');
         $alert->bulkSet($summaryAlert);
         $alert->save();
         $summerizeId = $alert->alert_id;
 
+        $batchIds = \XF\Util\Arr::arrayColumn($alertGrouping,'alert_id');
+        /*
         $batchIds = [];
         foreach ($alertGrouping as $hiddenAlert)
         {
@@ -343,7 +348,7 @@ class UserAlert extends XFCP_UserAlert
             $hiddenAlert->setAsSaved('summerize_id', $summerizeId);
             $hiddenAlert->setAsSaved('view_date', \XF::$time);
         }
-
+        */
         // hide the non-summary alerts
         $db = $this->db();
         $stmt = $db->query(
@@ -351,12 +356,12 @@ class UserAlert extends XFCP_UserAlert
             UPDATE xf_user_alert
             SET summerize_id = ?, view_date = ?
             WHERE alert_id IN (' . $db->quote($batchIds) . ')
-        ', [$summaryAlert['alert_id'], \XF::$time]
+        ', [$summerizeId, \XF::$time]
         );
         $rowsAffected = $stmt->rowsAffected();
         // add to grouping
         $grouped += $rowsAffected;
-        $outputAlerts[$summerizeId] = $alert;
+        $outputAlerts[$summerizeId] = $alert->toArray();
 
         return true;
     }

@@ -12,7 +12,7 @@ class User extends XFCP_User implements ISummarizeAlert
         return true;
     }
 
-    public function canSummarizeItem(UserAlert $alert)
+    public function canSummarizeItem(array $alert)
     {
         switch($alert['content_type'])
         {
@@ -21,15 +21,13 @@ class User extends XFCP_User implements ISummarizeAlert
             case 'report_comment':
             case 'conversation_message':
             case 'post':
-                return $alert->action == 'like';
-            case 'postrating':
-                return $alert->action == 'rate';
+                return $alert['action'] == 'like';
             default:
                 return false;
         }
     }
 
-    public function consolidateAlert(&$contentType, &$contentId, UserAlert $item)
+    public function consolidateAlert(&$contentType, &$contentId, array $item)
     {
         return false;
     }

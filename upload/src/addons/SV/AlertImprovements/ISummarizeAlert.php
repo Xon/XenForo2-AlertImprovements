@@ -15,23 +15,23 @@ interface ISummarizeAlert
     function canSummarizeForUser(array $optOuts);
 
     /**
-     * @param UserAlert $alert
+     * @param array $alert
      * @return mixed
      */
-    function canSummarizeItem(UserAlert $alert);
+    function canSummarizeItem(array $alert);
 
     /**
      * @param string $contentType
      * @param int $contentId
-     * @param UserAlert $item
+     * @param array $item
      * @return bool
      */
-    function consolidateAlert(&$contentType, &$contentId, UserAlert $item);
+    function consolidateAlert(&$contentType, &$contentId, array $item);
 
 
     /**
      * @param array $summaryAlert
-     * @param UserAlert[] $alerts
+     * @param array[] $alerts
      * @param string $groupingStyle
      * @return array
      */

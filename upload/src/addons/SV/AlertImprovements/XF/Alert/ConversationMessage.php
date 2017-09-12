@@ -13,12 +13,12 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
         return empty($optOuts['conversation_message_like']);
     }
 
-    public function canSummarizeItem(UserAlert $alert)
+    public function canSummarizeItem(array $alert)
     {
-        return $alert->action == 'like';
+        return $alert['action'] == 'like';
     }
 
-    public function consolidateAlert(&$contentType, &$contentId, UserAlert $item)
+    public function consolidateAlert(&$contentType, &$contentId, array $item)
     {
         switch($contentType)
         {
