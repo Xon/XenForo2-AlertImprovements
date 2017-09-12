@@ -30,6 +30,23 @@ class Account extends XFCP_Account
         return $form;
     }
 
+    public function actionSummarizeAlerts()
+    {
+        $options = \XF::options();
+        if (empty($options->sv_alerts_summerize))
+        {
+            return $this->notFound();
+        }
+
+        $this->assertNotFlooding('alertSummarize', max(1, intval($options->sv_alerts_summerize_flood)));
+
+        /** @var UserAlert $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo->summarizeAlertsForUser(\XF::visitor()->user_id);
+
+        return $this->redirect($this->buildLink('account/alerts'));
+    }
+
     public function actionAlerts()
     {
         $visitor = \XF::visitor();

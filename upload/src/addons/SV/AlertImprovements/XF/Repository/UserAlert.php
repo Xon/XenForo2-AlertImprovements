@@ -11,6 +11,34 @@ use \SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
 class UserAlert extends XFCP_UserAlert
 {
+    public function summarizeAlertsForUser($userId)
+    {
+        $db = $this->db();
+        // psot rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
+        $db->beginTransaction();
+
+        $db->query("
+            delete from xf_user_alert
+            where alerted_user_id = ? and summerize_id is null and `action` like '%_summary'
+        ", $userId);
+
+        $db->query("
+            update xf_user_alert
+            set view_date = 0, summerize_id = null
+            where alerted_user_id = ? and summerize_id is not null
+        ", $userId);
+
+        $db->query("
+            update xf_user
+            set alerts_unread = (select count(*) from xf_user_alert where alerted_user_id = xf_user.user_id and view_date = 0)
+            where user_id = ?
+        ", $userId);
+
+        $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
+
+        $db->commit();
+    }
+
     /**
      * @param int      $userId
      * @param null|int $cutOff
@@ -28,23 +56,7 @@ class UserAlert extends XFCP_UserAlert
                 {
                     return null;
                 }
-                if ($userId !== \XF::visitor()->user_id)
-                {
-                    /** @var \XF\Entity\User $user */
-                    $user = $this->finder('XF:User')
-                                 ->where('user_id', $userId)
-                                 ->fetchOne();
-                    $alerts = \XF::asVisitor(
-                        $user,
-                        function () {
-                            return $this->checkSummarizeAlerts();
-                        }
-                    );
-                }
-                else
-                {
-                    $alerts = $this->checkSummarizeAlerts();
-                }
+                $alerts = $this->checkSummarizeAlertsForUser($userId);
 
                 if ($alerts === null)
                 {
@@ -62,14 +74,38 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @return array[]
      */
-    protected function checkSummarizeAlerts()
+    protected function checkSummarizeAlertsForUser($userId, $force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
     {
-        if ($this->canSummarizeAlerts())
+        if ($userId !== \XF::visitor()->user_id)
+        {
+            /** @var \XF\Entity\User $user */
+            $user = $this->finder('XF:User')
+                         ->where('user_id', $userId)
+                         ->fetchOne();
+            return \XF::asVisitor(
+                $user,
+                function () use ($force, $ignoreReadState, $summaryAlertViewDate) {
+                    return $this->checkSummarizeAlerts($force, $ignoreReadState, $summaryAlertViewDate);
+                }
+            );
+        }
+        else
+        {
+            return $this->checkSummarizeAlerts($force, $ignoreReadState, $summaryAlertViewDate);
+        }
+    }
+
+    /**
+     * @return array[]
+     */
+    protected function checkSummarizeAlerts($force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
+    {
+        if ($force || $this->canSummarizeAlerts())
         {
             $summerizeToken = $this->getSummarizeLock();
             try
             {
-                return $this->summarizeAlerts();
+                return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
             }
             finally
             {
@@ -181,7 +217,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int  $summaryAlertViewDate
      * @return array
      */
-    public function summarizeAlerts($ignoreReadState = false, $summaryAlertViewDate = 0)
+    public function summarizeAlerts($ignoreReadState, $summaryAlertViewDate)
     {
         $visitor = \XF::visitor();
         $userId = $visitor->user_id;
