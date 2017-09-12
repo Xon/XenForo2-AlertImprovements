@@ -64,7 +64,6 @@ class UserAlert extends XFCP_UserAlert
         return null;
     }
 
-
     /**
      * @param User $user
      * @param int $summaryId
@@ -312,6 +311,17 @@ class UserAlert extends XFCP_UserAlert
         if ($groupedAlerts)
         {
             $db = $this->db();
+
+            $db->beginTransaction();
+
+            $db->query(
+                '
+                    SELECT user_id 
+                    FROM xf_user 
+                    WHERE user_id = ? FOR UPDATE 
+                ', $visitor->user_id
+            );
+
             $alerts_unread = $db->fetchOne(
                 '
                     SELECT COUNT(*)
@@ -321,6 +331,8 @@ class UserAlert extends XFCP_UserAlert
             );
 
             $visitor->fastUpdate('alerts_unread', $alerts_unread);
+
+            $db->commit();
         }
 
         uasort(
