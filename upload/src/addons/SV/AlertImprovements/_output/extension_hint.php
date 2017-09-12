@@ -3,6 +3,11 @@
 // ################## THIS IS A GENERATED FILE ##################
 // DO NOT EDIT DIRECTLY. EDIT THE CLASS EXTENSIONS IN THE CONTROL PANEL.
 
+namespace SV\AlertImprovements\XF\Admin\Controller
+{
+	class XFCP_User extends \XF\Admin\Controller\User {}
+}
+
 namespace SV\AlertImprovements\XF\Entity
 {
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}

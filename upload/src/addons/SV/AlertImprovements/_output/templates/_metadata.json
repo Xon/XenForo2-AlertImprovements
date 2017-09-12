@@ -4,6 +4,11 @@
         "version_string": "2.0.0",
         "hash": "832ba3f37df9bbdb78e26ce776723e5a"
     },
+    "admin/user_edits_alerts.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "23965e57346b74b4785b5faca6db17c7"
+    },
     "public/account_alerts_extra.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
