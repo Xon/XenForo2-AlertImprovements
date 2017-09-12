@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\Finder\\UserAlert",
+    "to_class": "SV\\AlertImprovements\\XF\\Finder\\UserAlert",
+    "execute_order": 10,
+    "active": true
+}

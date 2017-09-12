@@ -22,6 +22,11 @@ namespace SV\AlertImprovements\XF\Entity
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}
 }
 
+namespace SV\AlertImprovements\XF\Finder
+{
+	class XFCP_UserAlert extends \XF\Finder\UserAlert {}
+}
+
 namespace SV\AlertImprovements\XF\Pub\Controller
 {
 	class XFCP_Account extends \XF\Pub\Controller\Account {}

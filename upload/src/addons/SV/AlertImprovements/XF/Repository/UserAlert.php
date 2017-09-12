@@ -18,33 +18,49 @@ class UserAlert extends XFCP_UserAlert
      */
     public function findAlertsForUser($userId, $cutOff = null)
     {
-        if ($userId !== \XF::visitor()->user_id)
-        {
-            /** @var \XF\Entity\User $user */
-            $user = $this->finder('XF:User')
-                         ->where('user_id', $userId)
-                         ->fetchOne();
-            $summarizedAlerts = \XF::asVisitor(
-                $user,
-                function () {
-                    return $this->checkSummarizeAlerts();
-                }
-            );
-        }
-        else
-        {
-            $summarizedAlerts = $this->checkSummarizeAlerts();
-        }
-
-        // TODO: faux finder which returns already loaded data
+        /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = parent::findAlertsForUser($userId, $cutOff);
         $finder->where(['summerize_id', null]);
+
+        $finder->shimSource(
+            function ($limit, $offset) use ($userId, $finder) {
+                if ($offset !== 0)
+                {
+                    return null;
+                }
+                if ($userId !== \XF::visitor()->user_id)
+                {
+                    /** @var \XF\Entity\User $user */
+                    $user = $this->finder('XF:User')
+                                 ->where('user_id', $userId)
+                                 ->fetchOne();
+                    $alerts = \XF::asVisitor(
+                        $user,
+                        function () {
+                            return $this->checkSummarizeAlerts();
+                        }
+                    );
+                }
+                else
+                {
+                    $alerts = $this->checkSummarizeAlerts();
+                }
+
+                if ($alerts === null)
+                {
+                    return null;
+                }
+
+                $alerts = array_slice($alerts, 0, $limit, true);
+                return $finder->materializeAlerts($alerts);
+            }
+        );
 
         return $finder;
     }
 
     /**
-     * @return Alerts[]
+     * @return array[]
      */
     protected function checkSummarizeAlerts()
     {
