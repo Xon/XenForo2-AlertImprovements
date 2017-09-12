@@ -35,23 +35,23 @@
         "version_string": "2.0.0",
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
-    "sv_alert_page_skip_mark_read.txt": {
-        "global_cache": false,
-        "version_id": 2000071,
-        "version_string": "2.0.0",
-        "hash": "7f509f96a011982b4503e0d3648aa07a"
-    },
-    "sv_alert_page_skip_mark_read_hint.txt": {
-        "global_cache": false,
-        "version_id": 2000070,
-        "version_string": "2.0.0",
-        "hash": "2e8285e08daa99cdb9e4c72d1e703510"
-    },
     "sv_alerts_page_and_summary.txt": {
         "global_cache": false,
         "version_id": 2000070,
         "version_string": "2.0.0",
         "hash": "4fe7919e4bbf6454ed622d2150f0b136"
+    },
+    "sv_alerts_page_skips_mark_read.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "7f509f96a011982b4503e0d3648aa07a"
+    },
+    "sv_alerts_page_skips_mark_read_hint.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "2e8285e08daa99cdb9e4c72d1e703510"
     },
     "sv_alerts_page_skips_summarize.txt": {
         "global_cache": false,
@@ -64,6 +64,12 @@
         "version_id": 2000070,
         "version_string": "2.0.0",
         "hash": "0e8d6aca46585c7a999e54d071e771b9"
+    },
+    "sv_alerts_summarize_threshold.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "f1ef72a852a480df2081f9b8399d25c0"
     },
     "sv_alerts_summarize_threshold_hint.txt": {
         "global_cache": false,

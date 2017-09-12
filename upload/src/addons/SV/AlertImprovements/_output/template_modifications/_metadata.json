@@ -1,4 +1,7 @@
 {
+    "admin/sv_alerts_option_template_registrationDefaults.json": {
+        "hash": "10b8ab7cfda42556fc2be0d788b87b70"
+    },
     "public/sv_alertimprovements_account_alerts.json": {
         "hash": "03b23a1bcc98430c4abdccd67a846017"
     },

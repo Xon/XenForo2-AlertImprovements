@@ -1,4 +1,9 @@
 {
+    "admin/option_template_registrationDefaults_alerts.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "832ba3f37df9bbdb78e26ce776723e5a"
+    },
     "public/account_alerts_extra.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
@@ -17,6 +22,6 @@
     "public/account_preferences_alerts_extra.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "ad4b3bc99cf09276efc3b102e3a0ebf4"
+        "hash": "2322cd570f68a0ea423a4f0194e30b49"
     }
 }

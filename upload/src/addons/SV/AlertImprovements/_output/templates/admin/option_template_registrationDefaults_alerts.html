@@ -1,0 +1,9 @@
+<xf:checkbox>
+	<xf:option name="{$inputName}[sv_alerts_page_skips_mark_read]" checked="{{$option.option_value.sv_alerts_page_skips_mark_read}}">{{ phrase('sv_alerts_page_skips_mark_read') }}</xf:option>
+	<xf:option name="{$inputName}[sv_alerts_page_skips_summarize]" checked="{{$option.option_value.sv_alerts_page_skips_summarize}}">{{ phrase('sv_alerts_page_skips_summarize') }}</xf:option>
+</xf:checkbox>
+
+<xf:textboxrow name="{$inputName}[sv_alerts_summarize_threshold]" value="{{$option.option_value.sv_alerts_summarize_threshold}}" 
+			   type="number"
+			   readonly="{{ $xf.options.sv_alerts_summerize ? '': true}}" 
+			   label="{{ phrase('sv_alerts_summarize_threshold') }}"/>
