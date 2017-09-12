@@ -64,6 +64,51 @@ class UserAlert extends XFCP_UserAlert
         return null;
     }
 
+
+    /**
+     * @param User $user
+     * @param int $summaryId
+     */
+    public function insertUnsummarizedAlerts($user, $summaryId)
+    {
+        $userId = $user->user_id;
+        $db = $this->db();
+        $db->beginTransaction();
+
+        // Delete summary alert
+        /** @var Alerts $summaryAlert */
+        $summaryAlert = $this->finder('XF:UserAlert')
+                             ->where('alert_id', $summaryId)
+                             ->fetchOne();
+        if (!$summaryAlert)
+        {
+            @$db->rollbackAll();
+            return;
+        }
+        $summaryAlert->delete(false, false);
+
+        // Make alerts visible
+        $stmt = $db->query('
+            UPDATE xf_user_alert
+            SET summerize_id = null, view_date = 0
+            WHERE alerted_user_id = ? and summerize_id = ?
+        ', [$userId, $summaryId]);
+
+        // Reset unread alerts counter
+        $increment = $stmt->rowsAffected();
+        $db->query('
+            UPDATE xf_user SET
+            alerts_unread = alerts_unread + ?
+            WHERE user_id = ?
+                AND alerts_unread < 65535
+        ', [$increment, $userId]);
+
+        $alerts_unread = $user->alerts_unread + $increment;
+        $user->setAsSaved('alerts_unread', $alerts_unread);
+
+        $db->commit();
+    }
+
     /**
      * @param $userId
      * @return bool
