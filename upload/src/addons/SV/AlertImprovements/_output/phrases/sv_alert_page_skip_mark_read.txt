@@ -1,1 +1,1 @@
-On viewing alerts page, do not mark alerts as read
+Alerts page skips mark read

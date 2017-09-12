@@ -1,0 +1,19 @@
+<h2 class="block-formSectionHeader" id="alerts"><span class="block-formSectionHeader-aligner">{{ phrase('sv_alerts_page_and_summary') }}</span></h2>
+<div class="block-body">
+	<xf:checkboxrow rowtype="noColon"
+					label="{{ phrase('sv_on_viewing_alerts_page...') }}">
+		<xf:option name="option[sv_alerts_page_skips_mark_read]"
+				   label="{{ phrase('sv_alert_page_skip_mark_read') }}"
+				   hint="{{ phrase('sv_alert_page_skip_mark_read_hint') }}"
+				   checked="{$xf.visitor.Option.sv_alerts_page_skips_mark_read}"
+				   />
+		<xf:option name="option[sv_alerts_page_skips_summarize]"
+				   label="{{ phrase('sv_alerts_page_skips_summarize') }}"
+				   hint="{{ phrase('sv_alerts_page_skips_summarize_hint') }}"
+				   checked="{$xf.visitor.Option.sv_alerts_page_skips_summarize}"
+				   />
+	</xf:checkboxrow>
+	<xf:textboxrow name="option[sv_alerts_summarize_threshold]" value="{{$xf.visitor.Option.sv_alerts_summarize_threshold}}" 
+				   type="number"
+				   explain="{{ phrase('sv_alerts_summarize_threshold_hint') }}" />
+</div>

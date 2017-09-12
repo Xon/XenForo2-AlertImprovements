@@ -1,0 +1,9 @@
+{
+    "template": "account_visitor_menu",
+    "description": "Add alerts link to accounts menu",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<!--[XF:content_links:bottom]-->",
+    "replace": "<li><a href=\"{{ link('account/alerts') }}\" class=\"menu-linkRow\">{{ phrase('alerts') }}</a></li>\n$0"
+}

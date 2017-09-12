@@ -1,0 +1,33 @@
+<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
+<xf:title>{{ phrase('sv_summarized_alerts') }}</xf:title>
+
+<xf:breadcrumb href="{{ link('account/alerts') }}">{{ phrase('alerts') }}</xf:breadcrumb>
+
+<div class="block-container">
+	<div class="block-body">
+		<h2 class="textHeading"></h2>
+		<ol class="listPlain">
+			<li data-alert-id="{$alert.alert_id}"
+				class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
+				<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
+			</li>
+		</ol>
+		<div class="block-row"></div>
+		<xf:if is="$alerts is not empty">
+			<ol class="listPlain">
+				<xf:foreach loop="$alerts" value="$alert">
+					<li data-alert-id="{$alert.alert_id}"
+						class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
+						<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
+					</li>
+				</xf:foreach>
+			</ol>
+			<xf:elseif is="$page <= 1" />
+				<div class="block-row">{{ phrase('you_do_not_have_any_recent_alerts') }}</div>
+			<xf:else />
+				<div class="block-row">{{ phrase('no_alerts_can_be_shown') }}</div>
+			<!-- {$summaryAlert} -->
+			<xf:pagenav link="account/alert" page="{$page}" perpage="{$perPage}" total="{$totalAlerts}" wrapperclass="block-outer block-outer--after" />
+		</xf:if>
+	</div>
+</div>

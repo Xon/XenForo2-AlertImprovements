@@ -1,0 +1,8 @@
+{
+    "additional_files": [
+        "js/sv/alerts"
+    ],
+    "minify": [
+        "js/sv/alerts/alerts.js"
+    ]
+}

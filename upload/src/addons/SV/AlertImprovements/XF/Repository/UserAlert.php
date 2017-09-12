@@ -3,8 +3,17 @@
 namespace SV\AlertImprovements\XF\Repository;
 
 
+use SV\AlertImprovements\Globals;
+use XF\Entity\User;
+
 class UserAlert extends XFCP_UserAlert
 {
+    public function markUserAlertsRead(User $user, $viewDate = null)
+    {
+        Globals::$markedAlertsRead = true;
+        parent::markUserAlertsRead($user, $viewDate);
+    }
+
     public function markAlertsReadForContentIds($contentType, array $contentIds)
     {
         if (empty($contentIds))
@@ -66,26 +75,52 @@ class UserAlert extends XFCP_UserAlert
         }
     }
 
-    public function markAlertUnread(\XF\Entity\User $user, $alertId)
+    /**
+     * @param User $user
+     * @param int $alertId
+     * @param bool $readStatus
+     *
+     * @return \XF\Entity\UserAlert
+     */
+    public function changeAlertStatus(User $user, $alertId, $readStatus)
     {
         $db = $this->db();
         $db->beginTransaction();
 
-        $db->query('
-            UPDATE xf_user_alert
-            SET view_date = 0
-            WHERE alerted_user_id = ?  AND alert_id = ? 
-        ', [$user->user_id, $alertId]);
+        /** @var \XF\Entity\UserAlert $alert */
+        $alert = $this->finder('XF:UserAlert')
+                      ->where(['alert_id', $alertId])
+                      ->where(['alerted_user_id', $user->user_id])
+                      ->fetchOne();
+        if (empty($alert) || $readStatus === ($alert->view_date !== 0))
+        {
+            @$db->rollback();
+            return $alert;
+        }
 
-        // avoid race condition as xf_user row isn't selected in this transaction.
-        $db->query("
-			UPDATE xf_user
-			SET alerts_unread = LEAST(alerts_unread + 1, 65535)
-			WHERE user_id = ?
-		", $user->user_id);
+        $alert->fastUpdate('view_date', $readStatus ? \XF::$time : 0);
+
+        if ($readStatus)
+        {
+            $db->query(
+                "
+                UPDATE xf_user
+                SET alerts_unread = GREATEST(0, cast(alerts_unread as signed) - 1)
+                WHERE user_id = ?
+            ", $user->user_id
+            );
+        }
+        else
+        {
+            $db->query("
+                update xf_user
+                set alerts_unread = LEAST(alerts_unread + 1, 65535)
+                where user_id = ?
+            ", $user->user_id);
+        }
 
         $db->commit();
 
-        $user->alerts_unread += 1;
+        $user->alerts_unread = $user->alerts_unread + ($readStatus ? -1 : 1);
     }
 }

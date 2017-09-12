@@ -1,9 +1,9 @@
 {
     "template": "account_preferences",
-    "description": "Add preference to not mark alerts read by default",
+    "description": "Adds additional alert preferences",
     "execution_order": 10,
     "enabled": true,
-    "action": "str_replace",
-    "find": "<xf:option name=\"option[content_show_signature]\"\n\t\t\t\t\tlabel=\"{{ phrase('show_peoples_signatures_with_their_messages') }}\"\n\t\t\t\t\tchecked=\"{$xf.visitor.Option.content_show_signature}\"\n\t\t\t\t/>",
-    "replace": "$0\n<xf:option name=\"option[sv_alerts_page_skips_mark_read]\"\n\t\t\t\t\tlabel=\"{{ phrase('sv_alert_page_skip_mark_read') }}\"\n\t\t\t\t\tchecked=\"{$xf.visitor.Option.sv_alerts_page_skips_mark_read}\"\n\t\t\t\t/>"
+    "action": "preg_replace",
+    "find": "#[\\t ]*<h2 class=\"block-formSectionHeader.*?{{ phrase\\('alert_preferences'\\)#si",
+    "replace": "<xf:include template=\"account_preferences_alerts_extra\" />\n$0"
 }

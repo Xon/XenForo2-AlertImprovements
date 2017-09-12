@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "<xf:date time=\"$alert.event_date\" />",
-    "replace": "$0\n<a class=\"markAlertUnread\" href=\"{{ link('account/unread-alert', '', {'alert_id':$alert.alert_id}) }}\"><span class=\"unreadLink\">{{ phrase('sv_mark_unread') }}</span></a>"
+    "replace": "$0\n<xf:include template=\"account_alerts_extra\" />"
 }

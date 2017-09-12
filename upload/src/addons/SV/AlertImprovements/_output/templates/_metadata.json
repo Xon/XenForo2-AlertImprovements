@@ -1,0 +1,22 @@
+{
+    "public/account_alerts_extra.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "2ce892ddd29fa81705e1f37ee676f675"
+    },
+    "public/account_alerts_extra_controls.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "2fb6157f32a7be31083b54efbf2af871"
+    },
+    "public/account_alerts_summary.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "e63ae7bfe5881e4958d97424db071bd6"
+    },
+    "public/account_preferences_alerts_extra.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "ad4b3bc99cf09276efc3b102e3a0ebf4"
+    }
+}

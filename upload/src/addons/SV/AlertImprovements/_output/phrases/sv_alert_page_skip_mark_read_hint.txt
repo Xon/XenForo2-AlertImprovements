@@ -1,0 +1,1 @@
+Viewing the alerts page will not mark alerts as read

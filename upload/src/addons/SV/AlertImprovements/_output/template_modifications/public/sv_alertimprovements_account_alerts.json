@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts",
+    "description": "Extra controls for alerts",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:if is=\"$alerts is not empty\">",
+    "replace": "$0\n<xf:include template=\"account_alerts_extra_controls\" />"
+}

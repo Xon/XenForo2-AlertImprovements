@@ -1,14 +1,110 @@
 {
+    "option.sv_alerts_summerize.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "64a71dc4edfe7f0284d05dd9fb0dedf5"
+    },
+    "option.sv_alerts_summerize_flood.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "52283f68d208f4c81afcfdfaadd405e9"
+    },
+    "option_explain.sv_alerts_summerize.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "470de5f34c25e8571817091087df75a1"
+    },
+    "option_explain.sv_alerts_summerize_flood.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "669902bad1a02a885448d42c9350a3bb"
+    },
+    "option_group.AlertImprovements.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "b5b9b20725cdbb887052f507936f9c05"
+    },
+    "option_group_description.AlertImprovements.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
     "sv_alert_page_skip_mark_read.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "7f509f96a011982b4503e0d3648aa07a"
+    },
+    "sv_alert_page_skip_mark_read_hint.txt": {
         "global_cache": false,
         "version_id": 2000070,
         "version_string": "2.0.0",
-        "hash": "5a0ed05a29f1f5f63cc075ac7fcf7d3c"
+        "hash": "2e8285e08daa99cdb9e4c72d1e703510"
+    },
+    "sv_alerts_page_and_summary.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "4fe7919e4bbf6454ed622d2150f0b136"
+    },
+    "sv_alerts_page_skips_summarize.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "8a6c8c7291bb4a46a49f317a9326f808"
+    },
+    "sv_alerts_page_skips_summarize_hint.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "0e8d6aca46585c7a999e54d071e771b9"
+    },
+    "sv_alerts_summarize_threshold_hint.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "fca492809d43430540087441f5e5b997"
+    },
+    "sv_mark_all_alerts_read.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "7542d62aacca3c5925e43432a6ae5527"
     },
     "sv_mark_unread.txt": {
         "global_cache": false,
         "version_id": 2000070,
         "version_string": "2.0.0",
         "hash": "f951ed19d25e093831266bef02a78309"
+    },
+    "sv_on_viewing_alerts_page.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "e8a7b51a7a6165a73ac2a87f320dfdc8"
+    },
+    "sv_resummarize_alerts.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "401cf17e46abb7e5a08e86a2d99fe647"
+    },
+    "sv_summarized_alerts.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "f5e515a73b4a596e5a9191ea6d2a104a"
+    },
+    "sv_unsummarize_alert.txt": {
+        "global_cache": false,
+        "version_id": 2000070,
+        "version_string": "2.0.0",
+        "hash": "1884e92d905241a69ae681608b0f4170"
     }
 }

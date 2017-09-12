@@ -1,0 +1,13 @@
+<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
+<style>
+.alertControls
+{
+  float:right;
+  text-align:right;
+}
+</style>
+<div class="alertControls">
+<a href="{{ link('account/preferences') }}#alerts">{{ phrase('alert_preferences') }}</a>, 
+<xf:if is="$xf.options.sv_alerts_summerize"><a href="{{ link('account/summarize-alerts') }}">{{ phrase('sv_resummarize_alerts') }}</a>, </xf:if>
+<a href="{{ link('account/alerts', '', {'skip_mark_read':0}) }}">{{ phrase('sv_mark_all_alerts_read') }}</a>
+</div>
