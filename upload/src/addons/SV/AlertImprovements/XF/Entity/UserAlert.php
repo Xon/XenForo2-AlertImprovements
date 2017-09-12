@@ -6,6 +6,12 @@ namespace SV\AlertImprovements\XF\Entity;
 
 use XF\Mvc\Entity\Structure;
 
+/**
+ * Class UserAlert
+ *
+ * @property IsSummary
+ * @package SV\AlertImprovements\XF\Entity
+ */
 class UserAlert extends XFCP_UserAlert
 {
     public function getIsSummary()

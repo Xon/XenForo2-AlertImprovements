@@ -2,6 +2,21 @@
     "XF-Admin-Controller-User_SV-AlertImprovements-XF-Admin-Controller-User.json": {
         "hash": "b9b7bd2d2a2986b0bbcf75d22281bcdd"
     },
+    "XF-Alert-ConversationMessage_SV-AlertImprovements-XF-Alert-ConversationMessage.json": {
+        "hash": "9978354f0aa5f4d36bb5372222612ddb"
+    },
+    "XF-Alert-Post_SV-AlertImprovements-XF-Alert-Post.json": {
+        "hash": "999c31158ebb1ecfa4002c211bfe6d80"
+    },
+    "XF-Alert-ProfilePostComment_SV-AlertImprovements-XF-Alert-ProfilePostComment.json": {
+        "hash": "7944c3a52b88b38473f3a8165c50df6d"
+    },
+    "XF-Alert-ProfilePost_SV-AlertImprovements-XF-Alert-ProfilePost.json": {
+        "hash": "4e57c027b7ab367f10599ff241b56319"
+    },
+    "XF-Alert-User_SV-AlertImprovements-XF-Alert-User.json": {
+        "hash": "5d1cff5a58bb6b17823c58db792658d8"
+    },
     "XF-Entity-UserAlert_SV-AlertImprovements-XF-Entity-UserAlert.json": {
         "hash": "174a80ebaf45d0423ce5a3298d498ef8"
     },

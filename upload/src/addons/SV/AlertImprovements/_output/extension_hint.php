@@ -8,6 +8,15 @@ namespace SV\AlertImprovements\XF\Admin\Controller
 	class XFCP_User extends \XF\Admin\Controller\User {}
 }
 
+namespace SV\AlertImprovements\XF\Alert
+{
+	class XFCP_ConversationMessage extends \XF\Alert\ConversationMessage {}
+	class XFCP_Post extends \XF\Alert\Post {}
+	class XFCP_ProfilePost extends \XF\Alert\ProfilePost {}
+	class XFCP_ProfilePostComment extends \XF\Alert\ProfilePostComment {}
+	class XFCP_User extends \XF\Alert\User {}
+}
+
 namespace SV\AlertImprovements\XF\Entity
 {
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}

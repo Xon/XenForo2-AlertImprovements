@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\Alert\\ConversationMessage",
+    "to_class": "SV\\AlertImprovements\\XF\\Alert\\ConversationMessage",
+    "execute_order": 10,
+    "active": true
+}

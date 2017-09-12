@@ -46,6 +46,9 @@ class Account extends XFCP_Account
             Globals::$skipSummarize = true;
         }
 
+        $page = $this->filterPage();
+        Globals::$skipSummarize = $page > 1;
+
         $response = parent::actionAlerts();
         if ($response instanceof View)
         {
