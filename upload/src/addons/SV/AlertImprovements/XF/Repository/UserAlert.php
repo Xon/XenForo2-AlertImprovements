@@ -512,7 +512,6 @@ class UserAlert extends XFCP_UserAlert
         $visitor = \XF::visitor();
 
         $db = $this->db();
-        $db->beginTransaction();
 
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
@@ -530,7 +529,6 @@ class UserAlert extends XFCP_UserAlert
 
         if (empty($alertIds))
         {
-            $db->commit();
             return;
         }
 
@@ -558,8 +556,34 @@ class UserAlert extends XFCP_UserAlert
             }
             catch (\Exception $e)
             {
-                // todo: xon
-                throw $e;
+                if (stripos($e->getMessage(), "Deadlock found when trying to get lock; try restarting transaction") === false)
+                {
+                    throw $e;
+                }
+                if ($db->inTransaction())
+                {
+                    // why the hell are we inside a transaction?
+                    \XF::logException($e, false, 'Unexpected transaction; ');
+                    $rowsAffected = 0;
+                    $alerts_unread = $db->fetchOne(
+                        "
+                            SELECT COUNT(*)
+                            FROM xf_user_alert
+                            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL",
+                        [$visitor->user_id]
+                    );
+                    $visitor->setAsSaved('alerts_unread', $alerts_unread);
+                }
+                else
+                {
+                    $db->query(
+                        "
+                            UPDATE xf_user
+                            SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
+                            WHERE user_id = ?
+                        ", [$rowsAffected, $visitor->user_id]
+                    );
+                }
             }
 
             $alerts_unread = $visitor->alerts_unread - $rowsAffected;
