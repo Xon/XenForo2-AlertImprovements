@@ -133,7 +133,7 @@ class UserAlert extends XFCP_UserAlert
                              ->fetchOne();
         if (!$summaryAlert)
         {
-            @$db->rollbackAll();
+            $db->commit();
             return;
         }
         $summaryAlert->delete(false, false);
@@ -530,6 +530,7 @@ class UserAlert extends XFCP_UserAlert
 
         if (empty($alertIds))
         {
+            $db->commit();
             return;
         }
 
@@ -588,7 +589,7 @@ class UserAlert extends XFCP_UserAlert
                       ->fetchOne();
         if (empty($alert) || $readStatus === ($alert->view_date !== 0))
         {
-            @$db->rollback();
+            $db->commit();
 
             return $alert;
         }
