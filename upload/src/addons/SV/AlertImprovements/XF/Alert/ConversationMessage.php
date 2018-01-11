@@ -15,7 +15,7 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
 
     public function canSummarizeItem(array $alert)
     {
-        return $alert['action'] == 'like';
+        return $alert['action'] === 'like' || $alert['action'] === 'rating';
     }
 
     public function consolidateAlert(&$contentType, &$contentId, array $item)
@@ -31,7 +31,7 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
 
     function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
-        if ($groupingStyle != 'content')
+        if ($groupingStyle !== 'content')
         {
             return null;
         }

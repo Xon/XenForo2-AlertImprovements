@@ -14,7 +14,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
 
     public function canSummarizeItem(array $alert)
     {
-        return $alert['action'] == 'like' || $alert['action'] == 'rating';
+        return $alert['action'] === 'like' || $alert['action'] === 'rating';
     }
 
     public function consolidateAlert(&$contentType, &$contentId, array $item)
@@ -30,7 +30,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
 
     function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
-        if ($groupingStyle != 'content')
+        if ($groupingStyle !== 'content')
         {
             return null;
         }

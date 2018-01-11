@@ -14,7 +14,7 @@ class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAl
 
     public function canSummarizeItem(array $alert)
     {
-        return $alert['action'] == 'like';
+        return $alert['action'] === 'like' || $alert['action'] === 'rating';
     }
 
     public function consolidateAlert(&$contentType, &$contentId, array $item)
@@ -30,7 +30,7 @@ class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAl
 
     function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
-        if ($groupingStyle != 'content')
+        if ($groupingStyle !== 'content')
         {
             return null;
         }
