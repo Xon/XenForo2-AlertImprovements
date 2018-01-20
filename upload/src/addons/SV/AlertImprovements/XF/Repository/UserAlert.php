@@ -73,6 +73,10 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
+     * @param      $userId
+     * @param bool $force
+     * @param bool $ignoreReadState
+     * @param int  $summaryAlertViewDate
      * @return array[]
      */
     protected function checkSummarizeAlertsForUser($userId, $force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
@@ -98,20 +102,23 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
+     * @param bool $force
+     * @param bool $ignoreReadState
+     * @param int  $summaryAlertViewDate
      * @return array[]
      */
     protected function checkSummarizeAlerts($force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
     {
         if ($force || $this->canSummarizeAlerts())
         {
-            $summerizeToken = $this->getSummarizeLock();
+            $summarizeToken = $this->getSummarizeLock();
             try
             {
                 return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
             }
             finally
             {
-                $this->releaseSummarizeLock($summerizeToken);
+                $this->releaseSummarizeLock($summarizeToken);
             }
         }
 
@@ -227,13 +234,12 @@ class UserAlert extends XFCP_UserAlert
         $summarizeThreshold = isset($visitor->sv_alerts_summarize_threshold) ? $visitor->sv_alerts_summarize_threshold : 4;
 
 
+        /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = $this->finder('XF:UserAlert')
                        ->where('alerted_user_id', $userId)
                        ->order('event_date', 'desc');
 
-
         $finder->where('summerize_id', null);
-
 
         /** @var array $alerts */
         $alerts = $finder->fetchRaw();
@@ -271,19 +277,19 @@ class UserAlert extends XFCP_UserAlert
 
             $contentType  = $item['content_type'];
             $contentId    = $item['content_id'];
-            $contentUserd = $item['user_id'];
+            $contentUserId = $item['user_id'];
             if ($handler->consolidateAlert($contentType, $contentId, $item))
             {
                 $groupedContentAlerts[$contentType][$contentId][$id] = $item;
 
                 if ($userHandler && $userHandler->canSummarizeItem($item))
                 {
-                    if (!isset($groupedUserAlerts[$contentUserd]))
+                    if (!isset($groupedUserAlerts[$contentUserId]))
                     {
-                        $groupedUserAlerts[$contentUserd] = ['c' => 0, 'd' => []];
+                        $groupedUserAlerts[$contentUserId] = ['c' => 0, 'd' => []];
                     }
-                    $groupedUserAlerts[$contentUserd]['c']                                += 1;
-                    $groupedUserAlerts[$contentUserd]['d'][$contentType][$contentId][$id] = $item;
+                    $groupedUserAlerts[$contentUserId]['c'] += 1;
+                    $groupedUserAlerts[$contentUserId]['d'][$contentType][$contentId][$id] = $item;
                 }
             }
             else
