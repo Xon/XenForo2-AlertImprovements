@@ -373,27 +373,23 @@ class UserAlert extends XFCP_UserAlert
         {
             $db = $this->db();
 
-            $db->beginTransaction();
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unread = (SELECT COUNT(*)
+                    FROM xf_user_alert
+                    WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL)
+                WHERE user_id = ?
+            ', $visitor->user_id);
 
-            $db->query(
-                '
-                    SELECT user_id 
-                    FROM xf_user 
-                    WHERE user_id = ? FOR UPDATE 
-                ', $visitor->user_id
-            );
-
+            // this doesn't need to be in a transaction as it is an advisory read
             $alerts_unread = $db->fetchOne(
                 '
-                    SELECT COUNT(*)
-                    FROM xf_user_alert
-                    WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL
-                ', $userId
+                    SELECT alerts_unread 
+                    FROM xf_user 
+                    WHERE user_id = ?
+                ', $visitor->user_id
             );
-
-            $visitor->fastUpdate('alerts_unread', $alerts_unread);
-
-            $db->commit();
+            $visitor->setTrusted('alerts_unread', $alerts_unread);
         }
 
         uasort(
