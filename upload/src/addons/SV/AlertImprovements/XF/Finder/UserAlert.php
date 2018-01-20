@@ -72,7 +72,11 @@ class UserAlert extends XFCP_UserAlert
         // materialize raw entities into Entities
         foreach ($rawEntities as $rawEntity)
         {
-            $output[$rawEntity[$id]] = $em->instantiateEntity($shortname, $rawEntity);
+            $relations = [
+                'User'     => $em->findCached('XF:User', $rawEntity['user_id']),
+                'Receiver' => $em->findCached('XF:User', $rawEntity['alerted_user_id']),
+            ];
+            $output[$rawEntity[$id]] = $em->instantiateEntity($shortname, $rawEntity, $relations);
         }
 
         return $output;
