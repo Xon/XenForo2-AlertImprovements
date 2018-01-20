@@ -10,7 +10,8 @@ use XF\Mvc\Entity\Structure;
  * Class UserAlert
  *
  * @property bool IsSummary
- * @package SV\AlertImprovements\XF\Entity
+ * @property int summerize_id
+ * @property UserAlert SummaryAlert
  */
 class UserAlert extends XFCP_UserAlert
 {
@@ -38,7 +39,7 @@ class UserAlert extends XFCP_UserAlert
         $structure->relations['SummaryAlert'] = [
             'entity'     => 'XF:UserAlert',
             'type'       => self::TO_ONE,
-            'conditions' => 'alert_id',
+            'conditions' => [['alert_id', '=', '$summerize_id']],
             'primary'    => true
         ];
 

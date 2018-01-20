@@ -389,7 +389,7 @@ class UserAlert extends XFCP_UserAlert
                     WHERE user_id = ?
                 ', $visitor->user_id
             );
-            $visitor->setTrusted('alerts_unread', $alerts_unread);
+            $visitor->setAsSaved('alerts_unread', $alerts_unread);
         }
 
         uasort(
@@ -419,8 +419,6 @@ class UserAlert extends XFCP_UserAlert
      * @param int             $senderUserId
      * @param int             $summaryAlertViewDate
      * @return bool
-     * @throws \Exception
-     * @throws \XF\PrintableException
      */
     protected function insertSummaryAlert($handler, $summarizeThreshold, $contentType, $contentId, array $alertGrouping, &$grouped, array &$outputAlerts, $groupingStyle, $senderUserId, $summaryAlertViewDate)
     {
@@ -449,7 +447,7 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
         // database update
-        /** @var Alerts alert */
+        /** @var Alerts $alert */
         $alert = $this->em->create('XF:UserAlert');
         $alert->bulkSet($summaryAlert);
         $alert->save();
@@ -466,8 +464,8 @@ class UserAlert extends XFCP_UserAlert
         }
         */
         // hide the non-summary alerts
-        $db           = $this->db();
-        $stmt         = $db->query(
+        $db = $this->db();
+        $stmt = $db->query(
             '
             UPDATE xf_user_alert
             SET summerize_id = ?, view_date = ?
@@ -476,7 +474,7 @@ class UserAlert extends XFCP_UserAlert
         );
         $rowsAffected = $stmt->rowsAffected();
         // add to grouping
-        $grouped                    += $rowsAffected;
+        $grouped += $rowsAffected;
         $outputAlerts[$summerizeId] = $alert->toArray();
 
         return true;
