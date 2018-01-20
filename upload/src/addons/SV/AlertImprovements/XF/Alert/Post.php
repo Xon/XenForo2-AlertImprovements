@@ -3,7 +3,6 @@
 namespace SV\AlertImprovements\XF\Alert;
 
 use SV\AlertImprovements\ISummarizeAlert;
-use SV\AlertImprovements\XF\Entity\UserAlert;
 
 class Post extends XFCP_Post implements ISummarizeAlert
 {
@@ -19,7 +18,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
 
     public function consolidateAlert(&$contentType, &$contentId, array $item)
     {
-        switch($contentType)
+        switch ($contentType)
         {
             case 'post':
                 return true;
@@ -35,6 +34,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
             return null;
         }
         $summaryAlert['action'] = 'like_summary';
+
         return $summaryAlert;
     }
 }

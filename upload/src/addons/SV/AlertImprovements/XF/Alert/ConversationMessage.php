@@ -20,7 +20,7 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
 
     public function consolidateAlert(&$contentType, &$contentId, array $item)
     {
-        switch($contentType)
+        switch ($contentType)
         {
             case 'conversation_message':
                 return true;
@@ -35,6 +35,7 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
         {
             return null;
         }
+
         return $summaryAlert;
     }
 }

@@ -18,7 +18,7 @@ class Conversation extends XFCP_Conversation
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds = $messages->keys();
+                $contentIds  = $messages->keys();
                 $contentType = 'conversation_message';
 
                 /** @var UserAlert $alertRepo */

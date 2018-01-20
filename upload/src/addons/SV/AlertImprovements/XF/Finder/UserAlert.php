@@ -42,15 +42,15 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param array $rawAlerts
+     * @param array $rawEntities
      * @returns \SV\AlertImprovements\XF\Entity\UserAlert[]
      */
     public function materializeAlerts($rawEntities)
     {
         $output = [];
-        $em = $this->em;
+        $em     = $this->em;
 
-        $id = $this->structure->primaryKey;
+        $id        = $this->structure->primaryKey;
         $shortname = $this->structure->shortName;
 
         // bulk load users, really should track all joins/Withs.

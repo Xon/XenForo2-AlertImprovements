@@ -3,7 +3,6 @@
 namespace SV\AlertImprovements\XF\Alert;
 
 use SV\AlertImprovements\ISummarizeAlert;
-use SV\AlertImprovements\XF\Entity\UserAlert;
 
 class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAlert
 {
@@ -19,7 +18,7 @@ class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAl
 
     public function consolidateAlert(&$contentType, &$contentId, array $item)
     {
-        switch($contentType)
+        switch ($contentType)
         {
             case 'profile_post_comment':
                 return true;
@@ -34,6 +33,7 @@ class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAl
         {
             return null;
         }
+
         return $summaryAlert;
     }
 }

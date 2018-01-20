@@ -19,14 +19,14 @@ class Member extends XFCP_Member
             if ($visitor->user_id && $visitor->alerts_unread)
             {
                 $profilePostIds = $profilePosts->keys();
-                $contentType = 'profile_post';
+                $contentType    = 'profile_post';
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
                 $alertRepo->markAlertsReadForContentIds($contentType, $profilePostIds);
 
                 $contentType = 'profile_post_comment';
-                $contentIds = [];
+                $contentIds  = [];
 
                 foreach ($profilePosts AS $profilePost)
                 {
@@ -34,7 +34,7 @@ class Member extends XFCP_Member
                     {
                         foreach ($commentIds AS $commentId => $state)
                         {
-                            $commentId = intval($commentId);
+                            $commentId    = intval($commentId);
                             $contentIds[] = $commentId;
                         }
                     }

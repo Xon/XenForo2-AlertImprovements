@@ -9,7 +9,7 @@ use XF\Mvc\Entity\Structure;
 /**
  * Class UserAlert
  *
- * @property IsSummary
+ * @property bool IsSummary
  * @package SV\AlertImprovements\XF\Entity
  */
 class UserAlert extends XFCP_UserAlert
@@ -20,6 +20,7 @@ class UserAlert extends XFCP_UserAlert
         {
             return (bool)preg_match('/^.*_summary$/', $this->action);
         }
+
         return false;
     }
 
@@ -31,14 +32,14 @@ class UserAlert extends XFCP_UserAlert
 
         $structure->getters['isSummary'] = [
             'getter' => true,
-            'cache' => true
+            'cache'  => true
         ];
 
         $structure->relations['SummaryAlert'] = [
-            'entity' => 'XF:UserAlert',
-            'type' => self::TO_ONE,
+            'entity'     => 'XF:UserAlert',
+            'type'       => self::TO_ONE,
             'conditions' => 'alert_id',
-            'primary' => true
+            'primary'    => true
         ];
 
         return $structure;

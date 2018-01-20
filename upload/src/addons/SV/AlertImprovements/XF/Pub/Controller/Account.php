@@ -4,13 +4,12 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\XF\Repository\UserAlert;
-use XF\Db\Exception;
-use XF\Mvc\ParameterBag;
+use XF\Entity\User;
 use XF\Mvc\Reply\View;
 
 class Account extends XFCP_Account
 {
-    protected function preferencesSaveProcess(\XF\Entity\User $visitor)
+    protected function preferencesSaveProcess(User $visitor)
     {
         $form = parent::preferencesSaveProcess($visitor);
 
@@ -19,7 +18,7 @@ class Account extends XFCP_Account
                 'option' => [
                     'sv_alerts_page_skips_mark_read' => 'bool',
                     'sv_alerts_page_skips_summarize' => 'bool',
-                    'sv_alerts_summarize_threshold' => 'uint',
+                    'sv_alerts_summarize_threshold'  => 'uint',
                 ],
             ]
         );
@@ -49,9 +48,9 @@ class Account extends XFCP_Account
 
     public function actionAlerts()
     {
-        $visitor = \XF::visitor();
+        $visitor                = \XF::visitor();
         $explicitSkipMarkAsRead = $this->request->exists('skip_mark_read') ? $this->filter('skip_mark_read', 'bool') : null;
-        $explicitSkipSummarize = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
+        $explicitSkipSummarize  = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
 
         if (!empty($visitor->Option->sv_alerts_page_skips_mark_read) && $explicitSkipMarkAsRead === null)
         {

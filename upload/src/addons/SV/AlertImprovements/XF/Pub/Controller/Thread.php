@@ -18,7 +18,7 @@ class Thread extends XFCP_Thread
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds = $posts->keys();
+                $contentIds  = $posts->keys();
                 $contentType = 'post';
 
                 /** @var UserAlert $alertRepo */
@@ -40,7 +40,7 @@ class Thread extends XFCP_Thread
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds = $posts->keys();
+                $contentIds  = $posts->keys();
                 $contentType = 'post';
 
                 /** @var UserAlert $alertRepo */

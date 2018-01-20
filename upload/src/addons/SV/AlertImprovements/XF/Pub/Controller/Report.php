@@ -19,7 +19,7 @@ class Report extends XFCP_Report
             if ($visitor->user_id && $visitor->alerts_unread)
             {
                 $contentIds[] = $report->report_id;
-                $contentType = 'report';
+                $contentType  = 'report';
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');

@@ -64,6 +64,7 @@ class UserAlert extends XFCP_UserAlert
                 }
 
                 $alerts = array_slice($alerts, 0, $limit, true);
+
                 return $finder->materializeAlerts($alerts);
             }
         );
@@ -82,6 +83,7 @@ class UserAlert extends XFCP_UserAlert
             $user = $this->finder('XF:User')
                          ->where('user_id', $userId)
                          ->fetchOne();
+
             return \XF::asVisitor(
                 $user,
                 function () use ($force, $ignoreReadState, $summaryAlertViewDate) {
@@ -118,12 +120,12 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param int $summaryId
+     * @param int  $summaryId
      */
     public function insertUnsummarizedAlerts($user, $summaryId)
     {
         $userId = $user->user_id;
-        $db = $this->db();
+        $db     = $this->db();
         $db->beginTransaction();
 
         // Delete summary alert
@@ -134,6 +136,7 @@ class UserAlert extends XFCP_UserAlert
         if (!$summaryAlert)
         {
             $db->commit();
+
             return;
         }
         $summaryAlert->delete(false, false);
@@ -161,26 +164,25 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param $userId
-     * @return bool
+     * @return string|null
      */
     protected function getSummarizeLock()
     {
-        $visitor = \XF::visitor();
+        $visitor        = \XF::visitor();
         $summerizeToken = 'alertSummarize_' . $visitor->user_id;
-        $db = $this->db();
+        $db             = $this->db();
         if ($visitor->user_id &&
             $db->fetchOne("select get_lock(?, ?)", [$summerizeToken, 0.01]))
         {
             return $summerizeToken;
         }
 
-        return false;
+        return null;
     }
 
     /**
-     * @param $userId
-     * @return bool
+     * @param string|null $summerizeToken
+     * @return void
      */
     protected function releaseSummarizeLock($summerizeToken)
     {
@@ -203,8 +205,8 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        $visitor = \XF::visitor();
-        $summarizeThreshold = isset($user->sv_alerts_summarize_threshold) ? $visitor->sv_alerts_summarize_threshold : 4;
+        $visitor                  = \XF::visitor();
+        $summarizeThreshold       = isset($user->sv_alerts_summarize_threshold) ? $visitor->sv_alerts_summarize_threshold : 4;
         $summarizeUnreadThreshold = $summarizeThreshold * 2 > 25 ? 25 : $summarizeThreshold * 2;
 
         return $visitor->alerts_unread > $summarizeUnreadThreshold;
@@ -219,8 +221,9 @@ class UserAlert extends XFCP_UserAlert
      */
     public function summarizeAlerts($ignoreReadState, $summaryAlertViewDate)
     {
-        $visitor = \XF::visitor();
-        $userId = $visitor->user_id;
+        // TODO : finish summarizing alerts
+        $visitor            = \XF::visitor();
+        $userId             = $visitor->user_id;
         $summarizeThreshold = isset($visitor->sv_alerts_summarize_threshold) ? $visitor->sv_alerts_summarize_threshold : 4;
 
 
@@ -248,8 +251,8 @@ class UserAlert extends XFCP_UserAlert
 
         // collect alerts into groupings by content/id
         $groupedContentAlerts = [];
-        $groupedUserAlerts = [];
-        $groupedAlerts = false;
+        $groupedUserAlerts    = [];
+        $groupedAlerts        = false;
         foreach ($alerts AS $id => $item)
         {
             if ((!$ignoreReadState && $item['view_date']) ||
@@ -266,8 +269,8 @@ class UserAlert extends XFCP_UserAlert
                 continue;
             }
 
-            $contentType = $item['content_type'];
-            $contentId = $item['content_id'];
+            $contentType  = $item['content_type'];
+            $contentId    = $item['content_id'];
             $contentUserd = $item['user_id'];
             if ($handler->consolidateAlert($contentType, $contentId, $item))
             {
@@ -279,7 +282,7 @@ class UserAlert extends XFCP_UserAlert
                     {
                         $groupedUserAlerts[$contentUserd] = ['c' => 0, 'd' => []];
                     }
-                    $groupedUserAlerts[$contentUserd]['c'] += 1;
+                    $groupedUserAlerts[$contentUserd]['c']                                += 1;
                     $groupedUserAlerts[$contentUserd]['d'][$contentType][$contentId][$id] = $item;
                 }
             }
@@ -327,8 +330,8 @@ class UserAlert extends XFCP_UserAlert
                             if (isset($groupedContentAlerts[$contentType][$contentId][$id]))
                             {
                                 $alert['content_type_map'] = $contentType;
-                                $alert['content_id_map'] = $contentId;
-                                $userAlertGrouping[$id] = $alert;
+                                $alert['content_id_map']   = $contentId;
+                                $userAlertGrouping[$id]    = $alert;
                             }
                         }
                     }
@@ -414,6 +417,8 @@ class UserAlert extends XFCP_UserAlert
      * @param int             $senderUserId
      * @param int             $summaryAlertViewDate
      * @return bool
+     * @throws \Exception
+     * @throws \XF\PrintableException
      */
     protected function insertSummaryAlert($handler, $summarizeThreshold, $contentType, $contentId, array $alertGrouping, &$grouped, array &$outputAlerts, $groupingStyle, $senderUserId, $summaryAlertViewDate)
     {
@@ -448,7 +453,7 @@ class UserAlert extends XFCP_UserAlert
         $alert->save();
         $summerizeId = $alert->alert_id;
 
-        $batchIds = \XF\Util\Arr::arrayColumn($alertGrouping,'alert_id');
+        $batchIds = \XF\Util\Arr::arrayColumn($alertGrouping, 'alert_id');
         /*
         $batchIds = [];
         foreach ($alertGrouping as $hiddenAlert)
@@ -459,8 +464,8 @@ class UserAlert extends XFCP_UserAlert
         }
         */
         // hide the non-summary alerts
-        $db = $this->db();
-        $stmt = $db->query(
+        $db           = $this->db();
+        $stmt         = $db->query(
             '
             UPDATE xf_user_alert
             SET summerize_id = ?, view_date = ?
@@ -469,7 +474,7 @@ class UserAlert extends XFCP_UserAlert
         );
         $rowsAffected = $stmt->rowsAffected();
         // add to grouping
-        $grouped += $rowsAffected;
+        $grouped                    += $rowsAffected;
         $outputAlerts[$summerizeId] = $alert->toArray();
 
         return true;
@@ -481,7 +486,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function getAlertHandlersForConsolidation()
     {
-        $optOuts = $this->getAlertOptOuts();
+        $optOuts  = $this->getAlertOptOuts();
         $handlers = $this->getAlertHandlers();
         unset($handlers['bookmark_post_alt']);
         foreach ($handlers AS $key => $handler)
@@ -564,7 +569,7 @@ class UserAlert extends XFCP_UserAlert
                 {
                     // why the hell are we inside a transaction?
                     \XF::logException($e, false, 'Unexpected transaction; ');
-                    $rowsAffected = 0;
+                    $rowsAffected  = 0;
                     $alerts_unread = $db->fetchOne(
                         "
                             SELECT COUNT(*)
