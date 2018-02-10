@@ -563,8 +563,10 @@ class UserAlert extends XFCP_UserAlert
             /** @noinspection PhpRedundantCatchClauseInspection */
             catch (DeadlockException $e)
             {
-                 if ($db->inTransaction())
+                if ($db->inTransaction())
                 {
+                    $db->rollback();
+
                     // why the hell are we inside a transaction?
                     \XF::logException($e, false, 'Unexpected transaction; ');
                     $rowsAffected  = 0;
