@@ -5,6 +5,7 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\ISummarizeAlert;
+use XF\Db\DeadlockException;
 use XF\Entity\User;
 use XF\Mvc\Entity\Finder;
 use \SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
@@ -559,13 +560,10 @@ class UserAlert extends XFCP_UserAlert
                 ", [$rowsAffected, $visitor->user_id]
                 );
             }
-            catch (\Exception $e)
+            /** @noinspection PhpRedundantCatchClauseInspection */
+            catch (DeadlockException $e)
             {
-                if (stripos($e->getMessage(), "Deadlock found when trying to get lock; try restarting transaction") === false)
-                {
-                    throw $e;
-                }
-                if ($db->inTransaction())
+                 if ($db->inTransaction())
                 {
                     // why the hell are we inside a transaction?
                     \XF::logException($e, false, 'Unexpected transaction; ');
