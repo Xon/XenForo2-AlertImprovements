@@ -1,0 +1,28 @@
+<ol class="listPlain">
+	<xf:if is="$xf.options.sv_alerts_groupByDate">
+		<xf:foreach loop="$alerts" key="$date" value="$alertsDay">
+			<li>
+				<h2 class="block-formSectionHeader">{$date}</h2>
+				<ol class="listPlain">
+					<xf:foreach loop="$alertsDay" value="$alert">
+						<xf:if is="$alert.getHandler()">
+							<li data-alert-id="{$alert.alert_id}"
+								class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
+								<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
+							</li>
+						</xf:if>
+					</xf:foreach>
+				</ol>
+			</li>
+		</xf:foreach>
+	<xf:else />
+		<xf:foreach loop="$alerts" value="$alert">
+			<xf:if is="$alert.getHandler()">
+				<li data-alert-id="{$alert.alert_id}"
+					class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
+					<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
+				</li>
+			</xf:if>
+		</xf:foreach>
+	</xf:if>
+</ol>

@@ -67,6 +67,37 @@ class Account extends XFCP_Account
         if ($response instanceof View)
         {
             $response->setParam('markedAlertsRead', Globals::$markedAlertsRead);
+
+            if ($this->app->options()->sv_alerts_groupByDate)
+            {
+                /** @var \XF\Mvc\Entity\AbstractCollection $alerts */
+                $alerts = $response->getParam('alerts');
+                $newAlerts = [];
+                $language = $this->app()->language($visitor->language_id);
+                $timeRef = $language->getDayStartTimestamps();
+
+                /** @var \XF\Entity\UserAlert $alert */
+                foreach ($alerts AS $alert)
+                {
+                    $interval = $timeRef['now'] = $alert->event_date;
+                    list($date, $time) = $language->getDateTimeParts($alert->event_date);
+                    $groupedDate = $language->getRelativeDateTimeOutput($alert->event_date, $date, $time, false);
+
+                    if ($interval > -2)
+                    {
+                        if ($alert->event_date >= $timeRef['today'])
+                        {
+                            $groupedDate = \XF::phrase('sv_alertimprovements_today')->render();
+                        }
+                        else if ($alert->event_date >= $timeRef['yesterday'])
+                        {
+                            $groupedDate = \XF::phrase('sv_alertimprovements_yesterday')->render();
+                        }
+                    }
+                    $newAlerts[$groupedDate][$alert->alert_id] = $alert;
+                }
+                $response->setParam('alerts', $newAlerts);
+            }
         }
 
         if ($explicitSkipMarkAsRead === false)

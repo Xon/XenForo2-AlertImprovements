@@ -1,0 +1,1 @@
+Allows grouping of alerts by alert date.

@@ -1,4 +1,10 @@
 {
+    "option.sv_alerts_groupByDate.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "e3cbc594d81a8e7b6726dd1840f68b44"
+    },
     "option.sv_alerts_summerize.txt": {
         "global_cache": false,
         "version_id": 2000071,
@@ -10,6 +16,12 @@
         "version_id": 2000071,
         "version_string": "2.0.0",
         "hash": "52283f68d208f4c81afcfdfaadd405e9"
+    },
+    "option_explain.sv_alerts_groupByDate.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "8d5ed5c71123b9d66fb9f6c1fa2c35cf"
     },
     "option_explain.sv_alerts_summerize.txt": {
         "global_cache": false,
@@ -34,6 +46,18 @@
         "version_id": 2000071,
         "version_string": "2.0.0",
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "sv_alertimprovements_today.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "1dd1c5fb7f25cd41b291d43a89e3aefd"
+    },
+    "sv_alertimprovements_yesterday.txt": {
+        "global_cache": false,
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "ebfe9ce86e6e9fb953aa7a25b59c1956"
     },
     "sv_alerts_page_and_summary.txt": {
         "global_cache": false,

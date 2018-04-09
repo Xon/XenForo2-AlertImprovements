@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts",
+    "description": "Group alerts by date",
+    "execution_order": 15,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#(<ol class=\"listPlain\">.*?<\\/ol>)#s",
+    "replace": "<xf:include template=\"sv_alertimprovements_account_alerts_2\" />"
+}

@@ -28,5 +28,10 @@
         "version_id": 2000071,
         "version_string": "2.0.0",
         "hash": "2322cd570f68a0ea423a4f0194e30b49"
+    },
+    "public/sv_alertimprovements_account_alerts_2.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "e7c138a1604af083f61a7d360748f3bb"
     }
 }
