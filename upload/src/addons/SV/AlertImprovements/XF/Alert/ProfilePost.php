@@ -29,7 +29,7 @@ class ProfilePost extends XFCP_ProfilePost implements ISummarizeAlert
 
     function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
-        if ($groupingStyle != -'content')
+        if ($groupingStyle !== 'content')
         {
             return null;
         }

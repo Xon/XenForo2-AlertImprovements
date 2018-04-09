@@ -8,7 +8,7 @@ use SV\AlertImprovements\ISummarizeAlert;
 use XF\Db\DeadlockException;
 use XF\Entity\User;
 use XF\Mvc\Entity\Finder;
-use \SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
+use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
 class UserAlert extends XFCP_UserAlert
 {
@@ -232,8 +232,7 @@ class UserAlert extends XFCP_UserAlert
         // TODO : finish summarizing alerts
         $visitor            = \XF::visitor();
         $userId             = $visitor->user_id;
-        $summarizeThreshold = isset($visitor->sv_alerts_summarize_threshold) ? $visitor->sv_alerts_summarize_threshold : 4;
-
+        $summarizeThreshold = $visitor->Option->sv_alerts_summarize_threshold;
 
         /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = $this->finder('XF:UserAlert')
@@ -380,7 +379,7 @@ class UserAlert extends XFCP_UserAlert
                     FROM xf_user_alert
                     WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL)
                 WHERE user_id = ?
-            ', $visitor->user_id);
+            ', [$visitor->user_id, $visitor->user_id]);
 
             // this doesn't need to be in a transaction as it is an advisory read
             $alerts_unread = $db->fetchOne(
@@ -447,6 +446,7 @@ class UserAlert extends XFCP_UserAlert
         {
             return false;
         }
+
         // database update
         /** @var Alerts $alert */
         $alert = $this->em->create('XF:UserAlert');
@@ -480,7 +480,6 @@ class UserAlert extends XFCP_UserAlert
 
         return true;
     }
-
 
     /**
      * @return \XF\Alert\AbstractHandler[]|ISummarizeAlert[]

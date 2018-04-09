@@ -1,0 +1,1 @@
+Your message in the conversation {title} <a {link}>has been rated</a> {ratings}

@@ -1,0 +1,20 @@
+<xf:set var="$likeTotal" value="{{ 0 }}" />
+
+<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
+	<xf:set var="$likeTotal" value="{{ number($likeTotal+$count) }}" />
+</xf:foreach>
+
+<xf:if is="{$visitor.user_id} === {$content.profile_user_id}">
+	{{ phrase('your_status_post_has_been_liked_x', {
+		'likes': {$likeTotal},
+		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+		'status_attributes': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
+	}) }}
+<xf:else />
+	{{ phrase('your_post_on_ys_profile_has_been_liked_x', {
+		'likes': {$likeTotal},
+		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+		'post_attributes': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"',
+		'profile': {$content.profile_username}
+	}) }}
+</xf:if>

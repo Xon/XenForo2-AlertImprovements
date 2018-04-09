@@ -1,0 +1,39 @@
+<xf:set var="$ratingString">
+	<xf:foreach loop="$extra.ratings" key="$key" value="$rating">
+		<xf:if is="{$rating.count|number} > 0">
+			<xf:set var="$ratingIcon">
+				<xf:if is="{$rating.name}">
+					<xf:if is="{$rating.sprite_mode}">
+						<img src="styles/default/xenforo/clear.png" alt="{$rating.title}" title="{$rating.title}" style="background: url('styles/dark/ratings/{$rating.name}') no-repeat {$rating.sprite_params.x}px {$rating.sprite_params.y}px; width: {$rating.sprite_params.w}px; height: {$rating.sprite_params.h}px; vertical-align: middle;" />
+					<xf:else />
+						<img src="styles/dark/ratings/{$rating.name}" alt="{$rating.title}" title="{$rating.title}"  style="vertical-align:middle" />
+					</xf:if>
+				</xf:if>
+			</xf:set>
+			{{ $ratingIcon }} x <strong>{$rating.count|number}</strong>
+		</xf:if>
+	</xf:foreach>
+</xf:set>
+
+<xf:if is="{$extra.likesPhrase}">
+	<xf:set var="$likeString">
+		<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
+			{$extra.likesPhrase.{$contentType}}
+		</xf:foreach>
+	</xf:set>
+	
+	{{ phrase('sv_x_rated_y_content_z_times_with_l_likes', {
+		'count': {$extra.totalRatings},
+		'name': username_link($user, false, {'defaultname': $alert.username}),
+		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+		'ratings': {$ratingString|raw},
+		'likedcontent': {$likeString|raw}
+	}) }}
+<xx:else />
+	{{ phrase('sv_x_rated_y_content_z_times', {
+		'count': {$extra.totalRatings},
+		'name': username_link($user, false, {'defaultname': $alert.username}),
+		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+		'ratings': {$ratingString|raw}
+	}) }}
+</xf:if>

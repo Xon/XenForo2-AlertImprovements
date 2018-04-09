@@ -1,0 +1,11 @@
+<xf:set var="$likeTotal" value="{{ 0 }}" />
+
+<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
+	<xf:set var="$likeTotal" value="{{ number($likeTotal+$count) }}" />
+</xf:foreach>
+
+{{ phrase('your_post_in_the_thread_y_has_been_liked_x', {
+	'likes': {$likeTotal},
+	'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+	'title': '<a href="' . link('posts', $content) . '" class="fauxBlockLink-blockLink">' . prefix('thread', $content.Thread) . '</a>'
+}) }}

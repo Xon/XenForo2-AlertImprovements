@@ -1,0 +1,1 @@
+Your <a {post_attributes}>post</a> on {poster}'s profile <a {link}>has been liked</a> {likes} times

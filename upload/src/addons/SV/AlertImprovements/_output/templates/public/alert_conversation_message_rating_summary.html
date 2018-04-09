@@ -1,0 +1,22 @@
+<xf:set var="$ratingString">
+	<xf:foreach loop="$extra.ratings" key="$key" value="$rating">
+		<xf:if is="{$rating.count|number} > 0">
+			<xf:set var="$ratingIcon">
+				<xf:if is="{$rating.name}">
+					<xf:if is="{$rating.sprite_mode}">
+						<img src="styles/default/xenforo/clear.png" alt="{$rating.title}" title="{$rating.title}" style="background: url('styles/dark/ratings/{$rating.name}') no-repeat {$rating.sprite_params.x}px {$rating.sprite_params.y}px; width: {$rating.sprite_params.w}px; height: {$rating.sprite_params.h}px; vertical-align: middle;" />
+					<xf:else />
+						<img src="styles/dark/ratings/{$rating.name}" alt="{$rating.title}" title="{$rating.title}"  style="vertical-align:middle" />
+					</xf:if>
+				</xf:if>
+			</xf:set>
+			{{ $ratingIcon }} x <strong>{$rating.count|number}</strong>
+		</xf:if>
+	</xf:foreach>
+</xf:set>
+
+{{ phrase('your_message_in_the_conversation_y_has_been_rated_x', {
+	'ratings': {$ratingString|raw},
+	'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+	'title': '<a href="' . link('conversations/message', $content) . '" class="fauxBlockLink-blockLink">' . $content.Conversation.title . '</a>'
+}) }}

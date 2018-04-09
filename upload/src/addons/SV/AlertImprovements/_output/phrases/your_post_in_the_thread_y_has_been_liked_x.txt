@@ -1,0 +1,1 @@
+Your post in the thread {title} <a {link}>has been liked</a> {likes} times

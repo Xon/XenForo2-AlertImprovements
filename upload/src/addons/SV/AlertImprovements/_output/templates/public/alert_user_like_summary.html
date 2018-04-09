@@ -1,0 +1,11 @@
+<xf:set var="$likeString">
+	<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
+		{$extra.likesPhrase.{$contentType}}
+	</xf:foreach>
+</xf:set>
+
+{{ phrase('sv_x_liked_y_content_z_times', {
+	'name': username_link($user, false, {'defaultname': $alert.username}),
+	'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+	'likedcontent': {$likeString|raw}
+}) }}
