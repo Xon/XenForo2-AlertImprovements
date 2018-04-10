@@ -6,6 +6,8 @@ use SV\AlertImprovements\ISummarizeAlert;
 
 class ProfilePost extends XFCP_ProfilePost implements ISummarizeAlert
 {
+    use SummarizeAlertTrait;
+
     public function canSummarizeForUser(array $optOuts)
     {
         return empty($optOuts['profile_post_like']);
@@ -33,6 +35,8 @@ class ProfilePost extends XFCP_ProfilePost implements ISummarizeAlert
         {
             return null;
         }
+
+        $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
 
         return $summaryAlert;
     }

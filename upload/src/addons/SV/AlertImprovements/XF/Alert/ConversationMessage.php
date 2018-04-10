@@ -8,6 +8,8 @@ use XF\Mvc\Entity\Entity;
 
 class ConversationMessage extends XFCP_ConversationMessage implements ISummarizeAlert
 {
+    use SummarizeAlertTrait;
+
     public function canSummarizeForUser(array $optOuts)
     {
         return empty($optOuts['conversation_message_like']);
@@ -35,6 +37,8 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
         {
             return null;
         }
+
+        $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
 
         return $summaryAlert;
     }

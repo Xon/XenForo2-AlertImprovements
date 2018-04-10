@@ -1,5 +1,9 @@
-{{ phrase('your_post_in_the_thread_y_has_been_liked_x', {
-	'likes': {$extra.likes},
+<xf:set var="$rating">
+	<xf:macro template="sv_alertimprovements_macros" name="alert_rating_type" arg-alert="{$alert}" />
+</xf:set>
+
+{{ phrase('your_post_in_the_thread_y_has_been_rated_x', {
+	'ratings': {$rating},
 	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
 	'title': '<a href="' . link('posts', $content) . '" class="fauxBlockLink-blockLink">' . prefix('thread', $content.Thread) . $content.Thread.title . '</a>'
 }) }}

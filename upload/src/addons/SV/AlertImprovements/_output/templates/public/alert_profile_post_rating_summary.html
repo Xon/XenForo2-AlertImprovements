@@ -1,12 +1,16 @@
+<xf:set var="$rating">
+	<xf:macro template="sv_alertimprovements_macros" name="alert_rating_type" arg-alert="{$alert}" />
+</xf:set>
+
 <xf:if is="{$xf.visitor.user_id} === {$content.profile_user_id}">
-	{{ phrase('your_profile_post_has_been_liked_x', {
-		'likes': {$extra.likes},
+	{{ phrase('your_profile_post_has_been_rated_x', {
+		'ratings': {$rating},
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
 		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '"'
 	}) }}
 <xf:else />
-	{{ phrase('your_profile_post_on_ys_profile_has_been_liked_x', {
-		'likes': {$extra.likes},
+	{{ phrase('your_profile_post_on_ys_profile_has_been_rated_x', {
+		'ratings': {$rating},
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
 		'profileUserLink': '<a href="' . link('members', $content.ProfileUser) . '" class="fauxBlockLink-blockLink">' . $content.ProfileUser.username . '</a>',
 		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '"'

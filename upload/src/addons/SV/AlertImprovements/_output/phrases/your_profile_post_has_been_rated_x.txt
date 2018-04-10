@@ -1,0 +1,1 @@
+Your <a {profilePostLinkAttributes}>profile post</a> <a {unsummarizeAlertLinkAttributes}>has been rated</a> {ratings}

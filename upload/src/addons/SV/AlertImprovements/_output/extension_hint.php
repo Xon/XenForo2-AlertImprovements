@@ -19,6 +19,7 @@ namespace SV\AlertImprovements\XF\Alert
 
 namespace SV\AlertImprovements\XF\Entity
 {
+	class XFCP_AddOn extends \XF\Entity\AddOn {}
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}
 	class XFCP_UserOption extends \XF\Entity\UserOption {}
 }

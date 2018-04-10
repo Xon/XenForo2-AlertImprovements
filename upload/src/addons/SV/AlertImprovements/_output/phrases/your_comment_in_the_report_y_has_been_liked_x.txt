@@ -1,1 +1,1 @@
-Your comment on the report {title} <a {link}>has been liked</a> {likes} times
+Your comment on the report {title} <a {unsummarizeAlertLinkAttributes}>has been liked</a> {likes} times

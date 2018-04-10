@@ -32,7 +32,7 @@
     "public/alert_conversation_message_like_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "7cff6753bff031523d068cff00ff0d7f"
+        "hash": "1197d997d01e40bec9d98e837e3c6502"
     },
     "public/alert_conversation_message_rating_summary.html": {
         "version_id": 2000071,
@@ -42,37 +42,47 @@
     "public/alert_post_like_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "c225ca3516bbb9178329465c2234d066"
+        "hash": "c9791e8f75745f17a3c340cf2aab692f"
     },
-    "public/alert_post_rate_summary.html": {
+    "public/alert_post_rating_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "4401a7a697dd5ae68af75ee4ea8fc264"
+        "hash": "b752ba24fe43f8de5d81ae19d9984795"
     },
     "public/alert_profile_post_comment_like_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "39320ff2d573bcdaf76766738ec7f2d1"
+        "hash": "81a2d5a740ee0ea32f164d31d06d6f6e"
+    },
+    "public/alert_profile_post_comment_rating_summary.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "394af41cb8db2bf534cd9534b3ad48c6"
     },
     "public/alert_profile_post_like_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "1c4172b672c2a26d4da6f0e1b59d7fb4"
+        "hash": "af3f43366c259879e261fc40809d7733"
+    },
+    "public/alert_profile_post_rating_summary.html": {
+        "version_id": 2000071,
+        "version_string": "2.0.0",
+        "hash": "920a33fd5088805b537a4e82ee0d6981"
     },
     "public/alert_report_comment_like_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "485dffde9286ec09b9dadf28fc94af17"
+        "hash": "910057e7cc5189dd79e2b2dd3088a759"
     },
     "public/alert_user_like_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
         "hash": "a1673b1f9379ff7560a21b2e20357274"
     },
-    "public/alert_user_rate_summary.html": {
+    "public/alert_user_rating_summary.html": {
         "version_id": 2000071,
         "version_string": "2.0.0",
-        "hash": "a19deef7a57a02822664111d24ef0123"
+        "hash": "1f801ff9acb82c7eef98ffa06e59b329"
     },
     "public/sv_alertimprovements_account_alerts_2.html": {
         "version_id": 2000071,

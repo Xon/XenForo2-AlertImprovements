@@ -1,1 +1,1 @@
-On <a {link}>{count} of your posts</a>, {name} rated them {ratings}
+On <a {unsummarizeAlertLinkAttributes}>{count} of your posts</a>, {name} rated them {ratings}

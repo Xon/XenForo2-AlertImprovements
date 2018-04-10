@@ -1,1 +1,1 @@
-{name} <a {link}>liked {likedcontent}</a>
+{name} <a {unsummarizeAlertLinkAttributes}>liked {likedcontent}</a>

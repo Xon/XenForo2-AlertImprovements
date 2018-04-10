@@ -477,7 +477,7 @@ class UserAlert extends XFCP_UserAlert
                         throw new \LogicException("Invalid Like rating type provided.");
                     }
 
-                    if (empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
+                    if (!empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
                     {
                         $summaryAlert['extra_data'] = [
                             'likes' => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]
@@ -485,6 +485,20 @@ class UserAlert extends XFCP_UserAlert
                     }
                 }
             }
+        }
+        else if ($lastAlert['action'] === 'like')
+        {
+            $likesCounter = 0;
+            foreach ($alertGrouping AS $alert)
+            {
+                if ($alert['action'] === 'like')
+                {
+                    $likesCounter++;
+                }
+            }
+            $summaryAlert['extra_data'] = [
+                'likes' => $likesCounter
+            ];
         }
 
         if ($summaryAlert['extra_data'] === false)

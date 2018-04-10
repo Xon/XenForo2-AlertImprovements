@@ -7,6 +7,8 @@ use SV\AlertImprovements\XF\Entity\UserAlert;
 
 class User extends XFCP_User implements ISummarizeAlert
 {
+    use SummarizeAlertTrait;
+
     public function canSummarizeForUser(array $optOuts)
     {
         return true;
@@ -34,6 +36,8 @@ class User extends XFCP_User implements ISummarizeAlert
 
     function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
+        $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
+
         return $summaryAlert;
     }
 }
