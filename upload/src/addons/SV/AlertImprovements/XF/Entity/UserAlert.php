@@ -3,7 +3,7 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
-
+use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Structure;
 
 /**
@@ -12,6 +12,7 @@ use XF\Mvc\Entity\Structure;
  * @property bool IsSummary
  * @property int summerize_id
  * @property UserAlert SummaryAlert
+ * @property \SV\ContentRatings\Entity\RatingType[]|AbstractCollection sv_rating_types
  */
 class UserAlert extends XFCP_UserAlert
 {
@@ -27,13 +28,19 @@ class UserAlert extends XFCP_UserAlert
 
     public function getSvRatingTypes()
     {
-        if (is_array($this->extra_data['rating_type_id']))
+        if (isset($this->extra_data['rating_type_id']) && is_array($this->extra_data['rating_type_id']))
         {
-            $ratings = array_keys($this->extra_data['rating_type_id']);
-            return $this->finder('SV\ContentRatings:RatingType')
-                ->where('rating_type_id', '=', $ratings)
-                ->fetch();
+            $ratings = $this->extra_data['rating_type_id'];
+            /** @var \SV\ContentRatings\Repository\RatingType $ratingTypeRepo */
+            $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
+            $ratingTypes = $ratingTypeRepo->getRatingTypesAsEntities();
+
+            return $ratingTypes->filter(function ($item) use ($ratings) {
+                /** @var \SV\ContentRatings\Entity\RatingType $item */
+                return isset($ratings[$item->rating_type_id]);
+            });
         }
+
         return null;
     }
 
