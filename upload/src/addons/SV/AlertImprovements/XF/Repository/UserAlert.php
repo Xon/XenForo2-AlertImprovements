@@ -439,8 +439,59 @@ class UserAlert extends XFCP_UserAlert
             'action'          => $lastAlert['action'] . '_summary',
             'event_date'      => $lastAlert['event_date'],
             'view_date'       => $summaryAlertViewDate,
-            'extra_data'      => ['likes' => ['post' => count($alertGrouping)]],
+            'extra_data'      => []
         ];
+
+        if ($lastAlert['action'] === 'rating')
+        {
+            foreach ($alertGrouping AS $alert)
+            {
+                if (!empty($alert['extra_data']) && $alert['action'] === $lastAlert['action'])
+                {
+                    $extraData = @unserialize($alert['extra_data']);
+                    if (is_array($extraData))
+                    {
+                        foreach ($extraData AS $extraDataKey => $extraDataValue)
+                        {
+                            if (empty($summaryAlert['extra_data'][$extraDataKey][$extraDataValue]))
+                            {
+                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue] = 1;
+                            }
+                            else
+                            {
+                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue]++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!empty($summaryAlert['extra_data']['rating_type_id']))
+            {
+                if (is_array($summaryAlert['extra_data']['rating_type_id']) && count($summaryAlert['extra_data']['rating_type_id']) === 1)
+                {
+                    $likeRatingId = intval($this->app()->options()->svContentRatingsLikeRatingType);
+
+                    if (!$likeRatingId)
+                    {
+                        throw new \LogicException("Invalid Like rating type provided.");
+                    }
+
+                    if (empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
+                    {
+                        $summaryAlert['extra_data'] = [
+                            'likes' => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]
+                        ];
+                    }
+                }
+            }
+        }
+
+        if ($summaryAlert['extra_data'] === false)
+        {
+            $summaryAlert['extra_data'] = [];
+        }
+
         $summaryAlert = $handler->summarizeAlerts($summaryAlert, $alertGrouping, $groupingStyle);
         if (empty($summaryAlert))
         {

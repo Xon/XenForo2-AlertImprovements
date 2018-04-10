@@ -25,6 +25,18 @@ class UserAlert extends XFCP_UserAlert
         return false;
     }
 
+    public function getSvRatingTypes()
+    {
+        if (is_array($this->extra_data['rating_type_id']))
+        {
+            $ratings = array_keys($this->extra_data['rating_type_id']);
+            return $this->finder('SV\ContentRatings:RatingType')
+                ->where('rating_type_id', '=', $ratings)
+                ->fetch();
+        }
+        return null;
+    }
+
     public static function getStructure(Structure $structure)
     {
         $structure = parent::getStructure($structure);
@@ -35,6 +47,7 @@ class UserAlert extends XFCP_UserAlert
             'getter' => true,
             'cache'  => true
         ];
+        $structure->getters['sv_rating_types'] = true;
 
         $structure->relations['SummaryAlert'] = [
             'entity'     => 'XF:UserAlert',
