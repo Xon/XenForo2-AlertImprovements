@@ -30,7 +30,7 @@ class Thread extends XFCP_Thread
         return $reply;
     }
 
-    public function getNewPostsReply(\XF\Entity\Thread $thread, $lastDate)
+    protected function getNewPostsReply(\XF\Entity\Thread $thread, $lastDate)
     {
         $reply = parent::getNewPostsReply($thread, $lastDate);
 
