@@ -4,15 +4,13 @@
 	
 	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
 		<div class="sv-rating-type sv-rating-type--inline sv-rating-type--icon-only">
-			<div class="sv-rating-type__icon">
+			<div class="sv-rating-type__icon sv-alerts">
 				<xf:if is="{$ratingType}">	
-					<xf:macro template="sv_contentratings_macros" name="rating_type_icon" arg-ratingType="{$ratingType}" />
+					<xf:macro template="sv_contentratings_macros" name="rating_type_icon" arg-inline="1" arg-ratingType="{$ratingType}" />
 				</xf:if>
 			</div>
 
-			<div class="sv-rating-type__text">
-				{$alert.extra_data.rating_type_id.{$ratingTypeId}}
-			</div>
+			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$alert.extra_data.rating_type_id.{$ratingTypeId}}</div>
 		</div>
 	</xf:foreach>
 </xf:macro>
