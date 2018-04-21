@@ -66,6 +66,10 @@ class Account extends XFCP_Account
             $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
         }
         /** @var \SV\AlertImprovements\XF\Entity\UserAlert $alert */
+        if (!$alert)
+        {
+            return $this->notFound();
+        }
 
         /** @var \XF\Repository\UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
@@ -85,6 +89,7 @@ class Account extends XFCP_Account
         }
 
         $viewParams = [
+            'navParams' => ['alert_id' => $alert->alert_id],
             'alert'  => $alert,
             'alerts' => $alerts,
 

@@ -15,19 +15,38 @@
 		<div class="block-row"></div>
 		<xf:if is="$alerts is not empty">
 			<ol class="listPlain">
-				<xf:foreach loop="$alerts" value="$alert">
-					<li data-alert-id="{$alert.alert_id}"
-						class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
-						<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
-					</li>
-				</xf:foreach>
+				<xf:if is="$xf.options.sv_alerts_groupByDate">
+					<xf:foreach loop="$alerts" key="$date" value="$alertsDay">
+						<li>
+							<h2 class="block-formSectionHeader">{$date}</h2>
+							<ol class="listPlain">
+								<xf:foreach loop="$alertsDay" value="$alert">
+									<xf:if is="$alert.getHandler()">
+										<li data-alert-id="{$alert.alert_id}"
+											class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
+											<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
+										</li>
+									</xf:if>
+								</xf:foreach>
+							</ol>
+						</li>
+					</xf:foreach>
+				<xf:else />
+					<xf:foreach loop="$alerts" value="$alert">
+						<xf:if is="$alert.getHandler()">
+							<li data-alert-id="{$alert.alert_id}"
+								class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}">
+								<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
+							</li>
+						</xf:if>
+					</xf:foreach>
+				</xf:if>
 			</ol>
-			<xf:elseif is="$page <= 1" />
-				<div class="block-row">{{ phrase('you_do_not_have_any_recent_alerts') }}</div>
-			<xf:else />
-				<div class="block-row">{{ phrase('no_alerts_can_be_shown') }}</div>
-			<!-- {$summaryAlert} -->
-			<xf:pagenav link="account/alert" page="{$page}" perpage="{$perPage}" total="{$totalAlerts}" wrapperclass="block-outer block-outer--after" />
+		<xf:elseif is="$page <= 1" />
+			<div class="block-row">{{ phrase('you_do_not_have_any_recent_alerts') }}</div>
+		<xf:else />
+			<div class="block-row">{{ phrase('no_alerts_can_be_shown') }}</div>		
 		</xf:if>
 	</div>
+	<xf:pagenav params="{$navParams}" link="account/alert" page="{$page}" perpage="{$perPage}" total="{$totalAlerts}" wrapperclass="block-outer block-outer--after" />
 </div>
