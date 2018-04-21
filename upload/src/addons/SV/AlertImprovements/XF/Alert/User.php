@@ -3,7 +3,6 @@
 namespace SV\AlertImprovements\XF\Alert;
 
 use SV\AlertImprovements\ISummarizeAlert;
-use SV\AlertImprovements\XF\Entity\UserAlert;
 
 class User extends XFCP_User implements ISummarizeAlert
 {

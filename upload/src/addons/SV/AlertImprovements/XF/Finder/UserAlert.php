@@ -44,6 +44,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param array $rawEntities
      * @returns \SV\AlertImprovements\XF\Entity\UserAlert[]
+     * @return array
      */
     public function materializeAlerts($rawEntities)
     {

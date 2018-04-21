@@ -2,7 +2,6 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
-use SV\AlertImprovements\Globals;
 use XF\Mvc\Entity\Manager;
 use XF\Mvc\Entity\Structure;
 

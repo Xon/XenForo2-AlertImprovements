@@ -49,7 +49,7 @@ class UserAlert extends XFCP_UserAlert
     {
         /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = parent::findAlertsForUser($userId, $cutOff);
-        if (!Globals::$summerizationAlerts)
+        if (!Globals::$skipSummarize)
         {
             return $finder;
         }
@@ -218,8 +218,10 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        $visitor                  = \XF::visitor();
-        $summarizeThreshold       = isset($user->sv_alerts_summarize_threshold) ? $visitor->sv_alerts_summarize_threshold : 4;
+        $visitor = \XF::visitor();
+        /** @var \SV\AlertImprovements\XF\Entity\UserOption $option */
+        $option = $visitor->Option;
+        $summarizeThreshold = $option->sv_alerts_summarize_threshold;
         $summarizeUnreadThreshold = $summarizeThreshold * 2 > 25 ? 25 : $summarizeThreshold * 2;
 
         return $visitor->alerts_unread > $summarizeUnreadThreshold;
@@ -235,9 +237,11 @@ class UserAlert extends XFCP_UserAlert
     public function summarizeAlerts($ignoreReadState, $summaryAlertViewDate)
     {
         // TODO : finish summarizing alerts
-        $visitor            = \XF::visitor();
-        $userId             = $visitor->user_id;
-        $summarizeThreshold = $visitor->Option->sv_alerts_summarize_threshold;
+        $visitor = \XF::visitor();
+        $userId = $visitor->user_id;
+        /** @var \SV\AlertImprovements\XF\Entity\UserOption $option */
+        $option = $visitor->Option;
+        $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
         /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = $this->finder('XF:UserAlert')

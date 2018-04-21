@@ -3,6 +3,7 @@
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\Globals;
+use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
@@ -74,7 +75,7 @@ class Account extends XFCP_Account
         /** @var \XF\Repository\UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
 
-        Globals::$summerizationAlerts = false;
+        Globals::$skipSummarize = true;
         $alertsFinder = $alertRepo->findAlertsForUser($visitor->user_id);
         $alertsFinder->where('summerize_id', '=', $alertId);
         /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
@@ -105,16 +106,18 @@ class Account extends XFCP_Account
     public function actionAlerts()
     {
         $visitor = \XF::visitor();
+        /** @var UserOption $option */
+        $option = $visitor->Option;
         $explicitSkipMarkAsRead = $this->request->exists('skip_mark_read') ? $this->filter('skip_mark_read', 'bool') : null;
         $explicitSkipSummarize = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
 
-        if (!empty($visitor->Option->sv_alerts_page_skips_mark_read) && $explicitSkipMarkAsRead === null)
+        if (!empty($option->sv_alerts_page_skips_mark_read) && $explicitSkipMarkAsRead === null)
         {
             $this->request->set('skip_mark_read', 1);
         }
 
         $page = $this->filterPage();
-        if ($page > 1 || !empty($visitor->Option->sv_alerts_page_skips_summarize) || $explicitSkipSummarize)
+        if ($page > 1 || !empty($option->sv_alerts_page_skips_summarize) || $explicitSkipSummarize)
         {
             Globals::$skipSummarize = true;
         }
