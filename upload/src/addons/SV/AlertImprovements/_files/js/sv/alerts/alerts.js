@@ -7,8 +7,7 @@
 
 var SV = window.SV || {};
 
-/** @param {jQuery} $ jQuery Object */
-!function($, window, document, _undefined) {
+(function($, window, document, _undefined) {
     "use strict";
 
     SV.alertUnreadClick = XF.Click.newHandler({
@@ -48,4 +47,4 @@ var SV = window.SV || {};
     });
 
     XF.Click.register('mark-alert-unread', 'SV.alertUnreadClick');
-}(jQuery, window, document);
+} (jQuery, window, document));
