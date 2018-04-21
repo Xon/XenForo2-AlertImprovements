@@ -49,6 +49,11 @@ class UserAlert extends XFCP_UserAlert
     {
         /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = parent::findAlertsForUser($userId, $cutOff);
+        if (!Globals::$summerizationAlerts)
+        {
+            return $finder;
+        }
+
         $finder->where(['summerize_id', null]);
 
         $finder->shimSource(
@@ -666,6 +671,18 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
+     * @param      $alertId
+     * @return \SV\AlertImprovements\XF\Finder\UserAlert
+     */
+    public function findAlertForUser(User $user, $alertId)
+    {
+        return $this->finder('XF:UserAlert')
+                    ->where(['alert_id', $alertId])
+                    ->where(['alerted_user_id', $user->user_id]);
+    }
+
+    /**
+     * @param User $user
      * @param int  $alertId
      * @param bool $readStatus
      * @return Alerts
@@ -676,10 +693,7 @@ class UserAlert extends XFCP_UserAlert
         $db->beginTransaction();
 
         /** @var Alerts $alert */
-        $alert = $this->finder('XF:UserAlert')
-                      ->where(['alert_id', $alertId])
-                      ->where(['alerted_user_id', $user->user_id])
-                      ->fetchOne();
+        $alert = $this->findAlertForUser($user, $alertId)->fetchOne();
         if (empty($alert) || $readStatus === ($alert->view_date !== 0))
         {
             $db->commit();

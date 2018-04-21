@@ -5,6 +5,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\User;
+use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Reply\View;
 
 class Account extends XFCP_Account
@@ -46,11 +47,61 @@ class Account extends XFCP_Account
         return $this->redirect($this->buildLink('account/alerts'));
     }
 
+    public function actionAlert()
+    {
+        $visitor = \XF::visitor();
+        $alertId = $this->filter('alert_id', 'int');
+        $skipMarkAsRead = $this->filter('skip_mark_read', 'bool');
+        $page = $this->filterPage();
+        $perPage = $this->options()->alertsPerPage;
+
+        /** @var UserAlert $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        if (!$skipMarkAsRead && $page === 1)
+        {
+            $alert = $alertRepo->changeAlertStatus($visitor, $alertId, true);
+        }
+        else
+        {
+            $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
+        }
+        /** @var \SV\AlertImprovements\XF\Entity\UserAlert $alert */
+
+        /** @var \XF\Repository\UserAlert $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+
+        Globals::$summerizationAlerts = false;
+        $alertsFinder = $alertRepo->findAlertsForUser($visitor->user_id);
+        $alertsFinder->where('summerize_id', '=', $alertId);
+        /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
+        $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
+
+        $alertRepo->addContentToAlerts($alerts);
+        $alerts = $alerts->filterViewable();
+
+        if ($this->app->options()->sv_alerts_groupByDate)
+        {
+            $alerts = $this->groupAlertsByDay($alerts);
+        }
+
+        $viewParams = [
+            'alert'  => $alert,
+            'alerts' => $alerts,
+
+            'page'        => $page,
+            'perPage'     => $perPage,
+            'totalAlerts' => $alertsFinder->total()
+        ];
+        $view = $this->view('XF:Account\Alerts', 'account_alerts_summary', $viewParams);
+
+        return $this->addAccountWrapperParams($view, 'alerts');
+    }
+
     public function actionAlerts()
     {
-        $visitor                = \XF::visitor();
+        $visitor = \XF::visitor();
         $explicitSkipMarkAsRead = $this->request->exists('skip_mark_read') ? $this->filter('skip_mark_read', 'bool') : null;
-        $explicitSkipSummarize  = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
+        $explicitSkipSummarize = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
 
         if (!empty($visitor->Option->sv_alerts_page_skips_mark_read) && $explicitSkipMarkAsRead === null)
         {
@@ -72,30 +123,7 @@ class Account extends XFCP_Account
             {
                 /** @var \XF\Mvc\Entity\AbstractCollection $alerts */
                 $alerts = $response->getParam('alerts');
-                $newAlerts = [];
-                $language = $this->app()->language($visitor->language_id);
-                $timeRef = $language->getDayStartTimestamps();
-
-                /** @var \XF\Entity\UserAlert $alert */
-                foreach ($alerts AS $alert)
-                {
-                    $interval = $timeRef['now'] = $alert->event_date;
-                    list($date, $time) = $language->getDateTimeParts($alert->event_date);
-                    $groupedDate = $language->getRelativeDateTimeOutput($alert->event_date, $date, $time, false);
-
-                    if ($interval > -2)
-                    {
-                        if ($alert->event_date >= $timeRef['today'])
-                        {
-                            $groupedDate = \XF::phrase('sv_alertimprovements_today')->render();
-                        }
-                        else if ($alert->event_date >= $timeRef['yesterday'])
-                        {
-                            $groupedDate = \XF::phrase('sv_alertimprovements_yesterday')->render();
-                        }
-                    }
-                    $newAlerts[$groupedDate][$alert->alert_id] = $alert;
-                }
+                $newAlerts = $this->groupAlertsByDay($alerts);
                 $response->setParam('alerts', $newAlerts);
             }
         }
@@ -106,6 +134,40 @@ class Account extends XFCP_Account
         }
 
         return $response;
+    }
+
+    /**
+     * @param \XF\Mvc\Entity\AbstractCollection $alerts
+     * @return array
+     */
+    protected function groupAlertsByDay($alerts)
+    {
+        $newAlerts = [];
+        $language = $this->app()->language(\XF::visitor()->language_id);
+        $timeRef = $language->getDayStartTimestamps();
+
+        /** @var \XF\Entity\UserAlert $alert */
+        foreach ($alerts AS $alert)
+        {
+            $interval = $timeRef['now'] = $alert->event_date;
+            list($date, $time) = $language->getDateTimeParts($alert->event_date);
+            $groupedDate = $language->getRelativeDateTimeOutput($alert->event_date, $date, $time, false);
+
+            if ($interval > -2)
+            {
+                if ($alert->event_date >= $timeRef['today'])
+                {
+                    $groupedDate = \XF::phrase('sv_alertimprovements_today')->render();
+                }
+                else if ($alert->event_date >= $timeRef['yesterday'])
+                {
+                    $groupedDate = \XF::phrase('sv_alertimprovements_yesterday')->render();
+                }
+            }
+            $newAlerts[$groupedDate][$alert->alert_id] = $alert;
+        }
+
+        return $newAlerts;
     }
 
     public function actionUnreadAlert()
