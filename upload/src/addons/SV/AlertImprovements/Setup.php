@@ -16,7 +16,7 @@ class Setup extends AbstractSetup
     use StepRunnerUpgradeTrait;
     use StepRunnerUninstallTrait;
 
-    public function installStep1(array $stepParams = [])
+    public function installStep1()
     {
         $sm = \XF::db()->getSchemaManager();
         $sm->alterTable('xf_user_option', function (Alter $table)
@@ -27,7 +27,7 @@ class Setup extends AbstractSetup
         });
     }
 
-    public function installStep2(array $stepParams = [])
+    public function installStep2()
     {
         $sm = \XF::db()->getSchemaManager();
         $sm->alterTable('xf_user_alert', function (Alter $table)
@@ -36,15 +36,20 @@ class Setup extends AbstractSetup
         });
     }
 
-    public function installStep3(array $stepParams = [])
+    public function installStep3()
     {
         /** @var \XF\Entity\Option $entity */
         $entity = \XF::finder('XF:Option')->where(['option_id', 'registrationDefaults'])->fetchOne();
+        if (!$entity)
+        {
+            // wat
+            throw new \LogicException("XenForo install damaged, expected option registrationDefaults to exist");
+        }
         $registrationDefaults = $entity->option_value;
 
         if (!isset($registrationDefaults['sv_alerts_page_skips_mark_read']))
         {
-            $registrationDefaults['sv_alerts_page_skips_mark_read'] = 0;
+            $registrationDefaults['sv_alerts_page_skips_mark_read'] = 1;
         }
 
         if (!isset($registrationDefaults['sv_alerts_page_skips_summarize']))
@@ -61,9 +66,19 @@ class Setup extends AbstractSetup
         $entity->saveIfChanged();
     }
 
-    public function upgradeStep1(array $stepParams = [])
+    public function upgrade2000072Step1()
     {
-        $this->install($stepParams);
+        $this->installStep1();
+    }
+
+    public function upgrade2000072Step2()
+    {
+        $this->installStep1();
+    }
+
+    public function upgrade2000072Step3()
+    {
+        $this->installStep1();
     }
 
     public function uninstallStep1()
