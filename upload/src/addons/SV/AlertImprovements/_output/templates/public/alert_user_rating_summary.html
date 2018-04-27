@@ -3,28 +3,19 @@
 </xf:set>
 
 <xf:if is="trim($rating)">
-<xf:if is="{$extra.likesPhrase}">
 	<xf:set var="$likeString">
 		<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
 			{$extra.likesPhrase.{$contentType}}
 		</xf:foreach>
 	</xf:set>
-	
-	{{ phrase('sv_x_rated_y_content_z_times_with_l_likes', {
-		'count': {$extra.totalRatings},
-		'name': username_link($user, false, {'defaultname': $alert.username}),
-		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
-		'ratings': {$rating},
-		'likedcontent': {$likeString}
-	}) }}
-<xx:else />
+
 	{{ phrase('sv_x_rated_y_content_z_times', {
 		'count': {$extra.totalRatings},
 		'name': username_link($user, false, {'defaultname': $alert.username}),
-		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
-		'ratings': {$rating}
+		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
+		'ratings': {$rating},
+		'ratedcontent': {$likeString|raw}
 	}) }}
-</xf:if>
 <xf:elseif is="$extra.likes" />
 	<xf:include template="alert_user_like_summary" />
 </xf:if>

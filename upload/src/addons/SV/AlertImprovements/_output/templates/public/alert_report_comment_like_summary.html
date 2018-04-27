@@ -1,9 +1,10 @@
-<xf:set var="$likeCount">
-	<xf:macro template="sv_alertimprovements_macros" name="alert_rating_type" arg-alert="{$alert}" />
-</xf:set>
+<xf:set var="$likeTotal" value="{{ 0 }}" />
+<xf:foreach loop="$alert.extra_data.likes" key="$contentType" value="$count">
+	<xf:set var="$likeTotal" value="{{ $likeTotal + $count }}" />
+</xf:foreach>
 
 {{ phrase('your_comment_in_the_report_y_has_been_liked_x', {
-	'likes': {$likeCount|number},
+	'likes': {$likeTotal|number},
 	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
 	'title': '<a href="' . link('reports/comment', $content, 'report_comment_id={$content.report_comment_id}') . '" class="fauxBlockLink-blockLink">' . {$content.title} . '</a>'
 }) }}

@@ -6,6 +6,6 @@
 
 {{ phrase('sv_x_liked_y_content_z_times', {
 	'name': username_link($user, false, {'defaultname': $alert.username}),
-	'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
+	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
 	'likedcontent': {$likeString|raw}
 }) }}

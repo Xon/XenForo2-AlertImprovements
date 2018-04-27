@@ -145,15 +145,9 @@
     },
     "sv_x_rated_y_content_z_times.txt": {
         "global_cache": false,
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "5c2d06e6658cfd31f72674251f5936ed"
-    },
-    "sv_x_rated_y_content_z_times_with_l_likes.txt": {
-        "global_cache": false,
-        "version_id": 2000071,
-        "version_string": "2.0.0",
-        "hash": "b549019f29e9dca8c08a14cf88712ab9"
+        "hash": "8b7292f19f4683f432c1c10003bf78b1"
     },
     "x_of_conversation_messages.txt": {
         "global_cache": false,

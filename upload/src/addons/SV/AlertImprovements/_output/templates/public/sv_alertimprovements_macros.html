@@ -15,10 +15,3 @@
 	</xf:foreach>
 	</xf:if>
 </xf:macro>
-
-<xf:macro name="alert_like_type" arg-alert="!">
-	<xf:set var="$likeTotal" value="{{ 0 }}" />
-	<xf:foreach loop="$alert.extra_data.likes" key="$contentType" value="$count">
-		<xf:set var="$likeTotal" value="{{ $likeTotal + $count }}" />
-	</xf:foreach>
-</xf:macro>
