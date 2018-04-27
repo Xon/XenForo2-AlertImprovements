@@ -451,6 +451,7 @@ class UserAlert extends XFCP_UserAlert
             'view_date'       => $summaryAlertViewDate,
             'extra_data'      => []
         ];
+        $contentTypes = [];
 
         if ($lastAlert['action'] === 'rating')
         {
@@ -458,6 +459,12 @@ class UserAlert extends XFCP_UserAlert
             {
                 if (!empty($alert['extra_data']) && $alert['action'] === $lastAlert['action'])
                 {
+                    if (!isset($contentTypes[$alert['content_type']]))
+                    {
+                        $contentTypes[$alert['content_type']] = 0;
+                    }
+                    $contentTypes[$alert['content_type']]++;
+
                     $extraData = @unserialize($alert['extra_data']);
                     if (is_array($extraData))
                     {
@@ -484,7 +491,7 @@ class UserAlert extends XFCP_UserAlert
 
                     if ($likeRatingId && !empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
                     {
-                        $summaryAlert['extra_data']['likes'] = [$contentType => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]];
+                        $summaryAlert['extra_data']['likes'] = $summaryAlert['extra_data']['rating_type_id'][$likeRatingId];
                     }
                 }
             }
@@ -496,10 +503,20 @@ class UserAlert extends XFCP_UserAlert
             {
                 if ($alert['action'] === 'like')
                 {
+                    if (!isset($contentTypes[$alert['content_type']]))
+                    {
+                        $contentTypes[$alert['content_type']] = 0;
+                    }
+                    $contentTypes[$alert['content_type']]++;
                     $likesCounter++;
                 }
             }
-            $summaryAlert['extra_data']['likes'] = [$contentType => $likesCounter];
+            $summaryAlert['extra_data']['likes'] = $likesCounter;
+        }
+
+        if ($contentTypes)
+        {
+            $summaryAlert['extra_data']['ct'] = $contentTypes;
         }
 
         if ($summaryAlert['extra_data'] === false)

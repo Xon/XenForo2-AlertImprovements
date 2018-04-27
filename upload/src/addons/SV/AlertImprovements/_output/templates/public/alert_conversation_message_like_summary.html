@@ -1,10 +1,5 @@
-<xf:set var="$likeTotal" value="{{ 0 }}" />
-<xf:foreach loop="$alert.extra_data.likes" key="$contentType" value="$count">
-	<xf:set var="$likeTotal" value="{{ $likeTotal + $count }}" />
-</xf:foreach>
-
 {{ phrase('your_message_in_the_conversation_y_has_been_liked_x', {
-	'likes': {$likeTotal|number},
+	'likes': {$extra.likes|number},
 	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
 	'title': '<a href="' . link('conversations/message', $content) . '" class="fauxBlockLink-blockLink">' . $content.Conversation.title . '</a>'
 }) }}

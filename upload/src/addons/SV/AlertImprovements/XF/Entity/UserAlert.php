@@ -44,6 +44,33 @@ class UserAlert extends XFCP_UserAlert
         return null;
     }
 
+    public function getLikedContentSummary($glue = ' ')
+    {
+        $extra = $this->extra_data;
+        if (isset($extra['ct']) && is_array($extra['ct']))
+        {
+            $phrases = [];
+            foreach ($extra['ct'] as $contentType => $count)
+            {
+                if ($count)
+                {
+                    $contentTypePhrase = \XF::app()->getContentTypePhrase($contentType, $count > 1);
+                    if ($contentTypePhrase)
+                    {
+                        $phrases[] = \XF::phraseDeferred("sv_x_of_y_content_type", ['count' => $count, 'contentType' => \utf8_strtolower($contentTypePhrase)]);
+                    }
+                }
+            }
+
+            if ($phrases)
+            {
+                return join($glue, $phrases);
+            }
+        }
+
+        return '';
+    }
+
     public static function getStructure(Structure $structure)
     {
         $structure = parent::getStructure($structure);

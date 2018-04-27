@@ -4,17 +4,14 @@
 
 <xf:if is="trim($rating)">
 	<xf:set var="$likeString">
-		<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
-			{$extra.likesPhrase.{$contentType}}
-		</xf:foreach>
+		<xf:macro template="sv_alertimprovements_macros" name="alert_user_type" arg-alert="{$alert}" />
 	</xf:set>
 
 	{{ phrase('sv_x_rated_y_content_z_times', {
-		'count': {$extra.totalRatings},
 		'name': username_link($user, false, {'defaultname': $alert.username}),
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
 		'ratings': {$rating},
-		'ratedcontent': {$likeString|raw}
+		'ratedcontent': trim($likeString)
 	}) }}
 <xf:elseif is="$extra.likes" />
 	<xf:include template="alert_user_like_summary" />

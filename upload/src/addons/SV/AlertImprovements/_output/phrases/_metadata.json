@@ -143,41 +143,23 @@
         "version_string": "2.0.0",
         "hash": "ff26137257789d1f5662637db74b2dd1"
     },
+    "sv_x_of_y_content_type.txt": {
+        "global_cache": false,
+        "version_id": 2000072,
+        "version_string": "2.0.0",
+        "hash": "1596f1c5de28019b7e33e24955cdae46"
+    },
     "sv_x_rated_y_content_z_times.txt": {
         "global_cache": false,
         "version_id": 2000072,
         "version_string": "2.0.0",
         "hash": "8b7292f19f4683f432c1c10003bf78b1"
     },
-    "x_of_conversation_messages.txt": {
+    "x_of_content.txt": {
         "global_cache": false,
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "53050997c0cea38c70b08eacd465266e"
-    },
-    "x_of_posts.txt": {
-        "global_cache": false,
-        "version_id": 2000071,
-        "version_string": "2.0.0",
-        "hash": "9029baa934aca3263c2d3a65447f4960"
-    },
-    "x_of_profile_post_comments.txt": {
-        "global_cache": false,
-        "version_id": 2000071,
-        "version_string": "2.0.0",
-        "hash": "a1e7c1ec6fee25e75c09fcba60529333"
-    },
-    "x_of_profile_posts.txt": {
-        "global_cache": false,
-        "version_id": 2000071,
-        "version_string": "2.0.0",
-        "hash": "d88ed26096ff003a9867609d4496f8d9"
-    },
-    "x_of_report_comments.txt": {
-        "global_cache": false,
-        "version_id": 2000071,
-        "version_string": "2.0.0",
-        "hash": "9007b26722a74a4f697bf30c5b286fd4"
+        "hash": "29c1b5b5001ee344d6dd5ec2115a874f"
     },
     "your_comment_in_the_report_y_has_been_liked_x.txt": {
         "global_cache": false,
