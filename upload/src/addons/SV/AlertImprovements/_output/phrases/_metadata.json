@@ -191,6 +191,12 @@
         "version_string": "2.0.0",
         "hash": "096737cfa2619258a82fbb2efc72ce80"
     },
+    "your_comment_in_the_report_y_has_been_rated_x.txt": {
+        "global_cache": false,
+        "version_id": 2000072,
+        "version_string": "2.0.0",
+        "hash": "aee9e7de11371a8f173c8ea872b5b2a0"
+    },
     "your_comment_on_ys_profile_post_has_been_liked_x.txt": {
         "global_cache": false,
         "version_id": 2000071,

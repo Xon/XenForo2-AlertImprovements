@@ -1,0 +1,1 @@
+Your post in the thread {title} <a {unsummarizeAlertLinkAttributes}>has been rated</a> {ratings}

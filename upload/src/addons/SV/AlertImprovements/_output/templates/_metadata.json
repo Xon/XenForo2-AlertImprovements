@@ -40,12 +40,12 @@
         "hash": "b304a7cc02669578a15802a7cad83383"
     },
     "public/alert_post_like_summary.html": {
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
         "hash": "c9791e8f75745f17a3c340cf2aab692f"
     },
     "public/alert_post_rating_summary.html": {
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
         "hash": "b752ba24fe43f8de5d81ae19d9984795"
     },
@@ -70,9 +70,14 @@
         "hash": "920a33fd5088805b537a4e82ee0d6981"
     },
     "public/alert_report_comment_like_summary.html": {
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "910057e7cc5189dd79e2b2dd3088a759"
+        "hash": "8ab6386469f7b2e3f13dd369ecbbc494"
+    },
+    "public/alert_report_comment_rating_summary.html": {
+        "version_id": 2000072,
+        "version_string": "2.0.0",
+        "hash": "d0a9089ef1dc4f309a2d438f5ca91afd"
     },
     "public/alert_user_like_summary.html": {
         "version_id": 2000071,
