@@ -481,9 +481,7 @@ class UserAlert extends XFCP_UserAlert
 
                     if ($likeRatingId && !empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
                     {
-                        $summaryAlert['extra_data'] = [
-                            'likes' => [$contentType => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]]
-                        ];
+                        $summaryAlert['extra_data']['likes'] = [$contentType => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]];
                     }
                 }
             }
@@ -498,9 +496,7 @@ class UserAlert extends XFCP_UserAlert
                     $likesCounter++;
                 }
             }
-            $summaryAlert['extra_data'] = [
-                'likes' => [$contentType => $likesCounter]
-            ];
+            $summaryAlert['extra_data']['likes'] = [$contentType => $likesCounter];
         }
 
         if ($summaryAlert['extra_data'] === false)
