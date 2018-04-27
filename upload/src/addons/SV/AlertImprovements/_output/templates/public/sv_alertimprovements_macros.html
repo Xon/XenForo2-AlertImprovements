@@ -1,5 +1,5 @@
 <xf:macro name="alert_rating_type" arg-alert="!">
-	<xf:if is="is_addon_active('SV/ContentRating')">
+	<xf:if is="is_addon_active('SV/ContentRatings') && is_addon_active('SV/AlertImprovements')">
 	<xf:css src="sv_contentratings.less" />
 	
 	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
