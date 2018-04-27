@@ -479,12 +479,7 @@ class UserAlert extends XFCP_UserAlert
                 {
                     $likeRatingId = intval($this->app()->options()->svContentRatingsLikeRatingType);
 
-                    if (!$likeRatingId)
-                    {
-                        throw new \LogicException("Invalid Like rating type provided.");
-                    }
-
-                    if (!empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
+                    if ($likeRatingId && !empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
                     {
                         $summaryAlert['extra_data'] = [
                             'likes' => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]
