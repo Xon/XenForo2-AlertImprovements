@@ -81,6 +81,11 @@ class Setup extends AbstractSetup
         $this->installStep1();
     }
 
+    public function upgrade2000073Step1()
+    {
+        $this->db()->query("delete from xf_user_alert where action like '%_like_summary' OR action like '%_rate_summary' ");
+    }
+
     public function uninstallStep1()
     {
         $sm = \XF::db()->getSchemaManager();
