@@ -76,7 +76,16 @@ class Account extends XFCP_Account
         $alertRepo = $this->repository('XF:UserAlert');
 
         Globals::$skipSummarize = true;
-        $alertsFinder = $alertRepo->findAlertsForUser($visitor->user_id);
+        Globals::$skipSummarizeFilter = true;
+        try
+        {
+            $alertsFinder = $alertRepo->findAlertsForUser($visitor->user_id);
+        }
+        finally
+        {
+            Globals::$skipSummarize = false;
+            Globals::$skipSummarizeFilter = false;
+        }
         $alertsFinder->where('summerize_id', '=', $alertId);
         /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
         $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
@@ -121,8 +130,14 @@ class Account extends XFCP_Account
         {
             Globals::$skipSummarize = true;
         }
-
-        $response = parent::actionAlerts();
+        try
+        {
+            $response = parent::actionAlerts();
+        }
+        finally
+        {
+            Globals::$skipSummarize = false;
+        }
         if ($response instanceof View)
         {
             $response->setParam('markedAlertsRead', Globals::$markedAlertsRead);

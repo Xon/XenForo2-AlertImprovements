@@ -9,6 +9,7 @@ class Globals
 {
     public static $markedAlertsRead = false;
     public static $skipSummarize = false;
+    public static $skipSummarizeFilter = false;
 
     private function __construct() {}
 }

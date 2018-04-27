@@ -49,7 +49,10 @@ class UserAlert extends XFCP_UserAlert
     {
         /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = parent::findAlertsForUser($userId, $cutOff);
-        $finder->where(['summerize_id', null]);
+        if (!Globals::$skipSummarizeFilter)
+        {
+            $finder->where(['summerize_id', null]);
+        }
         if (Globals::$skipSummarize)
         {
             return $finder;
