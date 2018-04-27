@@ -1,5 +1,4 @@
-<xf:macro name="alert_rating_type"
-	arg-alert="{{ null }}">
+<xf:macro name="alert_rating_type" arg-alert="!">
 	<xf:if is="is_addon_active('SV/ContentRating')">
 	<xf:css src="sv_contentratings.less" />
 	
@@ -11,8 +10,15 @@
 				</xf:if>
 			</div>
 
-			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$alert.extra_data.rating_type_id.{$ratingTypeId}}</div>
+			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$alert.extra_data.rating_type_id.{$ratingTypeId}|number}</div>
 		</div>
 	</xf:foreach>
 	</xf:if>
+</xf:macro>
+
+<xf:macro name="alert_like_type" arg-alert="!">
+	<xf:set var="$likeTotal" value="{{ 0 }}" />
+	<xf:foreach loop="$alert.extra_data.likes" key="$contentType" value="$count">
+		<xf:set var="$likeTotal" value="{{ $likeTotal + $count }}" />
+	</xf:foreach>
 </xf:macro>

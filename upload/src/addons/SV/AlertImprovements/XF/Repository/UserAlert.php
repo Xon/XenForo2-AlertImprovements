@@ -482,7 +482,7 @@ class UserAlert extends XFCP_UserAlert
                     if ($likeRatingId && !empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
                     {
                         $summaryAlert['extra_data'] = [
-                            'likes' => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]
+                            'likes' => [$contentType => $summaryAlert['extra_data']['rating_type_id'][$likeRatingId]]
                         ];
                     }
                 }
@@ -499,7 +499,7 @@ class UserAlert extends XFCP_UserAlert
                 }
             }
             $summaryAlert['extra_data'] = [
-                'likes' => $likesCounter
+                'likes' => [$contentType => $likesCounter]
             ];
         }
 

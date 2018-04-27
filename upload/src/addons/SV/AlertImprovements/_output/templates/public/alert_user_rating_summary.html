@@ -2,6 +2,7 @@
 	<xf:macro template="sv_alertimprovements_macros" name="alert_rating_type" arg-alert="{$alert}" />
 </xf:set>
 
+<xf:if is="trim($rating)">
 <xf:if is="{$extra.likesPhrase}">
 	<xf:set var="$likeString">
 		<xf:foreach loop="$extra.likes" key="$contentType" value="$count">
@@ -23,4 +24,7 @@
 		'link': link('account/alert', false, {'alert_id': $alert.alert_id}),
 		'ratings': {$rating}
 	}) }}
+</xf:if>
+<xf:elseif is="$extra.likes" />
+	<xf:include template="alert_user_like_summary" />
 </xf:if>
