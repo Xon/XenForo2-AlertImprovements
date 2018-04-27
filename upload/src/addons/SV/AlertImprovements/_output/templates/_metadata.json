@@ -35,9 +35,9 @@
         "hash": "1197d997d01e40bec9d98e837e3c6502"
     },
     "public/alert_conversation_message_rating_summary.html": {
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "b304a7cc02669578a15802a7cad83383"
+        "hash": "9d534d80b7c5edd4d7d3de804ee9b121"
     },
     "public/alert_post_like_summary.html": {
         "version_id": 2000072,
@@ -47,7 +47,7 @@
     "public/alert_post_rating_summary.html": {
         "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "b752ba24fe43f8de5d81ae19d9984795"
+        "hash": "b74bb8b17cb0e785bcdc40040426c95e"
     },
     "public/alert_profile_post_comment_like_summary.html": {
         "version_id": 2000071,
@@ -55,9 +55,9 @@
         "hash": "81a2d5a740ee0ea32f164d31d06d6f6e"
     },
     "public/alert_profile_post_comment_rating_summary.html": {
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "394af41cb8db2bf534cd9534b3ad48c6"
+        "hash": "30560656aaf66fe0371889d61984caa6"
     },
     "public/alert_profile_post_like_summary.html": {
         "version_id": 2000071,
@@ -65,9 +65,9 @@
         "hash": "af3f43366c259879e261fc40809d7733"
     },
     "public/alert_profile_post_rating_summary.html": {
-        "version_id": 2000071,
+        "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "920a33fd5088805b537a4e82ee0d6981"
+        "hash": "630cd1198ecde9d3fd138b27773e34ac"
     },
     "public/alert_report_comment_like_summary.html": {
         "version_id": 2000072,
@@ -77,7 +77,7 @@
     "public/alert_report_comment_rating_summary.html": {
         "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "d0a9089ef1dc4f309a2d438f5ca91afd"
+        "hash": "b932b96810511d4f4ba09cac9ff9e970"
     },
     "public/alert_user_like_summary.html": {
         "version_id": 2000071,
@@ -97,6 +97,6 @@
     "public/sv_alertimprovements_macros.html": {
         "version_id": 2000072,
         "version_string": "2.0.0",
-        "hash": "ac4224b04ae7761b7f4f052040c3646c"
+        "hash": "bfcd903fda9c128ffc1189a1914a8f95"
     }
 }

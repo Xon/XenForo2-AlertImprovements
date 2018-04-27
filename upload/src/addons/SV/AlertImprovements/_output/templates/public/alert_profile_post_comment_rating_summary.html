@@ -2,6 +2,7 @@
 	<xf:macro template="sv_alertimprovements_macros" name="alert_rating_type" arg-alert="{$alert}" />
 </xf:set>
 
+<xf:if is="trim($rating)">
 <xf:if is="{$xf.visitor.user_id} === {$content.ProfilePost.profile_user_id}">
 	{{ phrase('your_profile_comment_has_been_rated_x', {
 		'ratings': {$rating},
@@ -17,4 +18,7 @@
 		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content.ProfilePost) . '"',
 		'profilePostCommentLinkAttributes': 'href="' . link('profile-posts/comments', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
+</xf:if>
+<xf:elseif is="$extra.likes" />
+	<xf:include template="alert_profile_post_comment_like_summary" />
 </xf:if>

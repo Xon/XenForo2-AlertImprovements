@@ -1,5 +1,6 @@
 <xf:macro name="alert_rating_type"
 	arg-alert="{{ null }}">
+	<xf:if is="is_addon_active('SV/ContentRating')">
 	<xf:css src="sv_contentratings.less" />
 	
 	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
@@ -13,4 +14,5 @@
 			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$alert.extra_data.rating_type_id.{$ratingTypeId}}</div>
 		</div>
 	</xf:foreach>
+	</xf:if>
 </xf:macro>
