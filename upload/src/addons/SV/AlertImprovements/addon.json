@@ -3,11 +3,11 @@
     "title": "Alert Improvements",
     "description": "A collection of improvements to the XenForo 2 Alerts system.",
     "version_string": "2.0.0",
-    "version_id": 2000073,
+    "version_id": 2000074,
     "dev" : "Xon",
     "dev_url": "https://atelieraphelion.com/",
     "faq_url": "",
-    "support_url": "",
+    "support_url": "https://xenforo.com/community/resources/alert-improvements-by-xon.6398/",
     "extra_urls": [],
     "require" : {
         "XF": [
