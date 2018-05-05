@@ -83,7 +83,7 @@ class Setup extends AbstractSetup
 
     public function upgrade2000073Step1()
     {
-        $this->db()->query("delete from xf_user_alert where action like '%_like_summary' OR action like '%_rate_summary' ");
+        $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary') ");
     }
 
     public function uninstallStep1()
@@ -100,9 +100,7 @@ class Setup extends AbstractSetup
 
     public function uninstallStep2()
     {
-        $this->db()->delete('xf_user_alert', [
-            'summerize_id IS NULL'
-        ]);
+        $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary') ");
     }
 
     public function uninstallStep3()
