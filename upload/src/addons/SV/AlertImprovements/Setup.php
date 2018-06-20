@@ -100,7 +100,7 @@ class Setup extends AbstractSetup
 
     public function uninstallStep2()
     {
-        $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary') ");
+        $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND `action` like '%_summary' ");
     }
 
     public function uninstallStep3()
