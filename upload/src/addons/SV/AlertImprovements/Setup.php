@@ -38,52 +38,31 @@ class Setup extends AbstractSetup
 
     public function installStep3()
     {
-        /** @var \XF\Entity\Option $entity */
-        $entity = \XF::finder('XF:Option')->where(['option_id', 'registrationDefaults'])->fetchOne();
-        if (!$entity)
-        {
-            // wat
-            throw new \LogicException("XenForo install damaged, expected option registrationDefaults to exist");
-        }
-        $registrationDefaults = $entity->option_value;
-
-        if (!isset($registrationDefaults['sv_alerts_page_skips_mark_read']))
-        {
-            $registrationDefaults['sv_alerts_page_skips_mark_read'] = 1;
-        }
-
-        if (!isset($registrationDefaults['sv_alerts_page_skips_summarize']))
-        {
-            $registrationDefaults['sv_alerts_page_skips_summarize'] = 0;
-        }
-
-        if (!isset($registrationDefaults['sv_alerts_summarize_threshold']))
-        {
-            $registrationDefaults['sv_alerts_summarize_threshold'] = 4;
-        }
-
-        $entity->option_value = $registrationDefaults;
-        $entity->saveIfChanged();
-    }
-
-    public function upgrade2000072Step1()
-    {
-        $this->installStep1();
-    }
-
-    public function upgrade2000072Step2()
-    {
-        $this->installStep1();
-    }
-
-    public function upgrade2000072Step3()
-    {
-        $this->installStep1();
+        $this->applyRegistrationDefaults([
+            'sv_alerts_page_skips_mark_read' => 1,
+            'sv_alerts_page_skips_summarize' => 0,
+            'sv_alerts_summarize_threshold'  => 4
+        ]);
     }
 
     public function upgrade2000073Step1()
     {
         $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary') ");
+    }
+
+    public function upgrade2000300Step1()
+    {
+        $this->installStep1();
+    }
+
+    public function upgrade2000300Step2()
+    {
+        $this->installStep2();
+    }
+
+    public function upgrade2000300Step3()
+    {
+        $this->installStep3();
     }
 
     public function uninstallStep1()
@@ -111,6 +90,35 @@ class Setup extends AbstractSetup
         {
             $table->dropColumns('summerize_id');
         });
+    }
+
+    /**
+     * @param array $newRegistrationDefaults
+     */
+    protected function applyRegistrationDefaults(array $newRegistrationDefaults)
+    {
+        /** @var \XF\Entity\Option $option */
+        $option = $this->app->finder('XF:Option')
+                            ->where('option_id', '=', 'registrationDefaults')
+                            ->fetchOne();
+
+        if (!$option)
+        {
+            // Option: Mr. XenForo I don't feel so good
+            throw new \LogicException("XenForo installation is damaged. Expected option 'registrationDefaults' to exist.");
+        }
+        $registrationDefaults = $option->option_value;
+
+        foreach ($newRegistrationDefaults AS $optionName => $optionDefault)
+        {
+            if (!isset($registrationDefaults[$optionName]))
+            {
+                $registrationDefaults[$optionName] = $optionDefault;
+            }
+        }
+
+        $option->option_value = $registrationDefaults;
+        $option->saveIfChanged();
     }
 
     /**

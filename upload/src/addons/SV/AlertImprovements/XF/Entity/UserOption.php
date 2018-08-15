@@ -14,6 +14,18 @@ use XF\Mvc\Entity\Structure;
  */
 class UserOption extends XFCP_UserOption
 {
+    protected function _setupDefaults()
+    {
+        parent::_setupDefaults();
+
+        $options = \XF::options();
+
+        $defaults = $options->registrationDefaults;
+        $this->sv_alerts_page_skips_mark_read = $defaults['sv_alerts_page_skips_mark_read'] ? true : false;
+        $this->sv_alerts_page_skips_summarize = $defaults['sv_alerts_page_skips_summarize'] ? true : false;
+        $this->sv_alerts_summarize_threshold = $defaults['sv_alerts_summarize_threshold'];
+    }
+
     /**
      * @param Structure $structure
      * @return Structure
