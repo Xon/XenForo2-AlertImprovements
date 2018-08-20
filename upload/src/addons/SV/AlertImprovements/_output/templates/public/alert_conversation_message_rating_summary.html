@@ -5,7 +5,7 @@
 <xf:if is="trim($rating)">
 {{ phrase('your_message_in_the_conversation_y_has_been_rated_x', {
 	'ratings': {$rating},
-	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
+	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
 	'title': '<a href="' . link('conversations/message', $content) . '" class="fauxBlockLink-blockLink">' . $content.Conversation.title . '</a>'
 }) }}
 <xf:elseif is="$extra.likes" />
