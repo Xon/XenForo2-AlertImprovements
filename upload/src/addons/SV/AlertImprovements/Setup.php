@@ -2,16 +2,18 @@
 
 namespace SV\AlertImprovements;
 
+use SV\Utils\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
-use XF\Entity\User;
 
 class Setup extends AbstractSetup
 {
+    // from https://github.com/Xon/XenForo2-Utils cloned to src/addons/SV/Utils
+    use InstallerHelper;
     use StepRunnerInstallTrait;
     use StepRunnerUpgradeTrait;
     use StepRunnerUninstallTrait;
@@ -90,68 +92,5 @@ class Setup extends AbstractSetup
         {
             $table->dropColumns('summerize_id');
         });
-    }
-
-    /**
-     * @param array $newRegistrationDefaults
-     */
-    protected function applyRegistrationDefaults(array $newRegistrationDefaults)
-    {
-        /** @var \XF\Entity\Option $option */
-        $option = $this->app->finder('XF:Option')
-                            ->where('option_id', '=', 'registrationDefaults')
-                            ->fetchOne();
-
-        if (!$option)
-        {
-            // Option: Mr. XenForo I don't feel so good
-            throw new \LogicException("XenForo installation is damaged. Expected option 'registrationDefaults' to exist.");
-        }
-        $registrationDefaults = $option->option_value;
-
-        foreach ($newRegistrationDefaults AS $optionName => $optionDefault)
-        {
-            if (!isset($registrationDefaults[$optionName]))
-            {
-                $registrationDefaults[$optionName] = $optionDefault;
-            }
-        }
-
-        $option->option_value = $registrationDefaults;
-        $option->saveIfChanged();
-    }
-
-    /**
-     * @param Create|Alter $table
-     * @param string       $name
-     * @param string|null  $type
-     * @param string|null  $length
-     *
-     * @return \XF\Db\Schema\Column
-     */
-    protected function addOrChangeColumn($table, $name, $type = null, $length = null)
-    {
-        if ($table instanceof Create)
-        {
-            $table->checkExists(true);
-
-            return $table->addColumn($name, $type, $length);
-        }
-        else
-        {
-            if ($table instanceof Alter)
-            {
-                if ($table->getColumnDefinition($name))
-                {
-                    return $table->changeColumn($name, $type, $length);
-                }
-
-                return $table->addColumn($name, $type, $length);
-            }
-            else
-            {
-                throw new \LogicException("Unknown schema DDL type " . get_class($table));
-            }
-        }
     }
 }
