@@ -537,7 +537,7 @@ class UserAlert extends XFCP_UserAlert
         $alert->save();
         $summerizeId = $alert->alert_id;
 
-        $batchIds = \XF\Util\Arr::arrayColumn($alertGrouping, 'alert_id');
+        $batchIds = \array_column($alertGrouping, 'alert_id');
         /*
         $batchIds = [];
         foreach ($alertGrouping as $hiddenAlert)
