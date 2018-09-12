@@ -1,6 +1,6 @@
 {
     "from_class": "XF\\Entity\\UserAlert",
     "to_class": "SV\\AlertImprovements\\XF\\Entity\\UserAlert",
-    "execute_order": 10,
+    "execute_order": 6398,
     "active": true
 }

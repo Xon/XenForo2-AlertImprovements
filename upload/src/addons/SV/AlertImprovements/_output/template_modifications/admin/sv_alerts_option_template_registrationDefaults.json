@@ -1,7 +1,7 @@
 {
     "template": "option_template_registrationDefaults",
     "description": "",
-    "execution_order": 10,
+    "execution_order": 6398,
     "enabled": true,
     "action": "str_replace",
     "find": "<div class=\"u-inputSpacer\">",

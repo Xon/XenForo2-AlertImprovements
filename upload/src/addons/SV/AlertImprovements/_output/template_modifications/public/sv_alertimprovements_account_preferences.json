@@ -1,7 +1,7 @@
 {
     "template": "account_preferences",
     "description": "Adds additional alert preferences",
-    "execution_order": 10,
+    "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",
     "find": "#[\\t ]*<h2 class=\"block-formSectionHeader.*?{{ phrase\\('alert_preferences'\\)#si",

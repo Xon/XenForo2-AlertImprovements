@@ -1,7 +1,7 @@
 {
     "template": "alert_macros",
     "description": "Mark as unread link",
-    "execution_order": 10,
+    "execution_order": 6398,
     "enabled": true,
     "action": "str_replace",
     "find": "<xf:date time=\"$alert.event_date\" />",

@@ -1,7 +1,7 @@
 {
     "template": "account_alerts",
     "description": "Group alerts by date",
-    "execution_order": 15,
+    "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",
     "find": "#(<ol class=\"listPlain\">.*?<\\/ol>)#s",

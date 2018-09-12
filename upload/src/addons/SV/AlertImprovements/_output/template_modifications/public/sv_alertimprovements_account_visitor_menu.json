@@ -1,7 +1,7 @@
 {
     "template": "account_visitor_menu",
     "description": "Add alerts link to accounts menu",
-    "execution_order": 10,
+    "execution_order": 6398,
     "enabled": true,
     "action": "str_replace",
     "find": "<!--[XF:content_links:bottom]-->",

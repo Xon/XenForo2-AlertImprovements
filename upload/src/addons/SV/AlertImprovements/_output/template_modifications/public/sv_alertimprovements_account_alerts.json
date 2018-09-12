@@ -1,7 +1,7 @@
 {
     "template": "account_alerts",
     "description": "Extra controls for alerts",
-    "execution_order": 10,
+    "execution_order": 6398,
     "enabled": true,
     "action": "str_replace",
     "find": "<xf:if is=\"$alerts is not empty\">",

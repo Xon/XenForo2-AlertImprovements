@@ -1,7 +1,7 @@
 {
     "template": "user_edit",
     "description": "",
-    "execution_order": 10,
+    "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",
     "find": "#<xf:option name=\"option\\[email_on_conversation\\]\".*?</xf:option>.*?</xf:checkboxrow>#si",
