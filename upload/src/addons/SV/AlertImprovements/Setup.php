@@ -20,23 +20,15 @@ class Setup extends AbstractSetup
 
     public function installStep1()
     {
-        $sm = \XF::db()->getSchemaManager();
-        $sm->alterTable('xf_user_option', function (Alter $table) {
-            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(1);
-            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
-            $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
-        });
+        $sm = $this->schemaManager();
+
+        foreach ($this->getAlterTables() as $tableName => $callback)
+        {
+            $sm->alterTable($tableName, $callback);
+        }
     }
 
     public function installStep2()
-    {
-        $sm = \XF::db()->getSchemaManager();
-        $sm->alterTable('xf_user_alert', function (Alter $table) {
-            $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true);
-        });
-    }
-
-    public function installStep3()
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_page_skips_mark_read' => 1,
@@ -50,43 +42,66 @@ class Setup extends AbstractSetup
         $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary') ");
     }
 
-    public function upgrade2000300Step1()
+    public function upgrade2020000Step1()
     {
         $this->installStep1();
     }
 
-    public function upgrade2000300Step2()
+    public function upgrade2020000Step2()
     {
         $this->installStep2();
     }
 
-    public function upgrade2000300Step3()
-    {
-        $this->installStep3();
-    }
-
     public function uninstallStep1()
-    {
-        $sm = \XF::db()->getSchemaManager();
-
-        $sm->alterTable('xf_user_option', function (Alter $table) {
-            $table->dropColumns('sv_alerts_page_skips_mark_read');
-            $table->dropColumns('sv_alerts_page_skips_summarize');
-            $table->dropColumns('sv_alerts_summarize_threshold');
-        });
-    }
-
-    public function uninstallStep2()
     {
         $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND `action` like '%_summary' ");
     }
 
-    public function uninstallStep3()
+    public function uninstallStep2()
     {
-        $sm = \XF::db()->getSchemaManager();
+        $sm = $this->schemaManager();
 
-        $sm->alterTable('xf_user_alert', function (Alter $table) {
-            $table->dropColumns('summerize_id');
-        });
+        foreach ($this->getRemoveAlterTables() as $tableName => $callback)
+        {
+            if ($sm->tableExists($tableName))
+            {
+                $sm->alterTable($tableName, $callback);
+            }
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getAlterTables()
+    {
+        $tables = [];
+
+        $tables['xf_user_option'] = function (Alter $table) {
+            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(1);
+            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
+            $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
+        };
+
+        $tables['xf_user_alert'] = function (Alter $table) {
+            $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
+        };
+
+        return $tables;
+    }
+
+    protected function getRemoveAlterTables()
+    {
+        $tables = [];
+
+        $tables['addOrChangeColumn'] = function (Alter $table) {
+            $table->dropIndexes(['sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
+        };
+
+        $tables['xf_user_alert'] = function (Alter $table) {
+            $table->dropIndexes('summerize_id');
+        };
+
+        return $tables;
     }
 }
