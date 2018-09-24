@@ -52,12 +52,16 @@ class Setup extends AbstractSetup
         $this->installStep2();
     }
 
-    public function uninstallStep1()
+    public function upgrade2020000Step3()
     {
-        $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND `action` like '%_summary' ");
+        $this->db()->query("
+            update xf_user_alert
+            set depends_on_addon_id = 'SV/AlertImprovements'
+            where summerize_id IS NULL AND `action` like '%_summary'
+        ");
     }
 
-    public function uninstallStep2()
+    public function uninstallStep1()
     {
         $sm = $this->schemaManager();
 
@@ -68,6 +72,15 @@ class Setup extends AbstractSetup
                 $sm->alterTable($tableName, $callback);
             }
         }
+    }
+
+    public function uninstallStep2()
+    {
+        $this->db()->query("
+            delete 
+            from xf_user_alert
+            where depends_on_addon_id = 'SV/AlertImprovements'
+        ");
     }
 
     /**

@@ -447,6 +447,7 @@ class UserAlert extends XFCP_UserAlert
 
         // inject a grouped alert with the same content type/id, but with a different action
         $summaryAlert = [
+            'depends_on_addon_id' => 'SV/AlertImprovements',
             'alerted_user_id' => $lastAlert['alerted_user_id'],
             'user_id'         => $senderUserId,
             'username'        => $senderUserId ? $lastAlert['username'] : 'Guest',
