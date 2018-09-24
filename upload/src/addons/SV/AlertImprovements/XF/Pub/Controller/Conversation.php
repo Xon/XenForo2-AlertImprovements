@@ -14,8 +14,12 @@ class Conversation extends XFCP_Conversation
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof View && !empty($messages = $reply->getParam('messages')))
+        if ($reply instanceof View &&
+            ($messages = $reply->getParam('messages')) &&
+            ($conversation = $reply->getParam('conversation')))
         {
+            /** @var AbstractCollection $messages */
+            /** @var \XF\Entity\ConversationMaster $conversation */
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
@@ -25,6 +29,11 @@ class Conversation extends XFCP_Conversation
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+
+
+                $contentIds  = [$conversation->conversation_id];
+                $contentType = 'conversation';
                 $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
             }
         }
