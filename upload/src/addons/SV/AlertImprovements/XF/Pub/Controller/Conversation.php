@@ -6,6 +6,7 @@ use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\ConversationUser;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 
 class Conversation extends XFCP_Conversation
@@ -39,6 +40,56 @@ class Conversation extends XFCP_Conversation
         }
 
         return $reply;
+    }
+
+    public function actionIndex(ParameterBag $params)
+    {
+        return $this->markConvEssInboxAlertsAsRead(parent::actionIndex($params));
+    }
+
+    public function actionLabeled(ParameterBag $parameterBag)
+    {
+        if (!\is_callable('parent::actionLabeled'))
+        {
+            return $this->notFound();
+        }
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->markConvEssInboxAlertsAsRead(parent::actionLabeled($parameterBag));
+    }
+
+    /**
+     * @param AbstractReply $reply
+     * @param array         $actions
+     * @return AbstractReply
+     */
+    protected function markConvEssInboxAlertsAsRead(AbstractReply $reply, array $actions = ['kick', 'inbox_full'])
+    {
+        if ($reply instanceof View && $this->isConvEssActive())
+        {
+            /** @var AbstractCollection $messages */
+            /** @var \XF\Entity\ConversationMaster $conversation */
+            $visitor = \XF::visitor();
+
+            if ($visitor->user_id && $visitor->alerts_unread)
+            {
+                /** @var UserAlert $alertRepo */
+                $alertRepo = $this->repository('XF:UserAlert');
+
+                $alertRepo->markAlertsReadForContentIds('user', [$visitor->user_id], $actions);
+            }
+        }
+
+        return $reply;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isConvEssActive()
+    {
+        $addOns = \XF::app()->container('addon.cache');
+        return isset($addOns['SV/ConversationEssentials']);
     }
 
     /**
