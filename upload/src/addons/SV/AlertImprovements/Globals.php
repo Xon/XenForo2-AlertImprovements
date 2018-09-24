@@ -7,9 +7,12 @@ namespace SV\AlertImprovements;
 // relying on the consumer being loaded correctly by the dynamic class autoloader
 class Globals
 {
-    public static $markedAlertsRead = false;
-    public static $skipSummarize = false;
+    /** @var bool  */
+    public static $markedAlertsRead    = false;
+    /** @var bool  */
+    public static $skipSummarize       = false;
+    /** @var bool  */
     public static $skipSummarizeFilter = false;
 
-    private function __construct() {}
+    private function __construct() { }
 }

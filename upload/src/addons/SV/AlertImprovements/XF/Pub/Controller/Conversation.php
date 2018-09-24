@@ -11,6 +11,10 @@ use XF\Mvc\Reply\View;
 
 class Conversation extends XFCP_Conversation
 {
+    /**
+     * @param ParameterBag $params
+     * @return View
+     */
     public function actionView(ParameterBag $params)
     {
         $reply = parent::actionView($params);
@@ -25,7 +29,7 @@ class Conversation extends XFCP_Conversation
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds  = $messages->keys();
+                $contentIds = $messages->keys();
                 $contentType = 'conversation_message';
 
                 /** @var UserAlert $alertRepo */
@@ -33,7 +37,7 @@ class Conversation extends XFCP_Conversation
                 $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
 
 
-                $contentIds  = [$conversation->conversation_id];
+                $contentIds = [$conversation->conversation_id];
                 $contentType = 'conversation';
                 $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
             }
@@ -42,11 +46,19 @@ class Conversation extends XFCP_Conversation
         return $reply;
     }
 
+    /**
+     * @param ParameterBag $params
+     * @return AbstractReply|\XF\Mvc\Reply\Reroute|View
+     */
     public function actionIndex(ParameterBag $params)
     {
         return $this->markConvEssInboxAlertsAsRead(parent::actionIndex($params));
     }
 
+    /**
+     * @param ParameterBag $parameterBag
+     * @return AbstractReply
+     */
     public function actionLabeled(ParameterBag $parameterBag)
     {
         if (!\is_callable('parent::actionLabeled'))
@@ -63,7 +75,7 @@ class Conversation extends XFCP_Conversation
      * @param array         $actions
      * @return AbstractReply
      */
-    protected function markConvEssInboxAlertsAsRead(AbstractReply $reply, array $actions = ['kick', 'inbox_full'])
+    protected function markConvEssInboxAlertsAsRead(AbstractReply $reply, array $actions = ['conversation_kick', 'inbox_full'])
     {
         if ($reply instanceof View && $this->isConvEssActive())
         {
@@ -89,13 +101,14 @@ class Conversation extends XFCP_Conversation
     protected function isConvEssActive()
     {
         $addOns = \XF::app()->container('addon.cache');
+
         return isset($addOns['SV/ConversationEssentials']);
     }
 
     /**
      * @param ConversationUser $convUser
-     * @param int          $lastDate
-     * @param int          $limit
+     * @param int              $lastDate
+     * @param int              $limit
      * @return array
      */
     protected function _getNextLivePosts(ConversationUser $convUser, $lastDate, $limit = 3)
@@ -103,11 +116,11 @@ class Conversation extends XFCP_Conversation
         /** @noinspection PhpUndefinedMethodInspection */
         /**
          * @var AbstractCollection $contents
-         * @var int $lastDate
+         * @var int                $lastDate
          */
         list ($contents, $lastDate) = parent::_getNextLivePosts($convUser, $lastDate, $limit);
 
-        $contentIds  = $contents->keys();
+        $contentIds = $contents->keys();
         $contentType = 'conversation_message';
 
         /** @var UserAlert $alertRepo */

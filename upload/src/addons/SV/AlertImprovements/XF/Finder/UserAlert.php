@@ -11,11 +11,19 @@ class UserAlert extends XFCP_UserAlert
      */
     protected $shimSource;
 
+    /**
+     * @param \Closure|null $shimSource
+     */
     public function shimSource($shimSource)
     {
         $this->shimSource = $shimSource;
     }
 
+    /**
+     * @param int|null $limit
+     * @param int|null $offset
+     * @return \XF\Mvc\Entity\ArrayCollection
+     */
     public function fetch($limit = null, $offset = null)
     {
         $shimSource = $this->shimSource;
@@ -49,9 +57,9 @@ class UserAlert extends XFCP_UserAlert
     public function materializeAlerts($rawEntities)
     {
         $output = [];
-        $em     = $this->em;
+        $em = $this->em;
 
-        $id        = $this->structure->primaryKey;
+        $id = $this->structure->primaryKey;
         $shortname = $this->structure->shortName;
 
         // bulk load users, really should track all joins/Withs.

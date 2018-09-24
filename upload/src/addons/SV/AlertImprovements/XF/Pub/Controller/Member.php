@@ -8,25 +8,29 @@ use XF\Mvc\Reply\View;
 
 class Member extends XFCP_Member
 {
+    /**
+     * @param ParameterBag $params
+     * @return View
+     */
     public function actionView(ParameterBag $params)
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof View && !empty($profilePosts = $reply->getParam('profilePosts')))
+        if ($reply instanceof View && ($profilePosts = $reply->getParam('profilePosts')))
         {
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
                 $profilePostIds = $profilePosts->keys();
-                $contentType    = 'profile_post';
+                $contentType = 'profile_post';
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
                 $alertRepo->markAlertsReadForContentIds($contentType, $profilePostIds);
 
                 $contentType = 'profile_post_comment';
-                $contentIds  = [];
+                $contentIds = [];
 
                 foreach ($profilePosts AS $profilePost)
                 {
@@ -34,7 +38,7 @@ class Member extends XFCP_Member
                     {
                         foreach ($commentIds AS $commentId => $state)
                         {
-                            $commentId    = intval($commentId);
+                            $commentId = intval($commentId);
                             $contentIds[] = $commentId;
                         }
                     }

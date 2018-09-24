@@ -10,17 +10,21 @@ use \XF\Entity\Thread as ThreadEntity;
 
 class Thread extends XFCP_Thread
 {
+    /**
+     * @param ParameterBag $params
+     * @return View
+     */
     public function actionIndex(ParameterBag $params)
     {
         $reply = parent::actionIndex($params);
 
-        if ($reply instanceof View && !empty($posts = $reply->getParam('posts')))
+        if ($reply instanceof View && ($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds  = $posts->keys();
+                $contentIds = $posts->keys();
                 $contentType = 'post';
 
                 /** @var UserAlert $alertRepo */
@@ -32,17 +36,22 @@ class Thread extends XFCP_Thread
         return $reply;
     }
 
-    protected function getNewPostsReply(\XF\Entity\Thread $thread, $lastDate)
+    /**
+     * @param ThreadEntity $thread
+     * @param int          $lastDate
+     * @return View
+     */
+    protected function getNewPostsReply(ThreadEntity $thread, $lastDate)
     {
         $reply = parent::getNewPostsReply($thread, $lastDate);
 
-        if ($reply instanceof View && !empty($posts = $reply->getParam('posts')))
+        if ($reply instanceof View && ($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds  = $posts->keys();
+                $contentIds = $posts->keys();
                 $contentType = 'post';
 
                 /** @var UserAlert $alertRepo */
@@ -65,11 +74,11 @@ class Thread extends XFCP_Thread
         /** @noinspection PhpUndefinedMethodInspection */
         /**
          * @var AbstractCollection $contents
-         * @var int $lastDate
+         * @var int                $lastDate
          */
         list ($contents, $lastDate) = parent::_getNextLivePosts($thread, $lastDate, $limit);
 
-        $contentIds  = $contents->keys();
+        $contentIds = $contents->keys();
         $contentType = 'post';
 
         /** @var UserAlert $alertRepo */

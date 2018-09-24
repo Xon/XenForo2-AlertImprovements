@@ -7,10 +7,15 @@ use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
+use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 
 class Account extends XFCP_Account
 {
+    /**
+     * @param User $visitor
+     * @return \XF\Mvc\FormAction
+     */
     protected function preferencesSaveProcess(User $visitor)
     {
         $form = parent::preferencesSaveProcess($visitor);
@@ -31,7 +36,12 @@ class Account extends XFCP_Account
         return $form;
     }
 
-    public function actionSummarizeAlerts()
+    /**
+     * @param ParameterBag $params
+     * @return \XF\Mvc\Reply\Redirect
+     * @throws \XF\Mvc\Reply\Exception
+     */
+    public function actionSummarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
         $options = \XF::options();
         if (empty($options->sv_alerts_summerize))
@@ -48,7 +58,11 @@ class Account extends XFCP_Account
         return $this->redirect($this->buildLink('account/alerts'));
     }
 
-    public function actionAlert()
+    /**
+     * @param ParameterBag $params
+     * @return View
+     */
+    public function actionAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
@@ -100,8 +114,8 @@ class Account extends XFCP_Account
 
         $viewParams = [
             'navParams' => ['alert_id' => $alert->alert_id],
-            'alert'  => $alert,
-            'alerts' => $alerts,
+            'alert'     => $alert,
+            'alerts'    => $alerts,
 
             'page'        => $page,
             'perPage'     => $perPage,
@@ -193,7 +207,11 @@ class Account extends XFCP_Account
         return $newAlerts;
     }
 
-    public function actionUnreadAlert()
+    /**
+     * @param ParameterBag $params
+     * @return \XF\Mvc\Reply\Redirect
+     */
+    public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
@@ -213,7 +231,10 @@ class Account extends XFCP_Account
         );
     }
 
-    public function actionUnsummarizeAlert()
+    /**
+     * @return \XF\Mvc\Reply\Redirect
+     */
+    public function actionUnsummarizeAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');

@@ -21,8 +21,7 @@ class Setup extends AbstractSetup
     public function installStep1()
     {
         $sm = \XF::db()->getSchemaManager();
-        $sm->alterTable('xf_user_option', function (Alter $table)
-        {
+        $sm->alterTable('xf_user_option', function (Alter $table) {
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(1);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
@@ -32,8 +31,7 @@ class Setup extends AbstractSetup
     public function installStep2()
     {
         $sm = \XF::db()->getSchemaManager();
-        $sm->alterTable('xf_user_alert', function (Alter $table)
-        {
+        $sm->alterTable('xf_user_alert', function (Alter $table) {
             $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true);
         });
     }
@@ -71,8 +69,7 @@ class Setup extends AbstractSetup
     {
         $sm = \XF::db()->getSchemaManager();
 
-        $sm->alterTable('xf_user_option', function (Alter $table)
-        {
+        $sm->alterTable('xf_user_option', function (Alter $table) {
             $table->dropColumns('sv_alerts_page_skips_mark_read');
             $table->dropColumns('sv_alerts_page_skips_summarize');
             $table->dropColumns('sv_alerts_summarize_threshold');
@@ -88,8 +85,7 @@ class Setup extends AbstractSetup
     {
         $sm = \XF::db()->getSchemaManager();
 
-        $sm->alterTable('xf_user_alert', function (Alter $table)
-        {
+        $sm->alterTable('xf_user_alert', function (Alter $table) {
             $table->dropColumns('summerize_id');
         });
     }

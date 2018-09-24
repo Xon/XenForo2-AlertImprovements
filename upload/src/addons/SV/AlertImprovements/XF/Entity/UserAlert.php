@@ -16,6 +16,9 @@ use XF\Mvc\Entity\Structure;
  */
 class UserAlert extends XFCP_UserAlert
 {
+    /**
+     * @return bool
+     */
     public function getIsSummary()
     {
         if ($this->summerize_id === null)
@@ -26,6 +29,9 @@ class UserAlert extends XFCP_UserAlert
         return false;
     }
 
+    /**
+     * @return null|\XF\Mvc\Entity\ArrayCollection
+     */
     public function getSvRatingTypes()
     {
         if (isset($this->extra_data['rating_type_id']) && is_array($this->extra_data['rating_type_id']))
@@ -44,6 +50,10 @@ class UserAlert extends XFCP_UserAlert
         return null;
     }
 
+    /**
+     * @param string $glue
+     * @return string
+     */
     public function getLikedContentSummary($glue = ' ')
     {
         $extra = $this->extra_data;
@@ -71,6 +81,10 @@ class UserAlert extends XFCP_UserAlert
         return '';
     }
 
+    /**
+     * @param Structure $structure
+     * @return Structure
+     */
     public static function getStructure(Structure $structure)
     {
         $structure = parent::getStructure($structure);

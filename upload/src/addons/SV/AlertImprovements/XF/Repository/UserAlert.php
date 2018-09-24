@@ -12,6 +12,9 @@ use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
 class UserAlert extends XFCP_UserAlert
 {
+    /**
+     * @param int $userId
+     */
     public function summarizeAlertsForUser($userId)
     {
         $db = $this->db();
@@ -139,7 +142,7 @@ class UserAlert extends XFCP_UserAlert
     public function insertUnsummarizedAlerts($user, $summaryId)
     {
         $userId = $user->user_id;
-        $db     = $this->db();
+        $db = $this->db();
         $db->beginTransaction();
 
         // Delete summary alert
@@ -182,9 +185,9 @@ class UserAlert extends XFCP_UserAlert
      */
     protected function getSummarizeLock()
     {
-        $visitor        = \XF::visitor();
+        $visitor = \XF::visitor();
         $summerizeToken = 'alertSummarize_' . $visitor->user_id;
-        $db             = $this->db();
+        $db = $this->db();
         if ($visitor->user_id &&
             $db->fetchOne("select get_lock(?, ?)", [$summerizeToken, 0.01]))
         {
@@ -207,6 +210,9 @@ class UserAlert extends XFCP_UserAlert
         }
     }
 
+    /**
+     * @return bool
+     */
     protected function canSummarizeAlerts()
     {
         if (Globals::$skipSummarize)
@@ -267,8 +273,8 @@ class UserAlert extends XFCP_UserAlert
 
         // collect alerts into groupings by content/id
         $groupedContentAlerts = [];
-        $groupedUserAlerts    = [];
-        $groupedAlerts        = false;
+        $groupedUserAlerts = [];
+        $groupedAlerts = false;
         foreach ($alerts AS $id => $item)
         {
             if ((!$ignoreReadState && $item['view_date']) ||
@@ -285,8 +291,8 @@ class UserAlert extends XFCP_UserAlert
                 continue;
             }
 
-            $contentType  = $item['content_type'];
-            $contentId    = $item['content_id'];
+            $contentType = $item['content_type'];
+            $contentId = $item['content_id'];
             $contentUserId = $item['user_id'];
             if ($handler->consolidateAlert($contentType, $contentId, $item))
             {
@@ -346,8 +352,8 @@ class UserAlert extends XFCP_UserAlert
                             if (isset($groupedContentAlerts[$contentType][$contentId][$id]))
                             {
                                 $alert['content_type_map'] = $contentType;
-                                $alert['content_id_map']   = $contentId;
-                                $userAlertGrouping[$id]    = $alert;
+                                $alert['content_id_map'] = $contentId;
+                                $userAlertGrouping[$id] = $alert;
                             }
                         }
                     }
@@ -569,7 +575,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function getAlertHandlersForConsolidation()
     {
-        $optOuts  = $this->getAlertOptOuts();
+        $optOuts = $this->getAlertOptOuts();
         $handlers = $this->getAlertHandlers();
         unset($handlers['bookmark_post_alt']);
         foreach ($handlers AS $key => $handler)
@@ -584,13 +590,22 @@ class UserAlert extends XFCP_UserAlert
         return $handlers;
     }
 
+    /**
+     * @param User $user
+     * @param null|int $viewDate
+     */
     public function markUserAlertsRead(User $user, $viewDate = null)
     {
         Globals::$markedAlertsRead = true;
         parent::markUserAlertsRead($user, $viewDate);
     }
 
-    public function markAlertsReadForContentIds($contentType, array $contentIds)
+    /**
+     * @param string     $contentType
+     * @param array      $contentIds
+     * @param array|null $actions
+     */
+    public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null)
     {
         if (empty($contentIds))
         {
@@ -600,6 +615,8 @@ class UserAlert extends XFCP_UserAlert
         $visitor = \XF::visitor();
 
         $db = $this->db();
+
+        $actionFilter = $actions ? ' AND action in (' . $db->quote($actions) . ') ' : '';
 
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
@@ -612,6 +629,7 @@ class UserAlert extends XFCP_UserAlert
             AND event_date < ?
             AND content_type IN (" . $db->quote($contentType) . ")
             AND content_id IN (" . $db->quote($contentIds) . ")
+            {$actionFilter}
         ", [$visitor->user_id, \XF::$time]
         );
 
@@ -642,7 +660,7 @@ class UserAlert extends XFCP_UserAlert
                 ", [$rowsAffected, $visitor->user_id]
                 );
             }
-            /** @noinspection PhpRedundantCatchClauseInspection */
+                /** @noinspection PhpRedundantCatchClauseInspection */
             catch (DeadlockException $e)
             {
                 if ($db->inTransaction())
@@ -651,7 +669,7 @@ class UserAlert extends XFCP_UserAlert
 
                     // why the hell are we inside a transaction?
                     \XF::logException($e, false, 'Unexpected transaction; ');
-                    $rowsAffected  = 0;
+                    $rowsAffected = 0;
                     $alerts_unread = $db->fetchOne(
                         "
                             SELECT COUNT(*)
