@@ -1,12 +1,12 @@
 <xf:macro name="alert_rating_type" arg-alert="!">
 	<xf:if is="is_addon_active('SV/ContentRatings') && is_addon_active('SV/AlertImprovements')">
 	<xf:css src="sv_contentratings.less" />
-	<xf:set var="$ratingTypes" value="{$alert.extra_data.rating_type_id}" />
-	
+	<xf:set var="$ratingTypes" value="{$alert.extra_data.reaction_id}" />
+
 	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
 		<div class="sv-rating-type sv-rating-type--inline sv-rating-type--icon-only">
 			<div class="sv-rating-type__icon sv-alerts">
-				<xf:if is="{$ratingType}">	
+				<xf:if is="{$ratingType}">
 					<xf:macro template="sv_contentratings_macros" name="rating_type_icon" arg-inline="1" arg-ratingType="{$ratingType}" />
 				</xf:if>
 			</div>

@@ -490,15 +490,16 @@ class UserAlert extends XFCP_UserAlert
                 }
             }
 
-            if (!empty($summaryAlert['extra_data']['rating_type_id']))
+            if (isset($summaryAlert['extra_data']['reaction_id']))
             {
-                if (is_array($summaryAlert['extra_data']['rating_type_id']) && count($summaryAlert['extra_data']['rating_type_id']) === 1)
+                $reactionId = $summaryAlert['extra_data']['reaction_id'];
+                if (is_array($reactionId) && count($reactionId) === 1)
                 {
                     $likeRatingId = intval($this->app()->options()->svContentRatingsLikeRatingType);
 
-                    if ($likeRatingId && !empty($summaryAlert['extra_data']['rating_type_id'][$likeRatingId]))
+                    if ($likeRatingId && !empty($reactionId[$likeRatingId]))
                     {
-                        $summaryAlert['extra_data']['likes'] = $summaryAlert['extra_data']['rating_type_id'][$likeRatingId];
+                        $summaryAlert['extra_data']['likes'] = $reactionId[$likeRatingId];
                     }
                 }
             }

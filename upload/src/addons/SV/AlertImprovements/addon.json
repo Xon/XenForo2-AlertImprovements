@@ -2,8 +2,8 @@
     "legacy_addon_id": "SV_AlertImprovements",
     "title": "Alert Improvements",
     "description": "A collection of improvements to the XenForo 2 Alerts system.",
-    "version_string": "2.2.0",
-    "version_id": 2020000,
+    "version_string": "2.3.0",
+    "version_id": 2030000,
     "dev" : "Xon",
     "dev_url": "https://atelieraphelion.com/",
     "faq_url": "",
@@ -12,6 +12,9 @@
     "require" : {
         "XF": [2001070, "XenForo 2.0.10+"],
         "php": ["5.6.0", "PHP 5.6.0+"]
+    },
+    "require-soft": {
+        "SV/ContentRatings": [1030000, "Content Ratings v1.3.0+", true]
     },
     "icon": "fa-bell"
 }

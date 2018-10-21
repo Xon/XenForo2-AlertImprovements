@@ -34,16 +34,16 @@ class UserAlert extends XFCP_UserAlert
      */
     public function getSvRatingTypes()
     {
-        if (isset($this->extra_data['rating_type_id']) && is_array($this->extra_data['rating_type_id']))
+        if (isset($this->extra_data['extra_data']['reaction_id']) && is_array($this->extra_data['extra_data']['reaction_id']))
         {
-            $ratings = $this->extra_data['rating_type_id'];
+            $ratings = $this->extra_data['extra_data']['reaction_id'];
             /** @var \SV\ContentRatings\Repository\RatingType $ratingTypeRepo */
             $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
             $ratingTypes = $ratingTypeRepo->getRatingTypesAsEntities();
 
             return $ratingTypes->filter(function ($item) use ($ratings) {
                 /** @var \SV\ContentRatings\Entity\RatingType $item */
-                return isset($ratings[$item->rating_type_id]);
+                return isset($ratings[$item->reaction_id]);
             });
         }
 
