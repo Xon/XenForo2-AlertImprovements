@@ -34,7 +34,7 @@ class Conversation extends XFCP_Conversation
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
 
 
                 $contentIds = [$conversation->conversation_id];

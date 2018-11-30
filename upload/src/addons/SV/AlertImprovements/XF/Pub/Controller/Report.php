@@ -16,7 +16,9 @@ class Report extends XFCP_Report
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof View && ($report = $reply->getParam('report')))
+        if ($reply instanceof View &&
+            ($report = $reply->getParam('report')) &&
+            ($comments = $reply->getParam('comments')))
         {
             $visitor = \XF::visitor();
 
@@ -27,7 +29,9 @@ class Report extends XFCP_Report
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
+
+                $alertRepo->markAlertsReadForContentIds('report_comment', $comments->keys());
             }
         }
 

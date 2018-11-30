@@ -27,7 +27,7 @@ class Member extends XFCP_Member
 
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $profilePostIds);
+                $alertRepo->markAlertsReadForContentIds($contentType, $profilePostIds, null, 2010000);
 
                 $contentType = 'profile_post_comment';
                 $contentIds = [];
@@ -44,7 +44,7 @@ class Member extends XFCP_Member
                     }
                 }
 
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
             }
         }
 

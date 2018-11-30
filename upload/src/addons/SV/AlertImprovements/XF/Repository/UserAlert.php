@@ -603,12 +603,24 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param string     $contentType
-     * @param array      $contentIds
-     * @param array|null $actions
+     * @param string        $contentType
+     * @param int[]         $contentIds
+     * @param string[]|null $actions
+     * @param int           $maxXFVersion
      */
-    public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null)
+    public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null, $maxXFVersion = 0)
     {
+        if (\XF::$versionId > 2010000)
+        {
+            if (\XF::$versionId > $maxXFVersion)
+            {
+                return;
+            }
+            $this->markUserAlertsReadForContent($contentType, $contentIds, $actions);
+
+            return;
+        }
+
         if (empty($contentIds))
         {
             return;
