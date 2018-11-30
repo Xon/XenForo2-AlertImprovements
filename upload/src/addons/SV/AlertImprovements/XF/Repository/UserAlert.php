@@ -577,7 +577,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function getAlertHandlersForConsolidation()
     {
-        $optOuts = $this->getAlertOptOuts();
+        $optOuts = \XF::visitor()->Option->alert_optout;
         $handlers = $this->getAlertHandlers();
         unset($handlers['bookmark_post_alt']);
         foreach ($handlers AS $key => $handler)
