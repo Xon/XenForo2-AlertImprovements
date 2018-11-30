@@ -1,10 +1,14 @@
 <?php
 
-namespace SV\AlertImprovements\XF\Alert;
+namespace SV\AlertImprovements\SV\ReportImprovements\Alert;
 
 use SV\AlertImprovements\ISummarizeAlert;
+use SV\AlertImprovements\XF\Alert\SummarizeAlertTrait;
 
-class Post extends XFCP_Post implements ISummarizeAlert
+/**
+ * Extends \SV\ReportImprovements\Alert\ReportComment
+ */
+class ReportComment extends XFCP_ReportComment implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
 
@@ -27,7 +31,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
     {
         switch ($contentType)
         {
-            case 'post':
+            case 'report_comment':
                 return true;
             default:
                 return false;

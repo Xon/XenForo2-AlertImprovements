@@ -3,6 +3,11 @@
 // ################## THIS IS A GENERATED FILE ##################
 // DO NOT EDIT DIRECTLY. EDIT THE CLASS EXTENSIONS IN THE CONTROL PANEL.
 
+namespace SV\AlertImprovements\SV\ReportImprovements\Alert
+{
+	class XFCP_ReportComment extends \SV\ReportImprovements\Alert\ReportComment {}
+}
+
 namespace SV\AlertImprovements\XF\Admin\Controller
 {
 	class XFCP_User extends \XF\Admin\Controller\User {}
