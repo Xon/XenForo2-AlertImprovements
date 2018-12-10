@@ -4,6 +4,6 @@
     "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",
-    "find": "#[\\t ]*<h2 class=\"block-formSectionHeader.*?{{ phrase\\('alert_preferences'\\)#si",
+    "find": "#(?:[\\t ]*<h2 class=\"block-formSectionHeader.*?{{ phrase\\('alert_preferences'\\))|(?:[\\t ]*<xf:if is=\"\\$alertOptOuts)#si",
     "replace": "<xf:include template=\"account_preferences_alerts_extra\" />\n$0"
 }
