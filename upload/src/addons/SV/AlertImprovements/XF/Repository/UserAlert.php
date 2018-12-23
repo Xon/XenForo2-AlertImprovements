@@ -121,15 +121,7 @@ class UserAlert extends XFCP_UserAlert
     {
         if ($force || $this->canSummarizeAlerts())
         {
-            $summarizeToken = $this->getSummarizeLock();
-            try
-            {
-                return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
-            }
-            finally
-            {
-                $this->releaseSummarizeLock($summarizeToken);
-            }
+            return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
         }
 
         return null;
@@ -178,36 +170,6 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', $alerts_unread);
 
         $db->commit();
-    }
-
-    /**
-     * @return string|null
-     */
-    protected function getSummarizeLock()
-    {
-        $visitor = \XF::visitor();
-        $summerizeToken = 'alertSummarize_' . $visitor->user_id;
-        $db = $this->db();
-        if ($visitor->user_id &&
-            $db->fetchOne("select get_lock(?, ?)", [$summerizeToken, 0.01]))
-        {
-            return $summerizeToken;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string|null $summerizeToken
-     * @return void
-     */
-    protected function releaseSummarizeLock($summerizeToken)
-    {
-        if ($summerizeToken)
-        {
-            $db = $this->db();
-            $db->fetchOne("select release_lock(?)", [$summerizeToken]);
-        }
     }
 
     /**
