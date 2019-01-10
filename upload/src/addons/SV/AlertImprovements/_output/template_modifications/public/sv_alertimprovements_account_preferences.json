@@ -1,6 +1,6 @@
 {
     "template": "account_preferences",
-    "description": "Adds additional alert preferences",
+    "description": "Adds additional alert preferences (XF2.0.x)",
     "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",

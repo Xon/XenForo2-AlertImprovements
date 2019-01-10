@@ -1,4 +1,5 @@
 <xf:if is="$alert.view_date or $__globals.markedAlertsRead">
+    <xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
     <a class="markAlertUnread" data-xf-click="mark-alert-unread" href="{{ link('account/unread-alert', '', {'alert_id':$alert.alert_id}) }}">
         <span class="unreadLink">
             <xf:comment>Lack of linebreaks necessary to avoid unnecessary space</xf:comment>

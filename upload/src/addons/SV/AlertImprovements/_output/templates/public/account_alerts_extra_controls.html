@@ -1,4 +1,3 @@
-<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
 <style>
 .alert-controls
 {
@@ -8,7 +7,7 @@
 </style>
 <li class="block-header">
 <ul class="alert-controls listInline listInline--comma">
-	<li><a href="{{ link('account/preferences') }}#alerts">{{ phrase('alert_preferences') }}</a></li>
+	<li><a href="{{ link('account/preferences') }}#alerts">{{ phrase('sv_alert_preferences') }}</a></li>
 	<xf:if is="$xf.options.sv_alerts_summerize">
 		<li><a href="{{ link('account/summarize-alerts') }}">{{ phrase('sv_resummarize_alerts') }}</a></li>
 	</xf:if>
