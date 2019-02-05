@@ -39,7 +39,19 @@ class Setup extends AbstractSetup
 
     public function upgrade2000073Step1()
     {
-        $this->db()->query("delete from xf_user_alert where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary') ");
+        $db = $this->db();
+
+        $db->query("
+          delete
+          from xf_user_alert
+          where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary')
+        ");
+
+        $db->query("
+          update xf_user_alert
+          set summerize_id = null
+          where summerize_id IS NOT NULL
+        ");
     }
 
     public function upgrade2020000Step1()
@@ -57,7 +69,7 @@ class Setup extends AbstractSetup
         $this->db()->query("
             update xf_user_alert
             set depends_on_addon_id = 'SV/AlertImprovements'
-            where summerize_id IS NULL AND `action` like '%_summary'
+            where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary')
         ");
     }
 
