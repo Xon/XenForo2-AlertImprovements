@@ -1,1 +1,1 @@
-Your post in the thread {title} <a {unsummarizeAlertLinkAttributes}>has been rated</a> {ratings}
+Your report comment in the report {title} <a {unsummarizeAlertLinkAttributes}>has been rated</a> {ratings}
