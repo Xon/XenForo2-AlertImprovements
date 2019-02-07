@@ -67,14 +67,14 @@ class UserAlert extends XFCP_UserAlert
                     $contentTypePhrase = \XF::app()->getContentTypePhrase($contentType, $count > 1);
                     if ($contentTypePhrase)
                     {
-                        $phrases[] = \XF::phraseDeferred("sv_x_of_y_content_type", ['count' => $count, 'contentType' => \utf8_strtolower($contentTypePhrase)]);
+                        $phrases[] = \XF::phraseDeferred('sv_x_of_y_content_type', ['count' => $count, 'contentType' => \utf8_strtolower($contentTypePhrase)]);
                     }
                 }
             }
 
             if ($phrases)
             {
-                return join($glue, $phrases);
+                return implode($glue, $phrases);
             }
         }
 

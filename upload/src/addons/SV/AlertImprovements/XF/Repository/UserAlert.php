@@ -2,7 +2,6 @@
 
 namespace SV\AlertImprovements\XF\Repository;
 
-
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\ISummarizeAlert;
 use XF\Db\DeadlockException;
@@ -10,10 +9,18 @@ use XF\Entity\User;
 use XF\Mvc\Entity\Finder;
 use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
+/**
+ * Class UserAlert
+ *
+ * @package SV\AlertImprovements\XF\Repository
+ */
 class UserAlert extends XFCP_UserAlert
 {
     /**
      * @param int $userId
+     *
+     * @throws \XF\Db\Exception
+     * @throws \Exception
      */
     public function summarizeAlertsForUser($userId)
     {
@@ -26,17 +33,17 @@ class UserAlert extends XFCP_UserAlert
             where alerted_user_id = ? and summerize_id is null and `action` like '%_summary'
         ", $userId);
 
-        $db->query("
+        $db->query('
             update xf_user_alert
             set view_date = 0, summerize_id = null
             where alerted_user_id = ? and summerize_id is not null
-        ", $userId);
+        ', $userId);
 
-        $db->query("
+        $db->query('
             update xf_user
             set alerts_unread = (select count(*) from xf_user_alert where alerted_user_id = xf_user.user_id and view_date = 0)
             where user_id = ?
-        ", $userId);
+        ', $userId);
 
         $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
 
@@ -81,19 +88,20 @@ class UserAlert extends XFCP_UserAlert
 
         return $finder;
     }
-
     /**
-     * @param      $userId
+     * @param int $userId
      * @param bool $force
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
-     * @return array[]
+     *
+     * @return array[]|mixed
+     * @throws \Exception
      */
     protected function checkSummarizeAlertsForUser($userId, $force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
     {
         if ($userId !== \XF::visitor()->user_id)
         {
-            /** @var \XF\Entity\User $user */
+            /** @var User $user */
             $user = $this->finder('XF:User')
                          ->where('user_id', $userId)
                          ->fetchOne();
@@ -105,17 +113,18 @@ class UserAlert extends XFCP_UserAlert
                 }
             );
         }
-        else
-        {
-            return $this->checkSummarizeAlerts($force, $ignoreReadState, $summaryAlertViewDate);
-        }
+
+        return $this->checkSummarizeAlerts($force, $ignoreReadState, $summaryAlertViewDate);
     }
 
     /**
      * @param bool $force
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
-     * @return array[]
+     *
+     * @return null|array
+     * @throws \XF\Db\Exception
+     * @throws \XF\PrintableException
      */
     protected function checkSummarizeAlerts($force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
     {
@@ -129,7 +138,10 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param int  $summaryId
+     * @param int $summaryId
+     *
+     * @throws \XF\Db\Exception
+     * @throws \XF\PrintableException
      */
     public function insertUnsummarizedAlerts($user, $summaryId)
     {
@@ -200,8 +212,11 @@ class UserAlert extends XFCP_UserAlert
      * Summarizes alerts, does not use entities due to the overhead
      *
      * @param bool $ignoreReadState
-     * @param int  $summaryAlertViewDate
+     * @param int $summaryAlertViewDate
+     *
      * @return array
+     * @throws \XF\Db\Exception
+     * @throws \XF\PrintableException
      */
     public function summarizeAlerts($ignoreReadState, $summaryAlertViewDate)
     {
@@ -387,16 +402,19 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param ISummarizeAlert $handler
-     * @param int             $summarizeThreshold
-     * @param string          $contentType
-     * @param int             $contentId
-     * @param Alerts[]        $alertGrouping
-     * @param int             $grouped
-     * @param Alerts[]        $outputAlerts
-     * @param string          $groupingStyle
-     * @param int             $senderUserId
-     * @param int             $summaryAlertViewDate
+     * @param int $summarizeThreshold
+     * @param string $contentType
+     * @param int $contentId
+     * @param Alerts[] $alertGrouping
+     * @param int $grouped
+     * @param Alerts[] $outputAlerts
+     * @param string $groupingStyle
+     * @param int $senderUserId
+     * @param int $summaryAlertViewDate
+     *
      * @return bool
+     * @throws \XF\Db\Exception
+     * @throws \XF\PrintableException
      */
     protected function insertSummaryAlert($handler, $summarizeThreshold, $contentType, $contentId, array $alertGrouping, &$grouped, array &$outputAlerts, $groupingStyle, $senderUserId, $summaryAlertViewDate)
     {
@@ -457,7 +475,7 @@ class UserAlert extends XFCP_UserAlert
                 $reactionId = $summaryAlert['extra_data']['reaction_id'];
                 if (is_array($reactionId) && count($reactionId) === 1)
                 {
-                    $likeRatingId = intval($this->app()->options()->svContentRatingsLikeRatingType);
+                    $likeRatingId = (int)$this->app()->options()->svContentRatingsLikeRatingType;
 
                     if ($likeRatingId && !empty($reactionId[$likeRatingId]))
                     {
@@ -565,10 +583,12 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param string        $contentType
-     * @param int[]         $contentIds
+     * @param string $contentType
+     * @param int[]      $contentIds
      * @param string[]|null $actions
-     * @param int           $maxXFVersion
+     * @param int        $maxXFVersion
+     *
+     * @throws \XF\Db\Exception
      */
     public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null, $maxXFVersion = 0)
     {
@@ -597,14 +617,14 @@ class UserAlert extends XFCP_UserAlert
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
         $alertIds = $db->fetchAllColumn(
-            "
+            '
             SELECT alert_id
             FROM xf_user_alert
             WHERE alerted_user_id = ?
             AND view_date = 0
             AND event_date < ?
-            AND content_type IN (" . $db->quote($contentType) . ")
-            AND content_id IN (" . $db->quote($contentIds) . ")
+            AND content_type IN (' . $db->quote($contentType) . ')
+            AND content_id IN (' . $db->quote($contentIds) . ")
             {$actionFilter}
         ", [$visitor->user_id, \XF::$time]
         );
@@ -615,11 +635,11 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $stmt = $db->query(
-            "
+            '
             UPDATE IGNORE xf_user_alert
             SET view_date = ?
-            WHERE view_date = 0 AND alert_id IN (" . $db->quote($alertIds) . ")
-        ", [\XF::$time]
+            WHERE view_date = 0 AND alert_id IN (' . $db->quote($alertIds) . ')
+        ', [\XF::$time]
         );
 
         $rowsAffected = $stmt->rowsAffected();
@@ -629,11 +649,11 @@ class UserAlert extends XFCP_UserAlert
             try
             {
                 $db->query(
-                    "
+                    '
                     UPDATE xf_user
                     SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
                     WHERE user_id = ?
-                ", [$rowsAffected, $visitor->user_id]
+                ', [$rowsAffected, $visitor->user_id]
                 );
             }
                 /** @noinspection PhpRedundantCatchClauseInspection */
@@ -647,10 +667,10 @@ class UserAlert extends XFCP_UserAlert
                     \XF::logException($e, false, 'Unexpected transaction; ');
                     $rowsAffected = 0;
                     $alerts_unread = $db->fetchOne(
-                        "
+                        '
                             SELECT COUNT(*)
                             FROM xf_user_alert
-                            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL",
+                            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL',
                         [$visitor->user_id]
                     );
                     $visitor->setAsSaved('alerts_unread', $alerts_unread);
@@ -658,11 +678,11 @@ class UserAlert extends XFCP_UserAlert
                 else
                 {
                     $db->query(
-                        "
+                        '
                             UPDATE xf_user
                             SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
                             WHERE user_id = ?
-                        ", [$rowsAffected, $visitor->user_id]
+                        ', [$rowsAffected, $visitor->user_id]
                     );
                 }
             }
@@ -690,9 +710,11 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param int  $alertId
+     * @param int $alertId
      * @param bool $readStatus
+     *
      * @return Alerts
+     * @throws \XF\Db\Exception
      */
     public function changeAlertStatus(User $user, $alertId, $readStatus)
     {
@@ -713,21 +735,21 @@ class UserAlert extends XFCP_UserAlert
         if ($readStatus)
         {
             $db->query(
-                "
+                '
                 UPDATE xf_user
                 SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - 1)
                 WHERE user_id = ?
-            ", $user->user_id
+            ', $user->user_id
             );
         }
         else
         {
             $db->query(
-                "
+                '
                 UPDATE xf_user
                 SET alerts_unread = LEAST(alerts_unread + 1, 65535)
                 WHERE user_id = ?
-            ", $user->user_id
+            ', $user->user_id
             );
         }
 

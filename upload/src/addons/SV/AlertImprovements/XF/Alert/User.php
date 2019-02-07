@@ -4,6 +4,11 @@ namespace SV\AlertImprovements\XF\Alert;
 
 use SV\AlertImprovements\ISummarizeAlert;
 
+/**
+ * Class User
+ *
+ * @package SV\AlertImprovements\XF\Alert
+ */
 class User extends XFCP_User implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
@@ -53,7 +58,7 @@ class User extends XFCP_User implements ISummarizeAlert
      * @param string $groupingStyle
      * @return array
      */
-    function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
+    public function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
         $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
 

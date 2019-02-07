@@ -6,11 +6,18 @@ use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 
+/**
+ * Class Member
+ *
+ * @package SV\AlertImprovements\XF\Pub\Controller
+ */
 class Member extends XFCP_Member
 {
     /**
      * @param ParameterBag $params
-     * @return View
+     *
+     * @return \XF\Mvc\Reply\Reroute|View
+     * @throws \XF\Db\Exception
      */
     public function actionView(ParameterBag $params)
     {
@@ -38,7 +45,7 @@ class Member extends XFCP_Member
                     {
                         foreach ($commentIds AS $commentId => $state)
                         {
-                            $commentId = intval($commentId);
+                            $commentId = (int)$commentId;
                             $contentIds[] = $commentId;
                         }
                     }

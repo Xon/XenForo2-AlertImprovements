@@ -6,11 +6,18 @@ use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 
+/**
+ * Class Report
+ *
+ * @package SV\AlertImprovements\XF\Pub\Controller
+ */
 class Report extends XFCP_Report
 {
     /**
      * @param ParameterBag $params
+     *
      * @return View
+     * @throws \XF\Db\Exception
      */
     public function actionView(ParameterBag $params)
     {

@@ -2,6 +2,11 @@
 
 namespace SV\AlertImprovements\XF\Admin\Controller;
 
+/**
+ * Class User
+ *
+ * @package SV\AlertImprovements\XF\Admin\Controller
+ */
 class User extends XFCP_User
 {
     /**

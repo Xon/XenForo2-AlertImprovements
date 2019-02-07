@@ -2,6 +2,11 @@
 
 namespace SV\AlertImprovements\XF\Alert;
 
+/**
+ * Trait SummarizeAlertTrait
+ *
+ * @package SV\AlertImprovements\XF\Alert
+ */
 trait SummarizeAlertTrait
 {
     /**
@@ -28,7 +33,7 @@ trait SummarizeAlertTrait
      * @param string $groupingStyle
      * @return array|null
      */
-    function summarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ array $summaryAlert, array $alerts, $groupingStyle)
+    public function summarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ array $summaryAlert, array $alerts, $groupingStyle)
     {
         if ($groupingStyle !== 'content')
         {

@@ -8,8 +8,12 @@ use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
-use XF\Db\Schema\Create;
 
+/**
+ * Class Setup
+ *
+ * @package SV\AlertImprovements
+ */
 class Setup extends AbstractSetup
 {
     // from https://github.com/Xon/XenForo2-Utils cloned to src/addons/SV/Utils
@@ -37,6 +41,9 @@ class Setup extends AbstractSetup
         ]);
     }
 
+    /**
+     * @throws \XF\Db\Exception
+     */
     public function upgrade2000073Step1()
     {
         $db = $this->db();
@@ -47,11 +54,11 @@ class Setup extends AbstractSetup
           where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary')
         ");
 
-        $db->query("
+        $db->query('
           update xf_user_alert
           set summerize_id = null
           where summerize_id IS NOT NULL
-        ");
+        ');
     }
 
     public function upgrade2020000Step1()
@@ -64,6 +71,9 @@ class Setup extends AbstractSetup
         $this->installStep2();
     }
 
+    /**
+     * @throws \XF\Db\Exception
+     */
     public function upgrade2020000Step3()
     {
         $this->db()->query("
@@ -86,6 +96,9 @@ class Setup extends AbstractSetup
         }
     }
 
+    /**
+     * @throws \XF\Db\Exception
+     */
     public function uninstallStep2()
     {
         $this->db()->query("
@@ -115,6 +128,9 @@ class Setup extends AbstractSetup
         return $tables;
     }
 
+    /**
+     * @return array
+     */
     protected function getRemoveAlterTables()
     {
         $tables = [];

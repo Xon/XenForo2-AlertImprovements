@@ -3,7 +3,11 @@
 
 namespace SV\AlertImprovements\XF\Finder;
 
-
+/**
+ * Class UserAlert
+ *
+ * @package SV\AlertImprovements\XF\Finder
+ */
 class UserAlert extends XFCP_UserAlert
 {
     /**

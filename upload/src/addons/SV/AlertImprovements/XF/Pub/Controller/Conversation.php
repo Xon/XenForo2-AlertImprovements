@@ -9,11 +9,18 @@ use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 
+/**
+ * Class Conversation
+ *
+ * @package SV\AlertImprovements\XF\Pub\Controller
+ */
 class Conversation extends XFCP_Conversation
 {
     /**
      * @param ParameterBag $params
+     *
      * @return View
+     * @throws \XF\Db\Exception
      */
     public function actionView(ParameterBag $params)
     {
@@ -48,7 +55,9 @@ class Conversation extends XFCP_Conversation
 
     /**
      * @param ParameterBag $params
+     *
      * @return AbstractReply|\XF\Mvc\Reply\Reroute|View
+     * @throws \XF\Db\Exception
      */
     public function actionIndex(ParameterBag $params)
     {
@@ -57,7 +66,9 @@ class Conversation extends XFCP_Conversation
 
     /**
      * @param ParameterBag $parameterBag
+     *
      * @return AbstractReply
+     * @throws \XF\Db\Exception
      */
     public function actionLabeled(ParameterBag $parameterBag)
     {
@@ -73,7 +84,9 @@ class Conversation extends XFCP_Conversation
     /**
      * @param AbstractReply $reply
      * @param array         $actions
+     *
      * @return AbstractReply
+     * @throws \XF\Db\Exception
      */
     protected function markConvEssInboxAlertsAsRead(AbstractReply $reply, array $actions = ['conversation_kick', 'inbox_full'])
     {
@@ -109,7 +122,9 @@ class Conversation extends XFCP_Conversation
      * @param ConversationUser $convUser
      * @param int              $lastDate
      * @param int              $limit
+     *
      * @return array
+     * @throws \XF\Db\Exception
      */
     protected function _getNextLivePosts(ConversationUser $convUser, $lastDate, $limit = 3)
     {

@@ -10,6 +10,11 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 
+/**
+ * Class Account
+ *
+ * @package SV\AlertImprovements\XF\Pub\Controller
+ */
 class Account extends XFCP_Account
 {
     /**
@@ -38,7 +43,9 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
+     *
      * @return \XF\Mvc\Reply\Redirect
+     * @throws \XF\Db\Exception
      * @throws \XF\Mvc\Reply\Exception
      */
     public function actionSummarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
@@ -49,7 +56,7 @@ class Account extends XFCP_Account
             return $this->notFound();
         }
 
-        $this->assertNotFlooding('alertSummarize', max(1, intval($options->sv_alerts_summerize_flood)));
+        $this->assertNotFlooding('alertSummarize', max(1, (int)$options->sv_alerts_summerize_flood));
 
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
@@ -60,7 +67,9 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
+     *
      * @return View
+     * @throws \XF\Db\Exception
      */
     public function actionAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
@@ -126,6 +135,9 @@ class Account extends XFCP_Account
         return $this->addAccountWrapperParams($view, 'alerts');
     }
 
+    /**
+     * @return \XF\Mvc\Reply\Redirect|View
+     */
     public function actionAlerts()
     {
         $visitor = \XF::visitor();
@@ -158,7 +170,7 @@ class Account extends XFCP_Account
 
             if ($this->app->options()->sv_alerts_groupByDate)
             {
-                /** @var \XF\Mvc\Entity\AbstractCollection $alerts */
+                /** @var AbstractCollection $alerts */
                 $alerts = $response->getParam('alerts');
                 $newAlerts = $this->groupAlertsByDay($alerts);
                 $response->setParam('alerts', $newAlerts);
@@ -174,7 +186,7 @@ class Account extends XFCP_Account
     }
 
     /**
-     * @param \XF\Mvc\Entity\AbstractCollection $alerts
+     * @param AbstractCollection $alerts
      * @return array
      */
     protected function groupAlertsByDay($alerts)
@@ -209,7 +221,9 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
+     *
      * @return \XF\Mvc\Reply\Redirect
+     * @throws \XF\Db\Exception
      */
     public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ParameterBag $params)
     {
@@ -220,19 +234,23 @@ class Account extends XFCP_Account
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->changeAlertStatus($visitor, $alertId, false);
 
-        $params = [
+        $linkParams = [
             'skip_mark_read' => true,
         ];
 
         return $this->redirect(
             $this->buildLink(
-                'account/alerts', [], $params
+                'account/alerts', [], $linkParams
             )
         );
     }
 
     /**
+     * @param ParameterBag $params
+     *
      * @return \XF\Mvc\Reply\Redirect
+     * @throws \XF\Db\Exception
+     * @throws \XF\PrintableException
      */
     public function actionUnsummarizeAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
@@ -243,14 +261,14 @@ class Account extends XFCP_Account
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->insertUnsummarizedAlerts($visitor, $alertId);
 
-        $params = [
+        $linkParams = [
             'skip_mark_read' => true,
             'skip_summarize' => true
         ];
 
         return $this->redirect(
             $this->buildLink(
-                'account/alerts', [], $params
+                'account/alerts', [], $linkParams
             )
         );
     }

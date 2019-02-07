@@ -8,11 +8,18 @@ use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 use \XF\Entity\Thread as ThreadEntity;
 
+/**
+ * Class Thread
+ *
+ * @package SV\AlertImprovements\XF\Pub\Controller
+ */
 class Thread extends XFCP_Thread
 {
     /**
      * @param ParameterBag $params
-     * @return View
+     *
+     * @return \XF\Mvc\Reply\Error|\XF\Mvc\Reply\Redirect|View
+     * @throws \XF\Db\Exception
      */
     public function actionIndex(ParameterBag $params)
     {
@@ -38,8 +45,10 @@ class Thread extends XFCP_Thread
 
     /**
      * @param ThreadEntity $thread
-     * @param int          $lastDate
+     * @param int $lastDate
+     *
      * @return View
+     * @throws \XF\Db\Exception
      */
     protected function getNewPostsReply(ThreadEntity $thread, $lastDate)
     {
@@ -65,9 +74,11 @@ class Thread extends XFCP_Thread
 
     /**
      * @param ThreadEntity $thread
-     * @param int          $lastDate
+     * @param int $lastDate
      * @param int          $limit
+     *
      * @return array
+     * @throws \XF\Db\Exception
      */
     protected function _getNextLivePosts(ThreadEntity $thread, $lastDate, $limit = 3)
     {
