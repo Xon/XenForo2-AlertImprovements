@@ -1,0 +1,10 @@
+<xf:set var="$reactions">
+	<xf:macro template="sv_alertimprovements_macros" name="alert_reactions" arg-alert="{$alert}" />
+</xf:set>
+
+{{ phrase('sv_x_rated_y_content_z_times', {
+	'name': username_link($user, false, {'defaultname': $alert.username}),
+	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
+	'reactions': {$reactions}|raw,
+	'ratedcontent': trim($likeString)
+}) }}

@@ -35,7 +35,8 @@ class User extends XFCP_User implements ISummarizeAlert
             case 'report_comment':
             case 'conversation_message':
             case 'post':
-                return $alert['action'] === 'like' || $alert['action'] === 'rating';
+                $validActions = ['like', 'rating', 'reaction'];
+                return in_array($alert['action'], $validActions, true);
             default:
                 return false;
         }

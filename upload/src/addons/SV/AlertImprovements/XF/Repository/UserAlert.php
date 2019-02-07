@@ -25,7 +25,7 @@ class UserAlert extends XFCP_UserAlert
     public function summarizeAlertsForUser($userId)
     {
         $db = $this->db();
-        // psot rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
+        // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
         $db->beginTransaction();
 
         $db->query("
@@ -308,6 +308,7 @@ class UserAlert extends XFCP_UserAlert
                 }
             }
         }
+
         // see if we can group some alert by user (requires deap knowledge of most content types and the template)
         if ($userHandler)
         {
@@ -452,7 +453,15 @@ class UserAlert extends XFCP_UserAlert
                     }
                     $contentTypes[$alert['content_type']]++;
 
-                    $extraData = @unserialize($alert['extra_data']);
+                    if (\XF::$versionId < 2010010)
+                    {
+                        $extraData = @unserialize($alert['extra_data']);
+                    }
+                    else
+                    {
+                        $extraData = @json_decode($alert['extra_data'], true);
+                    }
+
                     if (is_array($extraData))
                     {
                         foreach ($extraData AS $extraDataKey => $extraDataValue)
@@ -500,6 +509,44 @@ class UserAlert extends XFCP_UserAlert
                 }
             }
             $summaryAlert['extra_data']['likes'] = $likesCounter;
+        }
+        else if ($lastAlert['action'] === 'reaction')
+        {
+            foreach ($alertGrouping AS $alert)
+            {
+                if (!empty($alert['extra_data']) && $alert['action'] === $lastAlert['action'])
+                {
+                    if (!isset($contentTypes[$alert['content_type']]))
+                    {
+                        $contentTypes[$alert['content_type']] = 0;
+                    }
+                    $contentTypes[$alert['content_type']]++;
+
+                    if (\XF::$versionId < 2010010)
+                    {
+                        $extraData = @unserialize($alert['extra_data']);
+                    }
+                    else
+                    {
+                        $extraData = @json_decode($alert['extra_data'], true);
+                    }
+
+                    if (is_array($extraData))
+                    {
+                        foreach ($extraData AS $extraDataKey => $extraDataValue)
+                        {
+                            if (empty($summaryAlert['extra_data'][$extraDataKey][$extraDataValue]))
+                            {
+                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue] = 1;
+                            }
+                            else
+                            {
+                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue]++;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if ($contentTypes)

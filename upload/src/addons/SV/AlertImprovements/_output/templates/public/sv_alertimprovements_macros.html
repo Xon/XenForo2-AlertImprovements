@@ -28,3 +28,36 @@
 	</xf:if>
 	{{ $likeString }}
 </xf:macro>
+
+<xf:macro name="alert_reaction" arg-alert="!">
+	<xf:set var="$reactions" value="{$alert.extra_data.reaction_id}" />
+
+	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
+		<div class="sv-rating-type sv-rating-type--inline sv-rating-type--icon-only">
+			<div class="sv-rating-type__icon sv-alerts">
+				<xf:if is="{$ratingType}">
+					<xf:macro template="sv_contentratings_macros" name="rating_type_icon" arg-inline="1" arg-ratingType="{$ratingType}" />
+				</xf:if>
+			</div>
+
+			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$ratingTypes.{$ratingTypeId}|number}</div>
+		</div>
+	</xf:foreach>
+</xf:macro>
+
+<xf:macro name="alert_reactions" arg-alert="!">
+	<xf:css src="sv_alertimprovements_macros_alert_reactions.less" />
+	<xf:set var="$reactions" value="{$alert.extra_data.reaction_id}" />
+
+	<div class="sv-alert-improv-reactions--summary">
+		<xf:foreach loop="$reactions" key="$reactionId" value="$reactCounter">
+			<div class="sv-alert-improv-reactions--reactionContainer sv-alert-improv-reactions--reactionContainer-{$reactionId}">
+				<div class="sv-alert-improv-reactions--icon">
+					{{ alert_summary_reaction($reactionId)|preEscaped }}
+				</div>
+
+				<div class="sv-alert-improv-reactions--counter" style="white-space: pre-wrap;"> x {$reactCounter|number}</div>
+			</div>
+		</xf:foreach>
+	</div>
+</xf:macro>
