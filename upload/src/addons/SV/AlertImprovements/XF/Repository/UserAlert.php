@@ -455,11 +455,11 @@ class UserAlert extends XFCP_UserAlert
 
                     if (\XF::$versionId < 2010010)
                     {
-                        $extraData = @unserialize($alert['extra_data']);
+                        $extraData = @\unserialize($alert['extra_data']);
                     }
                     else
                     {
-                        $extraData = @json_decode($alert['extra_data'], true);
+                        $extraData = @\json_decode($alert['extra_data'], true);
                     }
 
                     if (is_array($extraData))
@@ -524,11 +524,11 @@ class UserAlert extends XFCP_UserAlert
 
                     if (\XF::$versionId < 2010010)
                     {
-                        $extraData = @unserialize($alert['extra_data']);
+                        $extraData = @\unserialize($alert['extra_data']);
                     }
                     else
                     {
-                        $extraData = @json_decode($alert['extra_data'], true);
+                        $extraData = @\json_decode($alert['extra_data'], true);
                     }
 
                     if (is_array($extraData))
