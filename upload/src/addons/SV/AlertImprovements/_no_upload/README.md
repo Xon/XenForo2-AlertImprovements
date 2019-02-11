@@ -10,13 +10,13 @@ Note; Do not use MySQL statement-based replication with this add-on.
   - Conversations
   - Reports
 - Mark as unread link for individual alerts
-- Global Optional, Alert summerization by selected content type or user
+- Global Optional, Alert summarization by selected content type or user
 - User Option to prevent marking as read when accessing /accounts/alerts page.
-- User Option to prevent summerization when accessing /accounts/alerts page.
-- User Option to adjust summerization threshold
+- User Option to prevent summarization when accessing /accounts/alerts page.
+- User Option to adjust summarization threshold
 
 
-## Supported content types for alert summerization 
+## Supported content types for alert summarization 
 
 - Posts Likes
 - Conversation Message Likes
@@ -31,7 +31,7 @@ Content Ratings is supported for the above content types.
 - 1 extra query per thread/conversation/report page request when the user has more than zero active alerts.
   - 1 additional extra query if any alerts are marked as read.
 
-## Alert Summerization Performance impact
+## Alert Summarization Performance impact
 
 - On accessing alerts above the summerize threshold, fetches all unread alerts and attempts to group them in PHP. 
 - On successfully generating summary alerts, 2 queries are done. 
