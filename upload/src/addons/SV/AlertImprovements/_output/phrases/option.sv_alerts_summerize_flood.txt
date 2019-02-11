@@ -1,1 +1,1 @@
-Alert resummerize flood check
+Alert resummarize flood check
