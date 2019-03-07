@@ -23,7 +23,7 @@
 		<xf:set var="$likeString" value="{{ $alert.getLikedContentSummary(' ') }}" />
 	</xf:if>
 
-	<xf:if is="!$likeString">
+	<xf:if is="!$likeString && $extra.likes">
 		<xf:set var="$likeString">{{ phrase('x_of_content', {'count':$extra.likes}) }}</xf:set>
 	</xf:if>
 	{{ $likeString }}

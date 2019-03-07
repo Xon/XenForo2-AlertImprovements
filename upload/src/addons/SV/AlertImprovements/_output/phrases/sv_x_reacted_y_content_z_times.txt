@@ -1,0 +1,1 @@
+On <a {unsummarizeAlertLinkAttributes}>{reactedcontent}</a>, {name} reacted with {reactions}
