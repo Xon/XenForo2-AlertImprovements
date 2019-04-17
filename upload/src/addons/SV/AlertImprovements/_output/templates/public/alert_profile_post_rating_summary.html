@@ -7,14 +7,14 @@
 	{{ phrase('your_profile_post_has_been_rated_x', {
 		'ratings': {$rating},
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '"'
+		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
 <xf:else />
 	{{ phrase('your_profile_post_on_ys_profile_has_been_rated_x', {
 		'ratings': {$rating},
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-		'profileUserLink': '<a href="' . link('members', $content.ProfileUser) . '" class="fauxBlockLink-blockLink">' . $content.ProfileUser.username . '</a>',
-		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '"'
+		'profileUserLink': '<a href="' . link('members', $content.ProfileUser) . '">' . $content.ProfileUser.username . '</a>',
+		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
 </xf:if>
 <xf:elseif is="$extra.likes" />
