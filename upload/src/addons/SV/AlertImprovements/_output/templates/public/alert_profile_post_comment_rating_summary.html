@@ -14,7 +14,7 @@
 	{{ phrase('your_profile_comment_on_ys_profile_has_been_rated_x', {
 		'ratings': {$rating},
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-		'profileUserLink': '<a href="' . link('members', $content.ProfilePost.ProfileUser) . '" class="fauxBlockLink-blockLink">' . $content.ProfilePost.ProfileUser.username . '</a>',
+		'profileUserLink': '<a href="' . link('members', $content.ProfilePost.ProfileUser) . '">' . $content.ProfilePost.ProfileUser.username . '</a>',
 		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content.ProfilePost) . '"',
 		'profilePostCommentLinkAttributes': 'href="' . link('profile-posts/comments', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
