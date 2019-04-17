@@ -5,5 +5,5 @@
 {{ phrase('your_comment_in_the_report_y_has_received_x_reactions', {
 	'reactions': {$reactions}|raw,
 	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-	'title': '<a href="' . link('reports/comment', $content, 'report_comment_id={$content.report_comment_id}') . '" class="fauxBlockLink-blockLink">' . {$content.title} . '</a>'
+	'title': '<a href="' . link('reports/comment', $content, {'report_comment_id':$content.report_comment_id}) . '" class="fauxBlockLink-blockLink">' . {$content.title} . '</a>'
 }) }}
