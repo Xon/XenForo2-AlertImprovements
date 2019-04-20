@@ -28,7 +28,10 @@ class Setup extends AbstractSetup
 
         foreach ($this->getAlterTables() as $tableName => $callback)
         {
-            $sm->alterTable($tableName, $callback);
+            if ($sm->tableExists($tableName))
+            {
+                $sm->alterTable($tableName, $callback);
+            }
         }
     }
 
@@ -61,20 +64,27 @@ class Setup extends AbstractSetup
         ');
     }
 
-    public function upgrade2020000Step1()
+    public function upgrade2050001Step1()
     {
         $this->installStep1();
     }
 
-    public function upgrade2020000Step2()
+    public function upgrade2050001Step2()
     {
         $this->installStep2();
+    }
+
+    public function upgrade2050001Step3()
+    {
+        $this->applyRegistrationDefaults([
+            'sv_alerts_popup_skips_mark_read' => 0,
+        ]);
     }
 
     /**
      * @throws \XF\Db\Exception
      */
-    public function upgrade2020000Step3()
+    public function upgrade2020000Step1()
     {
         $this->db()->query("
             update xf_user_alert
@@ -116,6 +126,7 @@ class Setup extends AbstractSetup
         $tables = [];
 
         $tables['xf_user_option'] = function (Alter $table) {
+            $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(1);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
@@ -136,7 +147,7 @@ class Setup extends AbstractSetup
         $tables = [];
 
         $tables['addOrChangeColumn'] = function (Alter $table) {
-            $table->dropIndexes(['sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
+            $table->dropIndexes(['sv_alerts_popup_skips_mark_read', 'sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {

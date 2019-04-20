@@ -1,0 +1,1 @@
+Viewing the alerts pop-up will not mark alerts as read

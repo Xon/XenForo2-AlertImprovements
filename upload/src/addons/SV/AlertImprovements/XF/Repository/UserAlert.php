@@ -18,9 +18,6 @@ class UserAlert extends XFCP_UserAlert
 {
     /**
      * @param int $userId
-     *
-     * @throws \XF\Db\Exception
-     * @throws \Exception
      */
     public function summarizeAlertsForUser($userId)
     {
@@ -88,12 +85,12 @@ class UserAlert extends XFCP_UserAlert
 
         return $finder;
     }
+
     /**
-     * @param int $userId
+     * @param int  $userId
      * @param bool $force
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
-     *
      * @return array[]|mixed
      * @throws \Exception
      */
@@ -121,10 +118,7 @@ class UserAlert extends XFCP_UserAlert
      * @param bool $force
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
-     *
      * @return null|array
-     * @throws \XF\Db\Exception
-     * @throws \XF\PrintableException
      */
     protected function checkSummarizeAlerts($force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
     {
@@ -138,9 +132,7 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param int $summaryId
-     *
-     * @throws \XF\Db\Exception
+     * @param int  $summaryId
      * @throws \XF\PrintableException
      */
     public function insertUnsummarizedAlerts($user, $summaryId)
@@ -212,11 +204,8 @@ class UserAlert extends XFCP_UserAlert
      * Summarizes alerts, does not use entities due to the overhead
      *
      * @param bool $ignoreReadState
-     * @param int $summaryAlertViewDate
-     *
+     * @param int  $summaryAlertViewDate
      * @return array
-     * @throws \XF\Db\Exception
-     * @throws \XF\PrintableException
      */
     public function summarizeAlerts($ignoreReadState, $summaryAlertViewDate)
     {
@@ -403,19 +392,16 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param ISummarizeAlert $handler
-     * @param int $summarizeThreshold
-     * @param string $contentType
-     * @param int $contentId
-     * @param Alerts[] $alertGrouping
-     * @param int $grouped
-     * @param Alerts[] $outputAlerts
-     * @param string $groupingStyle
-     * @param int $senderUserId
-     * @param int $summaryAlertViewDate
-     *
+     * @param int             $summarizeThreshold
+     * @param string          $contentType
+     * @param int             $contentId
+     * @param Alerts[]        $alertGrouping
+     * @param int             $grouped
+     * @param Alerts[]        $outputAlerts
+     * @param string          $groupingStyle
+     * @param int             $senderUserId
+     * @param int             $summaryAlertViewDate
      * @return bool
-     * @throws \XF\Db\Exception
-     * @throws \XF\PrintableException
      */
     protected function insertSummaryAlert($handler, $summarizeThreshold, $contentType, $contentId, array $alertGrouping, &$grouped, array &$outputAlerts, $groupingStyle, $senderUserId, $summaryAlertViewDate)
     {
@@ -429,15 +415,15 @@ class UserAlert extends XFCP_UserAlert
         // inject a grouped alert with the same content type/id, but with a different action
         $summaryAlert = [
             'depends_on_addon_id' => 'SV/AlertImprovements',
-            'alerted_user_id' => $lastAlert['alerted_user_id'],
-            'user_id'         => $senderUserId,
-            'username'        => $senderUserId ? $lastAlert['username'] : 'Guest',
-            'content_type'    => $contentType,
-            'content_id'      => $contentId,
-            'action'          => $lastAlert['action'] . '_summary',
-            'event_date'      => $lastAlert['event_date'],
-            'view_date'       => $summaryAlertViewDate,
-            'extra_data'      => []
+            'alerted_user_id'     => $lastAlert['alerted_user_id'],
+            'user_id'             => $senderUserId,
+            'username'            => $senderUserId ? $lastAlert['username'] : 'Guest',
+            'content_type'        => $contentType,
+            'content_id'          => $contentId,
+            'action'              => $lastAlert['action'] . '_summary',
+            'event_date'          => $lastAlert['event_date'],
+            'view_date'           => $summaryAlertViewDate,
+            'extra_data'          => []
         ];
         $contentTypes = [];
 
@@ -620,22 +606,25 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
+     * @param User     $user
      * @param null|int $viewDate
      */
     public function markUserAlertsRead(User $user, $viewDate = null)
     {
+        if (Globals::$skipMarkAlertsRead)
+        {
+            return;
+        }
+
         Globals::$markedAlertsRead = true;
         parent::markUserAlertsRead($user, $viewDate);
     }
 
     /**
-     * @param string $contentType
-     * @param int[]      $contentIds
+     * @param string        $contentType
+     * @param int[]         $contentIds
      * @param string[]|null $actions
-     * @param int        $maxXFVersion
-     *
-     * @throws \XF\Db\Exception
+     * @param int           $maxXFVersion
      */
     public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null, $maxXFVersion = 0)
     {
@@ -645,6 +634,7 @@ class UserAlert extends XFCP_UserAlert
             {
                 return;
             }
+            /** @noinspection PhpUndefinedMethodInspection */
             $this->markUserAlertsReadForContent($contentType, $contentIds, $actions);
 
             return;
@@ -757,11 +747,9 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param int $alertId
+     * @param int  $alertId
      * @param bool $readStatus
-     *
      * @return Alerts
-     * @throws \XF\Db\Exception
      */
     public function changeAlertStatus(User $user, $alertId, $readStatus)
     {

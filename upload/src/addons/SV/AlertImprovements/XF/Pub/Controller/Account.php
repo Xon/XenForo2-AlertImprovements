@@ -29,6 +29,7 @@ class Account extends XFCP_Account
         $input = $this->filter(
             [
                 'option' => [
+                    'sv_alerts_popup_skips_mark_read' => 'bool',
                     'sv_alerts_page_skips_mark_read' => 'bool',
                     'sv_alerts_page_skips_summarize' => 'bool',
                     'sv_alerts_summarize_threshold'  => 'uint',
@@ -188,14 +189,29 @@ class Account extends XFCP_Account
 
     public function actionAlertsPopup()
     {
-        $reply = parent::actionAlertsPopup();
+        $visitor = \XF::visitor();
+        /** @var UserOption $option */
+        $option = $visitor->Option;
+        if ($option->sv_alerts_popup_skips_mark_read)
+        {
+            Globals::$skipMarkAlertsRead = true;
+        }
+        try
+        {
+            $reply = parent::actionAlertsPopup();
+        }
+        finally
+        {
+            Globals::$skipMarkAlertsRead = false;
+        }
 
-        if ($reply instanceof View &&
+        if (\XF::options()->svUnreadAlertsAfterReadAlerts &&
+            $reply instanceof View &&
             ($alerts = $reply->getParam('alerts')))
         {
             $unreadAlerts = [];
             /** @var \XF\Entity\UserAlert $alert */
-            foreach($alerts as $key => $alert)
+            foreach ($alerts as $key => $alert)
             {
                 if (!$alert->view_date)
                 {

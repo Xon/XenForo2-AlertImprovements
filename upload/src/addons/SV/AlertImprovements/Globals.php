@@ -19,6 +19,8 @@ class Globals
     public static $skipSummarize       = false;
     /** @var bool  */
     public static $skipSummarizeFilter = false;
+    /** @var bool  */
+    public static $skipMarkAlertsRead = false;
 
     private function __construct() { }
 }

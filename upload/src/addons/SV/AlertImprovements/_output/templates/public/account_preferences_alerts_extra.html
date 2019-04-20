@@ -2,6 +2,11 @@
 <div class="block-body">
 	<xf:checkboxrow rowtype="noColon"
 					label="{{ phrase('sv_on_viewing_alerts_page...') }}">
+		<xf:option name="option[sv_alerts_popup_skips_mark_read]"
+				   label="{{ phrase('sv_alerts_popup_skips_mark_read') }}"
+				   hint="{{ phrase('sv_alerts_popup_skips_mark_read_hint') }}"
+				   checked="{$xf.visitor.Option.sv_alerts_popup_skips_mark_read}"
+				   />
 		<xf:option name="option[sv_alerts_page_skips_mark_read]"
 				   label="{{ phrase('sv_alerts_page_skips_mark_read') }}"
 				   hint="{{ phrase('sv_alerts_page_skips_mark_read_hint') }}"

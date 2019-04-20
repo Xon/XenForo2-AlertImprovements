@@ -1,0 +1,1 @@
+Alerts pop-up skips mark read
