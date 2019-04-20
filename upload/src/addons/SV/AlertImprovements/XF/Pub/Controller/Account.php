@@ -7,6 +7,7 @@ use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
+use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 
@@ -128,7 +129,7 @@ class Account extends XFCP_Account
 
             'page'        => $page,
             'perPage'     => $perPage,
-            'totalAlerts' => $alertsFinder->total()
+            'totalAlerts' => $alertsFinder->total(),
         ];
         $view = $this->view('XF:Account\Alerts', 'account_alerts_summary', $viewParams);
 
@@ -183,6 +184,34 @@ class Account extends XFCP_Account
         }
 
         return $response;
+    }
+
+    public function actionAlertsPopup()
+    {
+        $reply = parent::actionAlertsPopup();
+
+        if ($reply instanceof View &&
+            ($alerts = $reply->getParam('alerts')))
+        {
+            $unreadAlerts = [];
+            /** @var \XF\Entity\UserAlert $alert */
+            foreach($alerts as $key => $alert)
+            {
+                if (!$alert->view_date)
+                {
+                    $unreadAlerts[$key] = $alert;
+                    unset($alerts[$key]);
+                }
+            }
+
+            if ($unreadAlerts)
+            {
+                $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
+                $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+            }
+        }
+
+        return $reply;
     }
 
     /**
@@ -263,7 +292,7 @@ class Account extends XFCP_Account
 
         $linkParams = [
             'skip_mark_read' => true,
-            'skip_summarize' => true
+            'skip_summarize' => true,
         ];
 
         return $this->redirect(
