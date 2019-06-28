@@ -13,7 +13,8 @@ class Templater extends XFCP_Templater
 
     public function fnAlertSummaryReaction($templater, &$escape, $reactionId)
     {
-        return $this->fn('reaction', [[
+        $func = \XF::$versionId >= 2010370 ? 'func' : 'fn';
+        return $this->$func('reaction', [[
             'id' => $reactionId,
             'showtitle' => false,
             'hasreaction' => true,
