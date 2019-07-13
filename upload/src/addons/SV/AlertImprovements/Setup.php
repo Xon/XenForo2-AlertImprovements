@@ -44,35 +44,6 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    /**
-     * @throws \XF\Db\Exception
-     */
-    public function upgrade2000073Step1()
-    {
-        $db = $this->db();
-
-        $db->query("
-          delete
-          from xf_user_alert
-          where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary')
-        ");
-
-        $db->query('
-          update xf_user_alert
-          set summerize_id = null
-          where summerize_id IS NOT NULL
-        ');
-    }
-
-    public function upgrade2020000Step1()
-    {
-        $this->db()->query("
-            update xf_user_alert
-            set depends_on_addon_id = 'SV/AlertImprovements'
-            where summerize_id IS NULL AND (action like '%_like_summary' OR action like '%_rate_summary' OR action like '%_rating_summary')
-        ");
-    }
-
     public function upgrade2050001Step1()
     {
         $this->installStep1();
@@ -90,19 +61,30 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    public function upgrade2050200Step1()
+    public function upgrade2050201Step1()
+    {
+        $db = $this->db();
+
+        $db->query("
+          delete
+          from xf_user_alert
+          where summerize_id IS NULL AND action in ('like_summary', 'rate_summary', 'rating_summary')
+        ");
+
+        $db->query('
+          update xf_user_alert
+          set summerize_id = null
+          where summerize_id IS NOT NULL
+        ');
+    }
+
+    public function upgrade2050201Step2()
     {
         $this->db()->query("
-            UPDATE xf_user_alert
-            SET action = replace(action,'_rate_summary',?)
-            WHERE summerize_id IS NULL AND (action LIKE '%_rate_summary')
-        ", [\XF::$versionId > 2010000 ? '_rating_summary' : '_reaction_summary']);
-
-        $this->db()->query("
-            UPDATE xf_user_alert
-            SET action = replace(action,'_like_summary',?)
-            WHERE summerize_id IS NULL AND (action LIKE '%_like_summary')
-        ", [\XF::$versionId > 2010000 ? '_rating_summary' : '_reaction_summary']);
+            update xf_user_alert
+            set depends_on_addon_id = 'SV/AlertImprovements'
+            where summerize_id IS NULL AND action in ('like_summary', 'rate_summary', 'rating_summary')
+        ");
     }
 
     public function uninstallStep1()
