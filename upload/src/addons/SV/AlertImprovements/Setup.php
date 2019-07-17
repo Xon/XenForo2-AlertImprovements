@@ -38,6 +38,7 @@ class Setup extends AbstractSetup
     public function installStep2()
     {
         $this->applyRegistrationDefaults([
+            'sv_alerts_popup_skips_mark_read' => 0,
             'sv_alerts_page_skips_mark_read' => 1,
             'sv_alerts_page_skips_summarize' => 0,
             'sv_alerts_summarize_threshold'  => 4
