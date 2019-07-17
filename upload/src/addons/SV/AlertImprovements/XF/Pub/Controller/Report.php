@@ -17,7 +17,6 @@ class Report extends XFCP_Report
      * @param ParameterBag $params
      *
      * @return View
-     * @throws \XF\Db\Exception
      */
     public function actionView(ParameterBag $params)
     {

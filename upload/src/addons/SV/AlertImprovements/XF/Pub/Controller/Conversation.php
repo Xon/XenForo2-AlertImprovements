@@ -20,7 +20,6 @@ class Conversation extends XFCP_Conversation
      * @param ParameterBag $params
      *
      * @return View
-     * @throws \XF\Db\Exception
      */
     public function actionView(ParameterBag $params)
     {
@@ -86,7 +85,6 @@ class Conversation extends XFCP_Conversation
      * @param array         $actions
      *
      * @return AbstractReply
-     * @throws \XF\Db\Exception
      */
     protected function markConvEssInboxAlertsAsRead(AbstractReply $reply, array $actions = ['conversation_kick', 'inbox_full'])
     {
@@ -124,7 +122,6 @@ class Conversation extends XFCP_Conversation
      * @param int              $limit
      *
      * @return array
-     * @throws \XF\Db\Exception
      */
     protected function _getNextLivePosts(ConversationUser $convUser, $lastDate, $limit = 3)
     {

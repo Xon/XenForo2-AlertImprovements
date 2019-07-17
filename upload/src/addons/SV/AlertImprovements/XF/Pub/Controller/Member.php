@@ -17,7 +17,6 @@ class Member extends XFCP_Member
      * @param ParameterBag $params
      *
      * @return \XF\Mvc\Reply\Reroute|View
-     * @throws \XF\Db\Exception
      */
     public function actionView(ParameterBag $params)
     {

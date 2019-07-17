@@ -47,7 +47,6 @@ class Account extends XFCP_Account
      * @param ParameterBag $params
      *
      * @return \XF\Mvc\Reply\Redirect
-     * @throws \XF\Db\Exception
      * @throws \XF\Mvc\Reply\Exception
      */
     public function actionSummarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
@@ -71,7 +70,6 @@ class Account extends XFCP_Account
      * @param ParameterBag $params
      *
      * @return View
-     * @throws \XF\Db\Exception
      */
     public function actionAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
@@ -268,7 +266,6 @@ class Account extends XFCP_Account
      * @param ParameterBag $params
      *
      * @return \XF\Mvc\Reply\Redirect
-     * @throws \XF\Db\Exception
      */
     public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ParameterBag $params)
     {
@@ -294,7 +291,6 @@ class Account extends XFCP_Account
      * @param ParameterBag $params
      *
      * @return \XF\Mvc\Reply\Redirect
-     * @throws \XF\Db\Exception
      * @throws \XF\PrintableException
      */
     public function actionUnsummarizeAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)

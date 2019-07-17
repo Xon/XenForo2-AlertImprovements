@@ -19,7 +19,6 @@ class Thread extends XFCP_Thread
      * @param ParameterBag $params
      *
      * @return \XF\Mvc\Reply\Error|\XF\Mvc\Reply\Redirect|View
-     * @throws \XF\Db\Exception
      */
     public function actionIndex(ParameterBag $params)
     {
@@ -48,7 +47,6 @@ class Thread extends XFCP_Thread
      * @param int $lastDate
      *
      * @return View
-     * @throws \XF\Db\Exception
      */
     protected function getNewPostsReply(ThreadEntity $thread, $lastDate)
     {
@@ -78,7 +76,6 @@ class Thread extends XFCP_Thread
      * @param int          $limit
      *
      * @return array
-     * @throws \XF\Db\Exception
      */
     protected function _getNextLivePosts(ThreadEntity $thread, $lastDate, $limit = 3)
     {
