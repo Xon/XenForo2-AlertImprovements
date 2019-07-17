@@ -8,6 +8,9 @@
 					</div>
 				</li>
 			</xf:foreach>
+			<xf:if is="$unreadAlerts is not empty and $alerts is not empty">
+				<li class="menu-row menu-row--separated" style="border-top-width: 2px;"></li>
+			</xf:if>
 			<xf:foreach loop="$alerts" value="$alert">
 				<li class="menu-row menu-row--separated menu-row--clickable {{ $alert.isUnviewed() ? 'menu-row--highlighted' : ($alert.isRecentlyViewed() ? '' : 'menu-row--alt') }}">
 					<div class="fauxBlockLink">
