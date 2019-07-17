@@ -37,12 +37,25 @@ class UserAlert extends XFCP_UserAlert
         if (isset($this->extra_data['extra_data']['reaction_id']) && is_array($this->extra_data['extra_data']['reaction_id']))
         {
             $ratings = $this->extra_data['extra_data']['reaction_id'];
+
+            if (\XF::$versionId >= 2010000)
+            {
+                /** @var \SV\ContentRatings\XF\Repository\Reaction $ratingTypeRepo */
+                $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
+                $ratingTypes = $ratingTypeRepo->getReactionsAsEntities();
+            }
+            else
+            {
+                /** @noinspection PhpUndefinedClassInspection */
             /** @var \SV\ContentRatings\Repository\RatingType $ratingTypeRepo */
             $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
+                /** @noinspection PhpUndefinedMethodInspection */
             $ratingTypes = $ratingTypeRepo->getRatingTypesAsEntities();
+            }
 
             return $ratingTypes->filter(function ($item) use ($ratings) {
-                /** @var \SV\ContentRatings\Entity\RatingType $item */
+                /** @noinspection PhpUndefinedClassInspection */
+                /** @var \SV\ContentRatings\Entity\RatingType|\XF\Entity\Reaction $item */
                 return isset($ratings[$item->reaction_id]);
             });
         }
@@ -91,11 +104,8 @@ class UserAlert extends XFCP_UserAlert
 
         $structure->columns['summerize_id'] = ['type' => self::UINT, 'nullable' => true, 'default' => null];
 
-        $structure->getters['isSummary'] = [
-            'getter' => true,
-            'cache'  => true
-        ];
-        $structure->getters['sv_rating_types'] = true;
+        $structure->getters['is_summary'] = ['getter' => 'getIsSummary', 'cache' => true];
+        $structure->getters['sv_rating_types'] = ['getter' => 'getSvRatingTypes', 'cache' => true];
 
         $structure->relations['SummaryAlert'] = [
             'entity'     => 'XF:UserAlert',
