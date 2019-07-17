@@ -9,17 +9,29 @@ use XF\Mvc\Entity\Structure;
 /**
  * Class UserAlert
  *
- * @property bool IsSummary
+ * COLUMNS
  * @property int summerize_id
+ *
+ * GETTERS
+ * @property bool is_new
+ * @property bool is_summary
+ *
  * @property UserAlert SummaryAlert
  * @property \SV\ContentRatings\Entity\RatingType[]|AbstractCollection sv_rating_types
  */
 class UserAlert extends XFCP_UserAlert
 {
+    protected function getIsNew()
+    {
+        $viewDate = $this->view_date;
+
+        return $viewDate === 0 || $viewDate > \XF::$time - 600;
+    }
+
     /**
      * @return bool
      */
-    public function getIsSummary()
+    protected function getIsSummary()
     {
         if ($this->summerize_id === null)
         {
@@ -32,9 +44,10 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @return null|\XF\Mvc\Entity\ArrayCollection
      */
-    public function getSvRatingTypes()
+    protected function getSvRatingTypes()
     {
-        if (isset($this->extra_data['extra_data']['reaction_id']) && is_array($this->extra_data['extra_data']['reaction_id']))
+        if (isset($this->extra_data['extra_data']['reaction_id']) &&
+            is_array($this->extra_data['extra_data']['reaction_id']))
         {
             $ratings = $this->extra_data['extra_data']['reaction_id'];
 
@@ -47,10 +60,10 @@ class UserAlert extends XFCP_UserAlert
             else
             {
                 /** @noinspection PhpUndefinedClassInspection */
-            /** @var \SV\ContentRatings\Repository\RatingType $ratingTypeRepo */
-            $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
+                /** @var \SV\ContentRatings\Repository\RatingType $ratingTypeRepo */
+                $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
                 /** @noinspection PhpUndefinedMethodInspection */
-            $ratingTypes = $ratingTypeRepo->getRatingTypesAsEntities();
+                $ratingTypes = $ratingTypeRepo->getRatingTypesAsEntities();
             }
 
             return $ratingTypes->filter(function ($item) use ($ratings) {
@@ -104,6 +117,7 @@ class UserAlert extends XFCP_UserAlert
 
         $structure->columns['summerize_id'] = ['type' => self::UINT, 'nullable' => true, 'default' => null];
 
+        $structure->getters['is_new'] = ['getter' => 'getIsNew', 'cache' => true];
         $structure->getters['is_summary'] = ['getter' => 'getIsSummary', 'cache' => true];
         $structure->getters['sv_rating_types'] = ['getter' => 'getSvRatingTypes', 'cache' => true];
 

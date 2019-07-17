@@ -1,0 +1,9 @@
+{
+    "template": "core_blocklink.less",
+    "description": "Inject extra alerts css",
+    "execution_order": 6398,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#$#",
+    "replace": "{{ include('svAlertImprovements.less') }}"
+}
