@@ -234,6 +234,16 @@ class Account extends XFCP_Account
      */
     protected function groupAlertsByDay($alerts)
     {
+        $dowTranslation = [
+            0 => 'sunday',
+            1 => 'monday',
+            2 => 'tuesday',
+            3 => 'wednesday',
+            4 => 'thursday',
+            5 => 'friday',
+            6 => 'saturday'
+        ];
+
         $newAlerts = [];
         $language = $this->app()->language(\XF::visitor()->language_id);
         $timeRef = $language->getDayStartTimestamps();
@@ -241,22 +251,34 @@ class Account extends XFCP_Account
         /** @var \XF\Entity\UserAlert $alert */
         foreach ($alerts AS $alert)
         {
-            $interval = $timeRef['now'] = $alert->event_date;
-            list($date, $time) = $language->getDateTimeParts($alert->event_date);
-            $groupedDate = $language->getRelativeDateTimeOutput($alert->event_date, $date, $time, false);
+            $timestamp = $alert->event_date;
+            list($date, $time) = $language->getDateTimeParts($timestamp);
 
-            if ($interval > -2)
+            if ($timestamp >= $timeRef['today'])
             {
-                if ($alert->event_date >= $timeRef['today'])
-                {
-                    $groupedDate = \XF::phrase('sv_alertimprovements.today')->render();
-                }
-                else if ($alert->event_date >= $timeRef['yesterday'])
-                {
-                    $groupedDate = \XF::phrase('sv_alertimprovements.yesterday')->render();
-                }
+                $groupedDate = \XF::phrase('sv_alertimprovements.today')->render();
             }
-            $newAlerts[$groupedDate][$alert->alert_id] = $alert;
+            else if ($timestamp >= $timeRef['yesterday'])
+            {
+                $groupedDate = \XF::phrase('sv_alertimprovements.yesterday')->render();
+            }
+            else if ($timestamp >= $timeRef['week'])
+            {
+                $dow = $timeRef['todayDow'] - ceil(($timeRef['today'] - $timestamp) / 86400);
+                if ($dow < 0)
+                {
+                    $dow += 7;
+                }
+
+                $groupedDate = \XF::phrase('day_' . $dowTranslation[$dow])->render();
+            }
+            else
+            {
+                $groupedDate = $date;
+            }
+
+
+            $newAlerts[$groupedDate][$timestamp] = $alert;
         }
 
         return $newAlerts;
