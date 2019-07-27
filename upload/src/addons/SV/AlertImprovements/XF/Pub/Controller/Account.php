@@ -249,11 +249,11 @@ class Account extends XFCP_Account
             {
                 if ($alert->event_date >= $timeRef['today'])
                 {
-                    $groupedDate = \XF::phrase('sv_alertimprovements_today')->render();
+                    $groupedDate = \XF::phrase('sv_alertimprovements.today')->render();
                 }
                 else if ($alert->event_date >= $timeRef['yesterday'])
                 {
-                    $groupedDate = \XF::phrase('sv_alertimprovements_yesterday')->render();
+                    $groupedDate = \XF::phrase('sv_alertimprovements.yesterday')->render();
                 }
             }
             $newAlerts[$groupedDate][$alert->alert_id] = $alert;
