@@ -620,23 +620,33 @@ class UserAlert extends XFCP_UserAlert
         parent::markUserAlertsRead($user, $viewDate);
     }
 
+    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $viewDate = null)
+    {
+        if (!is_array($contentIds))
+        {
+            $contentIds = [$contentIds];
+        }
+        if ($onlyActions && !is_array($onlyActions))
+        {
+            $onlyActions = [$onlyActions];
+        }
+
+        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user, $viewDate);
+    }
+
     /**
      * @param string        $contentType
      * @param int[]         $contentIds
      * @param string[]|null $actions
      * @param int           $maxXFVersion
+     * @param User|null     $user
+     * @param int|null      $viewDate
+     * @throws \XF\Db\Exception
      */
-    public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null, $maxXFVersion = 0)
+    public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null, $maxXFVersion = 0, User $user = null, $viewDate = null)
     {
-        if (\XF::$versionId > 2010000)
+        if ($maxXFVersion && \XF::$versionId > $maxXFVersion)
         {
-            if (\XF::$versionId > $maxXFVersion)
-            {
-                return;
-            }
-            /** @noinspection PhpUndefinedMethodInspection */
-            $this->markUserAlertsReadForContent($contentType, $contentIds, $actions);
-
             return;
         }
 
@@ -645,7 +655,8 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $visitor = \XF::visitor();
+        $visitor = $user ? $user : \XF::visitor();
+        $viewDate = $viewDate ? $viewDate : \XF::$time;
 
         $db = $this->db();
 
@@ -676,7 +687,7 @@ class UserAlert extends XFCP_UserAlert
             UPDATE IGNORE xf_user_alert
             SET view_date = ?
             WHERE view_date = 0 AND alert_id IN (' . $db->quote($alertIds) . ')
-        ', [\XF::$time]
+        ', [$viewDate]
         );
 
         $rowsAffected = $stmt->rowsAffected();
