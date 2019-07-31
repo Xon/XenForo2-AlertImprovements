@@ -22,9 +22,9 @@ class User extends XFCP_User
             [
                 'option' => [
                     'sv_alerts_popup_skips_mark_read' => 'bool',
-                    'sv_alerts_page_skips_mark_read' => 'bool',
-                    'sv_alerts_page_skips_summarize' => 'bool',
-                    'sv_alerts_summarize_threshold'  => 'uint',
+                    'sv_alerts_page_skips_mark_read'  => 'bool',
+                    'sv_alerts_page_skips_summarize'  => 'bool',
+                    'sv_alerts_summarize_threshold'   => 'uint',
                 ],
             ]
         );

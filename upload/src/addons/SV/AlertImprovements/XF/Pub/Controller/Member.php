@@ -15,7 +15,6 @@ class Member extends XFCP_Member
 {
     /**
      * @param ParameterBag $params
-     *
      * @return \XF\Mvc\Reply\Reroute|View
      */
     public function actionView(ParameterBag $params)

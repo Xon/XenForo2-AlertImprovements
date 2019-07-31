@@ -5,9 +5,9 @@ namespace SV\AlertImprovements\XF\Repository;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\ISummarizeAlert;
 use XF\Db\DeadlockException;
+use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 use XF\Entity\User;
 use XF\Mvc\Entity\Finder;
-use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
 /**
  * Class UserAlert
@@ -26,20 +26,20 @@ class UserAlert extends XFCP_UserAlert
         $db->beginTransaction();
 
         $db->query("
-            delete from xf_user_alert
-            where alerted_user_id = ? and summerize_id is null and `action` like '%_summary'
+            DELETE FROM xf_user_alert
+            WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary'
         ", $userId);
 
         $db->query('
-            update xf_user_alert
-            set view_date = 0, summerize_id = null
-            where alerted_user_id = ? and summerize_id is not null
+            UPDATE xf_user_alert
+            SET view_date = 0, summerize_id = NULL
+            WHERE alerted_user_id = ? AND summerize_id IS NOT NULL
         ', $userId);
 
         $db->query('
-            update xf_user
-            set alerts_unread = (select count(*) from xf_user_alert where alerted_user_id = xf_user.user_id and view_date = 0)
-            where user_id = ?
+            UPDATE xf_user
+            SET alerts_unread = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND view_date = 0)
+            WHERE user_id = ?
         ', $userId);
 
         $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
@@ -157,8 +157,8 @@ class UserAlert extends XFCP_UserAlert
         // Make alerts visible
         $stmt = $db->query('
             UPDATE xf_user_alert
-            SET summerize_id = null, view_date = 0
-            WHERE alerted_user_id = ? and summerize_id = ?
+            SET summerize_id = NULL, view_date = 0
+            WHERE alerted_user_id = ? AND summerize_id = ?
         ', [$userId, $summaryId]);
 
         // Reset unread alerts counter
@@ -423,7 +423,7 @@ class UserAlert extends XFCP_UserAlert
             'action'              => $lastAlert['action'] . '_summary',
             'event_date'          => $lastAlert['event_date'],
             'view_date'           => $summaryAlertViewDate,
-            'extra_data'          => []
+            'extra_data'          => [],
         ];
         $contentTypes = [];
 

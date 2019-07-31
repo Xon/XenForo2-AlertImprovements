@@ -3,10 +3,10 @@
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use XF\Entity\Thread as ThreadEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
-use \XF\Entity\Thread as ThreadEntity;
 
 /**
  * Class Thread
@@ -17,7 +17,6 @@ class Thread extends XFCP_Thread
 {
     /**
      * @param ParameterBag $params
-     *
      * @return \XF\Mvc\Reply\Error|\XF\Mvc\Reply\Redirect|View
      */
     public function actionIndex(ParameterBag $params)
@@ -44,8 +43,7 @@ class Thread extends XFCP_Thread
 
     /**
      * @param ThreadEntity $thread
-     * @param int $lastDate
-     *
+     * @param int          $lastDate
      * @return View
      */
     protected function getNewPostsReply(ThreadEntity $thread, $lastDate)
@@ -72,9 +70,8 @@ class Thread extends XFCP_Thread
 
     /**
      * @param ThreadEntity $thread
-     * @param int $lastDate
+     * @param int          $lastDate
      * @param int          $limit
-     *
      * @return array
      */
     protected function _getNextLivePosts(ThreadEntity $thread, $lastDate, $limit = 3)

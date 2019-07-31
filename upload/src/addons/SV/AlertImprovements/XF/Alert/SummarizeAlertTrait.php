@@ -16,6 +16,7 @@ trait SummarizeAlertTrait
     public function canSummarizeItem(array $alert)
     {
         $validActions = ['like', 'rating', 'reaction'];
+
         return in_array($alert['action'], $validActions, true);
     }
 

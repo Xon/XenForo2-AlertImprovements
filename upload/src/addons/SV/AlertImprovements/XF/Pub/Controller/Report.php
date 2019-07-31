@@ -15,7 +15,6 @@ class Report extends XFCP_Report
 {
     /**
      * @param ParameterBag $params
-     *
      * @return View
      */
     public function actionView(ParameterBag $params)

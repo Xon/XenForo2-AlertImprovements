@@ -30,9 +30,9 @@ class Account extends XFCP_Account
             [
                 'option' => [
                     'sv_alerts_popup_skips_mark_read' => 'bool',
-                    'sv_alerts_page_skips_mark_read' => 'bool',
-                    'sv_alerts_page_skips_summarize' => 'bool',
-                    'sv_alerts_summarize_threshold'  => 'uint',
+                    'sv_alerts_page_skips_mark_read'  => 'bool',
+                    'sv_alerts_page_skips_summarize'  => 'bool',
+                    'sv_alerts_summarize_threshold'   => 'uint',
                 ],
             ]
         );
@@ -45,7 +45,6 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     *
      * @return \XF\Mvc\Reply\Redirect
      * @throws \XF\Mvc\Reply\Exception
      */
@@ -68,7 +67,6 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     *
      * @return View
      */
     public function actionAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
@@ -241,7 +239,7 @@ class Account extends XFCP_Account
             3 => 'wednesday',
             4 => 'thursday',
             5 => 'friday',
-            6 => 'saturday'
+            6 => 'saturday',
         ];
 
         $newAlerts = [];
@@ -286,10 +284,9 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     *
      * @return \XF\Mvc\Reply\Redirect
      */
-    public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ParameterBag $params)
+    public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
@@ -311,7 +308,6 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     *
      * @return \XF\Mvc\Reply\Redirect
      * @throws \XF\PrintableException
      */

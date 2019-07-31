@@ -39,9 +39,9 @@ class Setup extends AbstractSetup
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_popup_skips_mark_read' => 0,
-            'sv_alerts_page_skips_mark_read' => 1,
-            'sv_alerts_page_skips_summarize' => 0,
-            'sv_alerts_summarize_threshold'  => 4
+            'sv_alerts_page_skips_mark_read'  => 1,
+            'sv_alerts_page_skips_summarize'  => 0,
+            'sv_alerts_summarize_threshold'   => 4,
         ]);
     }
 
@@ -67,24 +67,24 @@ class Setup extends AbstractSetup
         $db = $this->db();
 
         $db->query("
-          delete
-          from xf_user_alert
-          where summerize_id IS NULL AND action in ('like_summary', 'rate_summary', 'rating_summary')
+          DELETE
+          FROM xf_user_alert
+          WHERE summerize_id IS NULL AND action IN ('like_summary', 'rate_summary', 'rating_summary')
         ");
 
         $db->query('
-          update xf_user_alert
-          set summerize_id = null
-          where summerize_id IS NOT NULL
+          UPDATE xf_user_alert
+          SET summerize_id = NULL
+          WHERE summerize_id IS NOT NULL
         ');
     }
 
     public function upgrade2050201Step2()
     {
         $this->db()->query("
-            update xf_user_alert
-            set depends_on_addon_id = 'SV/AlertImprovements'
-            where summerize_id IS NULL AND action in ('like_summary', 'rate_summary', 'rating_summary')
+            UPDATE xf_user_alert
+            SET depends_on_addon_id = 'SV/AlertImprovements'
+            WHERE summerize_id IS NULL AND action IN ('like_summary', 'rate_summary', 'rating_summary')
         ");
     }
 
@@ -107,9 +107,9 @@ class Setup extends AbstractSetup
     public function uninstallStep2()
     {
         $this->db()->query("
-            delete 
-            from xf_user_alert
-            where depends_on_addon_id = 'SV/AlertImprovements'
+            DELETE 
+            FROM xf_user_alert
+            WHERE depends_on_addon_id = 'SV/AlertImprovements'
         ");
     }
 

@@ -8,15 +8,13 @@ use XF\Mvc\Entity\Structure;
 
 /**
  * Class UserAlert
- *
  * COLUMNS
- * @property int summerize_id
  *
+ * @property int                                                       summerize_id
  * GETTERS
- * @property bool is_new
- * @property bool is_summary
- *
- * @property UserAlert SummaryAlert
+ * @property bool                                                      is_new
+ * @property bool                                                      is_summary
+ * @property UserAlert                                                 SummaryAlert
  * @property \SV\ContentRatings\Entity\RatingType[]|AbstractCollection sv_rating_types
  */
 class UserAlert extends XFCP_UserAlert
@@ -125,7 +123,7 @@ class UserAlert extends XFCP_UserAlert
             'entity'     => 'XF:UserAlert',
             'type'       => self::TO_ONE,
             'conditions' => [['alert_id', '=', '$summerize_id']],
-            'primary'    => true
+            'primary'    => true,
         ];
 
         return $structure;
