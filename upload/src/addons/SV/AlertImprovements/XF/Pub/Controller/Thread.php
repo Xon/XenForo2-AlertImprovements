@@ -23,18 +23,15 @@ class Thread extends XFCP_Thread
     {
         $reply = parent::actionIndex($params);
 
-        if ($reply instanceof View && ($posts = $reply->getParam('posts')))
+        if (\XF::$versionId > 2010000 && $reply instanceof View && ($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds = $posts->keys();
-                $contentType = 'post';
-
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
+                $alertRepo->markAlertsReadForContentIds('post', $posts->keys(), null, 2010000);
             }
         }
 
@@ -56,12 +53,9 @@ class Thread extends XFCP_Thread
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds = $posts->keys();
-                $contentType = 'post';
-
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+                $alertRepo->markAlertsReadForContentIds('post', $posts->keys());
             }
         }
 
@@ -83,12 +77,9 @@ class Thread extends XFCP_Thread
          */
         list ($contents, $lastDate) = parent::_getNextLivePosts($thread, $lastDate, $limit);
 
-        $contentIds = $contents->keys();
-        $contentType = 'post';
-
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+        $alertRepo->markAlertsReadForContentIds('post', $contents->keys());
 
         return [$contents, $lastDate];
     }

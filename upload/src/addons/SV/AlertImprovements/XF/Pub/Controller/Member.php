@@ -21,22 +21,18 @@ class Member extends XFCP_Member
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof View && ($profilePosts = $reply->getParam('profilePosts')))
+        if (\XF::$versionId > 2010000 &&
+            $reply instanceof View && ($profilePosts = $reply->getParam('profilePosts')))
         {
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $profilePostIds = $profilePosts->keys();
-                $contentType = 'profile_post';
-
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $profilePostIds, null, 2010000);
+                $alertRepo->markAlertsReadForContentIds('profile_post', $profilePosts->keys(), null, 2010000);
 
-                $contentType = 'profile_post_comment';
                 $contentIds = [];
-
                 foreach ($profilePosts AS $profilePost)
                 {
                     if ($commentIds = $profilePost->latest_comment_ids)
@@ -49,7 +45,7 @@ class Member extends XFCP_Member
                     }
                 }
 
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
+                $alertRepo->markAlertsReadForContentIds('profile_post_comment', $contentIds, null, 2010000);
             }
         }
 

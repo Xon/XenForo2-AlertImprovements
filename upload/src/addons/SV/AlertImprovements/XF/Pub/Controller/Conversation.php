@@ -34,17 +34,11 @@ class Conversation extends XFCP_Conversation
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds = $messages->keys();
-                $contentType = 'conversation_message';
-
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
+                $alertRepo->markAlertsReadForContentIds('conversation_message', $messages->keys(), null, 2010000);
 
-
-                $contentIds = [$conversation->conversation_id];
-                $contentType = 'conversation';
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+                $alertRepo->markAlertsReadForContentIds('conversation', [$conversation->conversation_id]);
             }
         }
 
@@ -127,12 +121,9 @@ class Conversation extends XFCP_Conversation
          */
         list ($contents, $lastDate) = parent::_getNextLivePosts($convUser, $lastDate, $limit);
 
-        $contentIds = $contents->keys();
-        $contentType = 'conversation_message';
-
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->markAlertsReadForContentIds($contentType, $contentIds);
+        $alertRepo->markAlertsReadForContentIds('conversation_message', $contents->keys());
 
         return [$contents, $lastDate];
     }

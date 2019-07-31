@@ -29,12 +29,9 @@ class Report extends XFCP_Report
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                $contentIds[] = $report->report_id;
-                $contentType = 'report';
-
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds($contentType, $contentIds, null, 2010000);
+                $alertRepo->markAlertsReadForContentIds('report', [$report->report_id], null, 2010000);
 
                 $alertRepo->markAlertsReadForContentIds('report_comment', $comments->keys());
             }
