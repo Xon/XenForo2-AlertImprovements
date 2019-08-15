@@ -21,7 +21,7 @@ class Member extends XFCP_Member
     {
         $reply = parent::actionView($params);
 
-        if (\XF::$versionId > 2010000 &&
+        if (\XF::$versionId < 2010000 &&
             $reply instanceof View && ($profilePosts = $reply->getParam('profilePosts')))
         {
             $visitor = \XF::visitor();

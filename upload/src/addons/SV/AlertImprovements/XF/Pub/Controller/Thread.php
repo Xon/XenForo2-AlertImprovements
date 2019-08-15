@@ -23,7 +23,7 @@ class Thread extends XFCP_Thread
     {
         $reply = parent::actionIndex($params);
 
-        if (\XF::$versionId > 2010000 && $reply instanceof View && ($posts = $reply->getParam('posts')))
+        if (\XF::$versionId < 2010000 && $reply instanceof View && ($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
