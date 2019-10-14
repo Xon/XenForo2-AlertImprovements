@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\ISummarizeAlert;
+use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
 use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 use XF\Entity\User;
@@ -21,30 +22,28 @@ class UserAlert extends XFCP_UserAlert
      */
     public function summarizeAlertsForUser($userId)
     {
-        $db = $this->db();
         // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
-        $db->beginTransaction();
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
 
-        $db->query("
-            DELETE FROM xf_user_alert
-            WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary'
-        ", $userId);
+            $db->query("
+                DELETE FROM xf_user_alert
+                WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary'
+            ", $userId);
 
-        $db->query('
-            UPDATE xf_user_alert
-            SET view_date = 0, summerize_id = NULL
-            WHERE alerted_user_id = ? AND summerize_id IS NOT NULL
-        ', $userId);
+            $db->query('
+                UPDATE xf_user_alert
+                SET view_date = 0, summerize_id = NULL
+                WHERE alerted_user_id = ? AND summerize_id IS NOT NULL
+            ', $userId);
 
-        $db->query('
-            UPDATE xf_user
-            SET alerts_unread = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND view_date = 0)
-            WHERE user_id = ?
-        ', $userId);
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unread = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND view_date = 0)
+                WHERE user_id = ?
+            ', $userId);
 
-        $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
-
-        $db->commit();
+            $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
 
     /**
@@ -137,43 +136,40 @@ class UserAlert extends XFCP_UserAlert
      */
     public function insertUnsummarizedAlerts($user, $summaryId)
     {
-        $userId = $user->user_id;
-        $db = $this->db();
-        $db->beginTransaction();
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryId) {
+            $userId = $user->user_id;
+            // Delete summary alert
+            /** @var Alerts $summaryAlert */
+            $summaryAlert = $this->finder('XF:UserAlert')
+                                 ->where('alert_id', $summaryId)
+                                 ->fetchOne();
+            if (!$summaryAlert)
+            {
+                $db->commit();
 
-        // Delete summary alert
-        /** @var Alerts $summaryAlert */
-        $summaryAlert = $this->finder('XF:UserAlert')
-                             ->where('alert_id', $summaryId)
-                             ->fetchOne();
-        if (!$summaryAlert)
-        {
-            $db->commit();
+                return;
+            }
+            $summaryAlert->delete(false, false);
 
-            return;
-        }
-        $summaryAlert->delete(false, false);
+            // Make alerts visible
+            $stmt = $db->query('
+                UPDATE xf_user_alert
+                SET summerize_id = NULL, view_date = 0
+                WHERE alerted_user_id = ? AND summerize_id = ?
+            ', [$userId, $summaryId]);
 
-        // Make alerts visible
-        $stmt = $db->query('
-            UPDATE xf_user_alert
-            SET summerize_id = NULL, view_date = 0
-            WHERE alerted_user_id = ? AND summerize_id = ?
-        ', [$userId, $summaryId]);
+            // Reset unread alerts counter
+            $increment = $stmt->rowsAffected();
+            $db->query('
+                UPDATE xf_user SET
+                alerts_unread = alerts_unread + ?
+                WHERE user_id = ?
+                    AND alerts_unread < 65535
+            ', [$increment, $userId]);
 
-        // Reset unread alerts counter
-        $increment = $stmt->rowsAffected();
-        $db->query('
-            UPDATE xf_user SET
-            alerts_unread = alerts_unread + ?
-            WHERE user_id = ?
-                AND alerts_unread < 65535
-        ', [$increment, $userId]);
-
-        $alerts_unread = $user->alerts_unread + $increment;
-        $user->setAsSaved('alerts_unread', $alerts_unread);
-
-        $db->commit();
+            $alerts_unread = $user->alerts_unread + $increment;
+            $user->setAsSaved('alerts_unread', $alerts_unread);
+        });
     }
 
     /**
@@ -551,11 +547,17 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
+        $db = $this->db();
+        $runLocalTransaction = !$db->inTransaction();
+        if ($runLocalTransaction)
+        {
+            $db->beginTransaction();
+        }
         // database update
         /** @var Alerts $alert */
         $alert = $this->em->create('XF:UserAlert');
         $alert->bulkSet($summaryAlert);
-        $alert->save();
+        $alert->save(true, false);
         $summerizeId = $alert->alert_id;
 
         $batchIds = \array_column($alertGrouping, 'alert_id');
@@ -569,7 +571,6 @@ class UserAlert extends XFCP_UserAlert
         }
         */
         // hide the non-summary alerts
-        $db = $this->db();
         $stmt = $db->query(
             '
             UPDATE xf_user_alert
@@ -578,6 +579,12 @@ class UserAlert extends XFCP_UserAlert
         ', [$summerizeId, \XF::$time]
         );
         $rowsAffected = $stmt->rowsAffected();
+
+        if ($runLocalTransaction)
+        {
+            $db->commit();
+        }
+
         // add to grouping
         $grouped += $rowsAffected;
         $outputAlerts[$summerizeId] = $alert->toArray();
