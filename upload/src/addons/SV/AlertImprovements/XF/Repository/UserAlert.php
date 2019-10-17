@@ -547,42 +547,39 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
+        $summerizeId = $rowsAffected = null;
         $db = $this->db();
-        $runLocalTransaction = !$db->inTransaction();
-        if ($runLocalTransaction)
-        {
-            $db->beginTransaction();
-        }
-        // database update
-        /** @var Alerts $alert */
-        $alert = $this->em->create('XF:UserAlert');
-        $alert->bulkSet($summaryAlert);
-        $alert->save(true, false);
-        $summerizeId = $alert->alert_id;
-
         $batchIds = \array_column($alertGrouping, 'alert_id');
-        /*
-        $batchIds = [];
-        foreach ($alertGrouping as $hiddenAlert)
-        {
-            $batchIds[] = $hiddenAlert->alert_id;
-            $hiddenAlert->setAsSaved('summerize_id', $summerizeId);
-            $hiddenAlert->setAsSaved('view_date', \XF::$time);
-        }
-        */
-        // hide the non-summary alerts
-        $stmt = $db->query(
-            '
+
+        // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
+        $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$rowsAffected, &$summerizeId) {
+            // database update
+            /** @var Alerts $alert */
+            $alert = $this->em->create('XF:UserAlert');
+            $alert->bulkSet($summaryAlert);
+            $alert->save(true, false);
+            $summerizeId = $alert->alert_id;
+
+            // hide the non-summary alerts
+            $stmt = $db->query(
+                '
             UPDATE xf_user_alert
             SET summerize_id = ?, view_date = ?
             WHERE alert_id IN (' . $db->quote($batchIds) . ')
         ', [$summerizeId, \XF::$time]
-        );
-        $rowsAffected = $stmt->rowsAffected();
+            );
+            $rowsAffected = $stmt->rowsAffected();
 
-        if ($runLocalTransaction)
+            return $rowsAffected;
+        };
+
+        if ($db->inTransaction())
         {
-            $db->commit();
+            $updateAlerts();
+        }
+        else
+        {
+            $db->executeTransaction($updateAlerts, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
         }
 
         // add to grouping
