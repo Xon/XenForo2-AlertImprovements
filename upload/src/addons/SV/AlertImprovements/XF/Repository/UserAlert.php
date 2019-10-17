@@ -552,7 +552,7 @@ class UserAlert extends XFCP_UserAlert
         $batchIds = \array_column($alertGrouping, 'alert_id');
 
         // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
-        $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$rowsAffected, &$summerizeId) {
+        $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected, &$summerizeId) {
             // database update
             /** @var Alerts $alert */
             $alert = $this->em->create('XF:UserAlert');
