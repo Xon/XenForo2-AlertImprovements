@@ -47,7 +47,7 @@ class Thread extends XFCP_Thread
     {
         $reply = parent::getNewPostsReply($thread, $lastDate);
 
-        if ($reply instanceof View && ($posts = $reply->getParam('posts')))
+        if  ($reply instanceof View && ($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
@@ -55,7 +55,7 @@ class Thread extends XFCP_Thread
             {
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds('post', $posts->keys());
+                $alertRepo->markAlertsReadForContentIds('post', is_array($posts) ? \array_keys($posts) : $posts->keys());
             }
         }
 
