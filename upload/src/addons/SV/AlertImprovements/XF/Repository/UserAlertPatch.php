@@ -20,11 +20,10 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             $cutOff = \XF::$time - $this->options()->alertExpiryDays * 86400;
         }
-        $limit = 100000;
         do
         {
             /** @var AbstractStatement $statement */
-            $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff, $limit) {
+            $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff) {
                 return $db->query("DELETE FROM xf_user_alert WHERE view_date > 0 AND view_date < ? LIMIT {$this->svBatchLimit}", $cutOff);
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
         }
@@ -37,11 +36,10 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             $cutOff = \XF::$time - 30 * 86400;
         }
-        $limit = 100000;
         do
         {
             /** @var AbstractStatement $statement */
-            $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff, $limit) {
+            $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff) {
                 return $db->query("DELETE FROM xf_user_alert WHERE view_date = 0 AND event_date < ? LIMIT {$this->svBatchLimit}", $cutOff);
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
         }
