@@ -250,6 +250,7 @@ class Account extends XFCP_Account
         foreach ($alerts AS $alert)
         {
             $timestamp = $alert->event_date;
+            /** @noinspection PhpUnusedLocalVariableInspection */
             list($date, $time) = $language->getDateTimeParts($timestamp);
 
             if ($timestamp >= $timeRef['today'])
@@ -309,7 +310,6 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return \XF\Mvc\Reply\Redirect
-     * @throws \XF\PrintableException
      */
     public function actionUnsummarizeAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {

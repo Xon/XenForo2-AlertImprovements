@@ -48,7 +48,6 @@ class Conversation extends XFCP_Conversation
     /**
      * @param ParameterBag $params
      * @return AbstractReply|\XF\Mvc\Reply\Reroute|View
-     * @throws \XF\Db\Exception
      */
     public function actionIndex(ParameterBag $params)
     {
@@ -58,7 +57,6 @@ class Conversation extends XFCP_Conversation
     /**
      * @param ParameterBag $parameterBag
      * @return AbstractReply
-     * @throws \XF\Db\Exception
      */
     public function actionLabeled(ParameterBag $parameterBag)
     {
@@ -67,7 +65,7 @@ class Conversation extends XFCP_Conversation
             return $this->notFound();
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         return $this->markConvEssInboxAlertsAsRead(parent::actionLabeled($parameterBag));
     }
 
@@ -114,11 +112,11 @@ class Conversation extends XFCP_Conversation
      */
     protected function _getNextLivePosts(ConversationUser $convUser, $lastDate, $limit = 3)
     {
-        /** @noinspection PhpUndefinedMethodInspection */
         /**
          * @var AbstractCollection $contents
          * @var int                $lastDate
          */
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         list ($contents, $lastDate) = parent::_getNextLivePosts($convUser, $lastDate, $limit);
 
         /** @var UserAlert $alertRepo */

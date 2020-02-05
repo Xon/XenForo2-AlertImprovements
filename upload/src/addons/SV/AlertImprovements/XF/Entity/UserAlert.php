@@ -10,12 +10,12 @@ use XF\Mvc\Entity\Structure;
  * Class UserAlert
  * COLUMNS
  *
- * @property int                                                       summerize_id
+ * @property int                                      summerize_id
  * GETTERS
- * @property bool                                                      is_new
- * @property bool                                                      is_summary
- * @property UserAlert                                                 SummaryAlert
- * @property \SV\ContentRatings\Entity\RatingType[]|AbstractCollection sv_rating_types
+ * @property bool                                     is_new
+ * @property bool                                     is_summary
+ * @property UserAlert                                SummaryAlert
+ * @property \XF\Entity\Reaction[]|AbstractCollection sv_rating_types
  */
 class UserAlert extends XFCP_UserAlert
 {

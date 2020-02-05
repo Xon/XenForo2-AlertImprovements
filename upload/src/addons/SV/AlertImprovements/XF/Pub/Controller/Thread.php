@@ -70,11 +70,11 @@ class Thread extends XFCP_Thread
      */
     protected function _getNextLivePosts(ThreadEntity $thread, $lastDate, $limit = 3)
     {
-        /** @noinspection PhpUndefinedMethodInspection */
         /**
          * @var AbstractCollection $contents
          * @var int                $lastDate
          */
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         list ($contents, $lastDate) = parent::_getNextLivePosts($thread, $lastDate, $limit);
 
         /** @var UserAlert $alertRepo */

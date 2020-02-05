@@ -132,7 +132,6 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User $user
      * @param int  $summaryId
-     * @throws \XF\PrintableException
      */
     public function insertUnsummarizedAlerts($user, $summaryId)
     {
@@ -751,7 +750,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User $user
      * @param      $alertId
-     * @return \SV\AlertImprovements\XF\Finder\UserAlert
+     * @return \SV\AlertImprovements\XF\Finder\UserAlert|Finder
      */
     public function findAlertForUser(User $user, $alertId)
     {
