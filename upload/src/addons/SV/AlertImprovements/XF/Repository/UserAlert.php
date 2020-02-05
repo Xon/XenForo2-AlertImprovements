@@ -32,7 +32,7 @@ class UserAlert extends XFCP_UserAlert
 
             $db->query('
                 UPDATE xf_user_alert
-                SET view_date = 0, summerize_id = NULL
+                SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id IS NOT NULL
             ', $userId);
 
@@ -153,7 +153,7 @@ class UserAlert extends XFCP_UserAlert
             // Make alerts visible
             $stmt = $db->query('
                 UPDATE xf_user_alert
-                SET summerize_id = NULL, view_date = 0
+                SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id = ?
             ', [$userId, $summaryId]);
 
@@ -563,7 +563,7 @@ class UserAlert extends XFCP_UserAlert
             $stmt = $db->query(
                 '
             UPDATE xf_user_alert
-            SET summerize_id = ?, view_date = ?
+            SET summerize_id = ?, view_date = if(view_date = 0, ?, view_date)
             WHERE alert_id IN (' . $db->quote($batchIds) . ')
         ', [$summerizeId, \XF::$time]
             );
