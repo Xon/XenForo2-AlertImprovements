@@ -175,6 +175,10 @@ class Account extends XFCP_Account
         $option = $visitor->Option;
         $explicitSkipMarkAsRead = $this->request->exists('skip_mark_read') ? $this->filter('skip_mark_read', 'bool') : null;
         $explicitSkipSummarize = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
+        if (Globals::isPrefetchRequest())
+        {
+            $explicitSkipMarkAsRead = $explicitSkipSummarize = true;
+        }
 
         if (!empty($option->sv_alerts_page_skips_mark_read) && $explicitSkipMarkAsRead === null)
         {
@@ -221,7 +225,7 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         /** @var UserOption $option */
         $option = $visitor->Option;
-        if ($option->sv_alerts_popup_skips_mark_read)
+        if (Globals::isPrefetchRequest() || $option->sv_alerts_popup_skips_mark_read)
         {
             Globals::$skipMarkAlertsRead = true;
         }

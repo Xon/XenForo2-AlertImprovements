@@ -866,6 +866,7 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', $alerts_unread);
     }
 
+
     /**
      * @param string        $contentType
      * @param int[]         $contentIds
@@ -876,6 +877,12 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, User $user = null, int $viewDate = null)
     {
+        // do not mark alerts as read when prefetching is happening
+        if (Globals::isPrefetchRequest())
+        {
+            return;
+        }
+
         if ($maxXFVersion && \XF::$versionId > $maxXFVersion)
         {
             return;

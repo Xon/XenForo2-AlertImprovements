@@ -24,5 +24,16 @@ class Globals
      */
     public static $showUnreadOnly = false;
 
+
+    public static function isPrefetchRequest()
+    {
+        if (\XF::app()->request()->getServer('HTTP_X_MOZ') == 'prefetch')
+        {
+            return true;
+        }
+
+        return  false;
+    }
+
     private function __construct() { }
 }
