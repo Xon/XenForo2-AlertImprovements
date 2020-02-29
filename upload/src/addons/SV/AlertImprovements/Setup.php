@@ -88,6 +88,65 @@ class Setup extends AbstractSetup
         ");
     }
 
+    public function upgrade2070000Step1(array $stepParams)
+    {
+        $templateRenames = [
+            // admin
+            'user_edits_alerts' => 'svAlertsImprov_user_edits_alerts',
+            'option_template_registrationDefaults_alerts' => 'svAlertsImprov_option_template_registrationDefaults',
+            // public
+            'sv_alertimprovements_account_alerts_2' => 'svAlertsImprov_account_alerts_group_by_date',
+            'account_alerts_extra_controls' => 'svAlertsImprov_account_alerts_controls',
+            'account_alerts_summary' => 'svAlertsImprov_account_alerts_summary',
+            'account_alerts_extra' => 'svAlertsImprov_account_alerts_extra',
+            'account_preferences_alerts_extra' => 'svAlertsImprov_account_preferences_extra',
+        ];
+
+        $finder = \XF::finder('XF:Template')
+                     ->where('title', '=', \array_keys($templateRenames));
+        $stepData = isset($stepParams[2]) ? $stepParams[2] : [];
+        if (!isset($stepData['max']))
+        {
+            $stepData['max'] = $finder->total();
+        }
+        $templates = $finder->fetch();
+        if (!$templates->count())
+        {
+            return null;
+        }
+
+        $next = isset($stepParams[0]) ? $stepParams[0] : 0;
+        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $startTime = \microtime(true);
+        foreach($templates as $template)
+        {
+            /** @var \XF\Entity\Template $template*/
+            if (empty($templateRenames[$template->title]))
+            {
+                continue;
+            }
+
+            $next++;
+
+            $template->title = $templateRenames[$template->title];
+            $template->version_id = 2070000;
+            $template->version_string = "2.7.0";
+            $template->save(false, true);
+
+            if (microtime(true) - $startTime >= $maxRunTime)
+            {
+                break;
+            }
+        }
+
+        return [
+            $next,
+            "{$next} / {$stepData['max']}",
+            $stepData
+        ];
+
+    }
+
     public function uninstallStep1()
     {
         $sm = $this->schemaManager();

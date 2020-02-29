@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "<xf:if is=\"$alerts is not empty\">",
-    "replace": "$0\n<xf:include template=\"account_alerts_extra_controls\" />"
+    "replace": "$0\n<xf:include template=\"svAlertsImprov_account_alerts_controls\" />"
 }

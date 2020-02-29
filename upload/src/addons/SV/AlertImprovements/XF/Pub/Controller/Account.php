@@ -128,7 +128,7 @@ class Account extends XFCP_Account
             'perPage'     => $perPage,
             'totalAlerts' => $alertsFinder->total(),
         ];
-        $view = $this->view('XF:Account\Alerts', 'account_alerts_summary', $viewParams);
+        $view = $this->view('XF:Account\Alerts', 'svAlertsImprov_account_alerts_summary', $viewParams);
 
         return $this->addAccountWrapperParams($view, 'alerts');
     }

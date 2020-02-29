@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "<xf:date time=\"$alert.event_date\" />",
-    "replace": "$0\n<xf:include template=\"account_alerts_extra\" />"
+    "replace": "$0\n<xf:include template=\"svAlertsImprov_account_alerts_extra\" />"
 }
