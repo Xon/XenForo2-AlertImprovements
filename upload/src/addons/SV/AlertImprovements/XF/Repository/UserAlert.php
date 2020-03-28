@@ -659,6 +659,12 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $visitor = $user ? $user : \XF::visitor();
+        $userId = $user->user_id;
+        if (!$userId || !$user->alerts_unread)
+        {
+            return;
+        }
+
         $viewDate = $viewDate ? $viewDate : \XF::$time;
 
         $db = $this->db();
@@ -677,7 +683,7 @@ class UserAlert extends XFCP_UserAlert
             AND content_type IN (' . $db->quote($contentType) . ')
             AND content_id IN (' . $db->quote($contentIds) . ")
             {$actionFilter}
-        ", [$visitor->user_id, \XF::$time]
+        ", [$userId, \XF::$time]
         );
 
         if (empty($alertIds))
