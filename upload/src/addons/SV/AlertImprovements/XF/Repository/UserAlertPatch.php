@@ -12,7 +12,7 @@ use XF\Db\AbstractStatement;
  */
 class UserAlertPatch extends XFCP_UserAlertPatch
 {
-    protected $svBatchLimit = 100000;
+    protected $svBatchLimit = 50000;
 
     public function pruneReadAlerts($cutOff = null)
     {
@@ -31,7 +31,8 @@ class UserAlertPatch extends XFCP_UserAlertPatch
 
             if (microtime(true) - $startTime >= $maxRunTime)
             {
-                \XF::app()->jobManager()->enqueue('SV\AlertImprovements:AlertCleanup');
+                \XF::app()->jobManager()->enqueueLater(null, \XF::$time + 1, 'SV\AlertImprovements:AlertCleanup', [], false);
+
                 return;
             }
         }
@@ -55,7 +56,8 @@ class UserAlertPatch extends XFCP_UserAlertPatch
 
             if (microtime(true) - $startTime >= $maxRunTime)
             {
-                \XF::app()->jobManager()->enqueue('SV\AlertImprovements:AlertCleanup');
+                \XF::app()->jobManager()->enqueueLater(null, \XF::$time + 1, 'SV\AlertImprovements:AlertCleanup', [], false);
+
                 return;
             }
         }
