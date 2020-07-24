@@ -74,7 +74,7 @@ class Thread extends XFCP_Thread
          * @var AbstractCollection $contents
          * @var int                $lastDate
          */
-        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        /** @noinspection PhpUndefinedMethodInspection */
         list ($contents, $lastDate) = parent::_getNextLivePosts($thread, $lastDate, $limit);
 
         /** @var UserAlert $alertRepo */

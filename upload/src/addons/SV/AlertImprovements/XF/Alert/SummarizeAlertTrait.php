@@ -2,6 +2,8 @@
 
 namespace SV\AlertImprovements\XF\Alert;
 
+use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
+
 /**
  * Trait SummarizeAlertTrait
  *
@@ -30,12 +32,13 @@ trait SummarizeAlertTrait
     }
 
     /**
-     * @param array  $summaryAlert
-     * @param array  $alerts
-     * @param string $groupingStyle
+     * @param array    $summaryAlert
+     * @param Alerts[] $alerts
+     * @param string   $groupingStyle
      * @return array|null
+     * @noinspection PhpUnusedParameterInspection
      */
-    public function summarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ array $summaryAlert, array $alerts, $groupingStyle)
+    public function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
     {
         if ($groupingStyle !== 'content')
         {

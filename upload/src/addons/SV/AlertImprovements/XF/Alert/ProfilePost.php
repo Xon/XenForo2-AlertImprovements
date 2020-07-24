@@ -27,6 +27,7 @@ class ProfilePost extends XFCP_ProfilePost implements ISummarizeAlert
      * @param int    $contentId
      * @param array  $item
      * @return bool
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public function consolidateAlert(&$contentType, &$contentId, array $item)
     {

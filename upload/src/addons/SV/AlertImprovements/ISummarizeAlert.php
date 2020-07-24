@@ -3,6 +3,8 @@
 
 namespace SV\AlertImprovements;
 
+use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
+
 /**
  * Interface ISummarizeAlert
  *
@@ -33,7 +35,7 @@ interface ISummarizeAlert
 
     /**
      * @param array   $summaryAlert
-     * @param array[] $alerts
+     * @param Alerts[] $alerts
      * @param string  $groupingStyle
      * @return array
      */

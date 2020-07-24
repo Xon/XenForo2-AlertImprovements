@@ -65,7 +65,7 @@ class Conversation extends XFCP_Conversation
             return $this->notFound();
         }
 
-        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->markConvEssInboxAlertsAsRead(parent::actionLabeled($parameterBag));
     }
 

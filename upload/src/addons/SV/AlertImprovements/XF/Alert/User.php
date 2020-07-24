@@ -3,6 +3,7 @@
 namespace SV\AlertImprovements\XF\Alert;
 
 use SV\AlertImprovements\ISummarizeAlert;
+use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
 /**
  * Class User
@@ -55,9 +56,9 @@ class User extends XFCP_User implements ISummarizeAlert
     }
 
     /**
-     * @param array  $summaryAlert
-     * @param array  $alerts
-     * @param string $groupingStyle
+     * @param array    $summaryAlert
+     * @param Alerts[] $alerts
+     * @param string   $groupingStyle
      * @return array
      */
     public function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)

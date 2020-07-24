@@ -335,7 +335,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         // output ungrouped alerts
-        foreach ($groupedContentAlerts AS $contentType => &$contentIds)
+        foreach ($groupedContentAlerts AS $contentType => $contentIds)
         {
             foreach ($contentIds AS $contentId => $alertGrouping)
             {
