@@ -9,8 +9,8 @@ use XF\Mvc\Entity\Structure;
 /**
  * Class UserAlert
  * COLUMNS
- *
  * @property int                                      summerize_id
+ *
  * GETTERS
  * @property bool                                     is_new
  * @property bool                                     is_summary
@@ -49,20 +49,9 @@ class UserAlert extends XFCP_UserAlert
         {
             $ratings = $this->extra_data['extra_data']['reaction_id'];
 
-            if (\XF::$versionId >= 2010000)
-            {
-                /** @var \SV\ContentRatings\XF\Repository\Reaction $ratingTypeRepo */
-                $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
-                $ratingTypes = $ratingTypeRepo->getReactionsAsEntities();
-            }
-            else
-            {
-                /** @noinspection PhpUndefinedClassInspection */
-                /** @var \SV\ContentRatings\Repository\RatingType $ratingTypeRepo */
-                $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
-                /** @noinspection PhpUndefinedMethodInspection */
-                $ratingTypes = $ratingTypeRepo->getRatingTypesAsEntities();
-            }
+            /** @var \SV\ContentRatings\XF\Repository\Reaction $ratingTypeRepo */
+            $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
+            $ratingTypes = $ratingTypeRepo->getReactionsAsEntities();
 
             return $ratingTypes->filter(function ($item) use ($ratings) {
                 /** @noinspection PhpUndefinedClassInspection */

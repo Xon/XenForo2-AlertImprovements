@@ -17,57 +17,6 @@ use XF\Mvc\Reply\View;
 class Thread extends XFCP_Thread
 {
     /**
-     * @param ParameterBag $params
-     * @return AbstractReply
-     */
-    public function actionIndex(ParameterBag $params)
-    {
-        $reply = parent::actionIndex($params);
-
-        if (\XF::$versionId < 2010000 && $reply instanceof View && ($posts = $reply->getParam('posts')))
-        {
-            $visitor = \XF::visitor();
-
-            if ($visitor->user_id && $visitor->alerts_unread)
-            {
-                /** @var UserAlert $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds('post', $posts->keys(), null, 2010000);
-            }
-        }
-
-        return $reply;
-    }
-
-    /**
-     * XF2.0-XF2.1, new posts are marked as read when viewed in XF2.2+
-     *
-     * @param ThreadEntity $thread
-     * @param int          $lastDate
-     * @return AbstractReply
-     * @noinspection PhpMissingParamTypeInspection
-     */
-    protected function getNewPostsReply(ThreadEntity $thread, $lastDate)
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        $reply = parent::getNewPostsReply($thread, $lastDate);
-
-        if ($reply instanceof View && ($posts = $reply->getParam('posts')))
-        {
-            $visitor = \XF::visitor();
-
-            if ($visitor->user_id && $visitor->alerts_unread)
-            {
-                /** @var UserAlert $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds('post', is_array($posts) ? \array_keys($posts) : $posts->keys(), null,200100);
-            }
-        }
-
-        return $reply;
-    }
-
-    /**
      * @param ThreadEntity $thread
      * @param int          $lastDate
      * @param int          $limit

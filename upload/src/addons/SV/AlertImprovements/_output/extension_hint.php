@@ -25,6 +25,7 @@ namespace SV\AlertImprovements\XF\Alert
 namespace SV\AlertImprovements\XF\Entity
 {
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}
+	class XFCP_UserAlertBackport extends \XF\Entity\UserAlert {}
 	class XFCP_UserOption extends \XF\Entity\UserOption {}
 }
 
@@ -37,7 +38,6 @@ namespace SV\AlertImprovements\XF\Pub\Controller
 {
 	class XFCP_Account extends \XF\Pub\Controller\Account {}
 	class XFCP_Conversation extends \XF\Pub\Controller\Conversation {}
-	class XFCP_Member extends \XF\Pub\Controller\Member {}
 	class XFCP_Report extends \XF\Pub\Controller\Report {}
 	class XFCP_Thread extends \XF\Pub\Controller\Thread {}
 }
