@@ -17,10 +17,7 @@ use XF\Mvc\Entity\Finder;
  */
 class UserAlert extends XFCP_UserAlert
 {
-    /**
-     * @param int $userId
-     */
-    public function summarizeAlertsForUser($userId)
+    public function summarizeAlertsForUser(int $userId)
     {
         // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
@@ -50,6 +47,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int      $userId
      * @param null|int $cutOff
      * @return Finder
+     * @noinspection PhpMissingParamTypeInspection
      */
     public function findAlertsForUser($userId, $cutOff = null)
     {
@@ -90,10 +88,10 @@ class UserAlert extends XFCP_UserAlert
      * @param bool $force
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
-     * @return array[]|mixed
+     * @return array|null
      * @throws \Exception
      */
-    protected function checkSummarizeAlertsForUser($userId, $force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
+    protected function checkSummarizeAlertsForUser(int $userId, $force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
     {
         if ($userId !== \XF::visitor()->user_id)
         {
@@ -119,7 +117,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int  $summaryAlertViewDate
      * @return null|array
      */
-    protected function checkSummarizeAlerts($force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
+    protected function checkSummarizeAlerts(bool $force = false, bool $ignoreReadState = false, int $summaryAlertViewDate = 0)
     {
         if ($force || $this->canSummarizeAlerts())
         {
@@ -129,11 +127,7 @@ class UserAlert extends XFCP_UserAlert
         return null;
     }
 
-    /**
-     * @param User $user
-     * @param int  $summaryId
-     */
-    public function insertUnsummarizedAlerts($user, $summaryId)
+    public function insertUnsummarizedAlerts(User $user, int $summaryId)
     {
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryId) {
             $userId = $user->user_id;
@@ -171,10 +165,7 @@ class UserAlert extends XFCP_UserAlert
         });
     }
 
-    /**
-     * @return bool
-     */
-    protected function canSummarizeAlerts()
+    protected function canSummarizeAlerts(): bool
     {
         if (Globals::$skipSummarize)
         {
@@ -195,14 +186,7 @@ class UserAlert extends XFCP_UserAlert
         return $visitor->alerts_unread > $summarizeUnreadThreshold;
     }
 
-    /**
-     * Summarizes alerts, does not use entities due to the overhead
-     *
-     * @param bool $ignoreReadState
-     * @param int  $summaryAlertViewDate
-     * @return array
-     */
-    public function summarizeAlerts($ignoreReadState, $summaryAlertViewDate)
+    public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
     {
         // TODO : finish summarizing alerts
         $visitor = \XF::visitor();
@@ -398,7 +382,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int             $summaryAlertViewDate
      * @return bool
      */
-    protected function insertSummaryAlert($handler, $summarizeThreshold, $contentType, $contentId, array $alertGrouping, &$grouped, array &$outputAlerts, $groupingStyle, $senderUserId, $summaryAlertViewDate)
+    protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate) : bool
     {
         $grouped = 0;
         if (!$summarizeThreshold || count($alertGrouping) < $summarizeThreshold)
@@ -646,7 +630,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int|null      $viewDate
      * @throws \XF\Db\Exception
      */
-    public function markAlertsReadForContentIds($contentType, array $contentIds, array $actions = null, $maxXFVersion = 0, User $user = null, $viewDate = null)
+    public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, User $user = null, int $viewDate = null)
     {
         if ($maxXFVersion && \XF::$versionId > $maxXFVersion)
         {
@@ -755,10 +739,10 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param      $alertId
+     * @param int  $alertId
      * @return \SV\AlertImprovements\XF\Finder\UserAlert|Finder
      */
-    public function findAlertForUser(User $user, $alertId)
+    public function findAlertForUser(User $user, int $alertId)
     {
         return $this->finder('XF:UserAlert')
                     ->where(['alert_id', $alertId])
@@ -771,7 +755,7 @@ class UserAlert extends XFCP_UserAlert
      * @param bool $readStatus
      * @return Alerts
      */
-    public function changeAlertStatus(User $user, $alertId, $readStatus)
+    public function changeAlertStatus(User $user, int $alertId, bool $readStatus)
     {
         $db = $this->db();
         $db->beginTransaction();

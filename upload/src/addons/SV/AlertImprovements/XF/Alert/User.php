@@ -44,13 +44,7 @@ class User extends XFCP_User implements ISummarizeAlert
         }
     }
 
-    /**
-     * @param string $contentType
-     * @param int    $contentId
-     * @param array  $item
-     * @return bool
-     */
-    public function consolidateAlert(&$contentType, &$contentId, array $item)
+    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool
     {
         return false;
     }
@@ -61,7 +55,7 @@ class User extends XFCP_User implements ISummarizeAlert
      * @param string   $groupingStyle
      * @return array
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)
     {
         $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
 

@@ -6,6 +6,7 @@ use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\Thread as ThreadEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 
 /**
@@ -17,7 +18,7 @@ class Thread extends XFCP_Thread
 {
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\Error|\XF\Mvc\Reply\Redirect|View
+     * @return AbstractReply
      */
     public function actionIndex(ParameterBag $params)
     {
@@ -39,15 +40,19 @@ class Thread extends XFCP_Thread
     }
 
     /**
+     * XF2.0-XF2.1, new posts are marked as read when viewed in XF2.2+
+     *
      * @param ThreadEntity $thread
      * @param int          $lastDate
-     * @return View
+     * @return AbstractReply
+     * @noinspection PhpMissingParamTypeInspection
      */
     protected function getNewPostsReply(ThreadEntity $thread, $lastDate)
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         $reply = parent::getNewPostsReply($thread, $lastDate);
 
-        if  ($reply instanceof View && ($posts = $reply->getParam('posts')))
+        if ($reply instanceof View && ($posts = $reply->getParam('posts')))
         {
             $visitor = \XF::visitor();
 
@@ -55,7 +60,7 @@ class Thread extends XFCP_Thread
             {
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds('post', is_array($posts) ? \array_keys($posts) : $posts->keys());
+                $alertRepo->markAlertsReadForContentIds('post', is_array($posts) ? \array_keys($posts) : $posts->keys(), null,200100);
             }
         }
 
@@ -67,6 +72,7 @@ class Thread extends XFCP_Thread
      * @param int          $lastDate
      * @param int          $limit
      * @return array
+     * @noinspection PhpMissingParamTypeInspection
      */
     protected function _getNextLivePosts(ThreadEntity $thread, $lastDate, $limit = 3)
     {

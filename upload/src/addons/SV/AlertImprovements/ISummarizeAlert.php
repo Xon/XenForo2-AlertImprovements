@@ -30,14 +30,14 @@ interface ISummarizeAlert
      * @param array  $item
      * @return bool
      */
-    public function consolidateAlert(&$contentType, &$contentId, array $item);
+    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool;
 
 
     /**
-     * @param array   $summaryAlert
+     * @param array    $summaryAlert
      * @param Alerts[] $alerts
-     * @param string  $groupingStyle
+     * @param string   $groupingStyle
      * @return array
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle);
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle);
 }

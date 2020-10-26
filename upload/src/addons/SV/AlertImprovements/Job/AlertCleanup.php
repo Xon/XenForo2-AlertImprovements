@@ -19,7 +19,7 @@ class AlertCleanup extends AbstractJob
     {
         $startTime = \microtime(true);
 
-        /** @var \XF\Repository\UserAlert $alertRepo */
+        /** @var \SV\AlertImprovements\XF\Repository\UserAlertPatch $alertRepo */
         $alertRepo = \XF::app()->repository('XF:UserAlert');
         $alertRepo->pruneReadAlerts();
         if (microtime(true) - $startTime < $maxRunTime)

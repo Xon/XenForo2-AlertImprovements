@@ -109,6 +109,7 @@ class Conversation extends XFCP_Conversation
      * @param int              $lastDate
      * @param int              $limit
      * @return array
+     * @noinspection PhpMissingParamTypeInspection
      */
     protected function _getNextLivePosts(ConversationUser $convUser, $lastDate, $limit = 3)
     {
@@ -116,7 +117,7 @@ class Conversation extends XFCP_Conversation
          * @var AbstractCollection $contents
          * @var int                $lastDate
          */
-        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        /** @noinspection PhpUndefinedMethodInspection */
         list ($contents, $lastDate) = parent::_getNextLivePosts($convUser, $lastDate, $limit);
 
         /** @var UserAlert $alertRepo */

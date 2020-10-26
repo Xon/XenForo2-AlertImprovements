@@ -15,10 +15,7 @@ class UserAlert extends XFCP_UserAlert
      */
     protected $shimSource;
 
-    /**
-     * @param \Closure|null $shimSource
-     */
-    public function shimSource($shimSource)
+    public function shimSource(\Closure $shimSource = null)
     {
         $this->shimSource = $shimSource;
     }
@@ -26,7 +23,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param int|null $limit
      * @param int|null $offset
-     * @return \XF\Mvc\Entity\ArrayCollection
+     * @return \XF\Mvc\Entity\AbstractCollection
      */
     public function fetch($limit = null, $offset = null)
     {
@@ -58,7 +55,7 @@ class UserAlert extends XFCP_UserAlert
      * @returns \SV\AlertImprovements\XF\Entity\UserAlert[]
      * @return array
      */
-    public function materializeAlerts($rawEntities)
+    public function materializeAlerts(array $rawEntities)
     {
         $output = [];
         $em = $this->em;

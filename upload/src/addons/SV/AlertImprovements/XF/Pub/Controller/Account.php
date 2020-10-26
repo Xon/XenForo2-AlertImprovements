@@ -45,10 +45,11 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\Redirect
+     * @return \XF\Mvc\Reply\AbstractReply
      * @throws \XF\Mvc\Reply\Exception
+     * @noinspection PhpUnusedParameterInspection
      */
-    public function actionSummarizeAlerts(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
+    public function actionSummarizeAlerts(ParameterBag $params)
     {
         $options = \XF::options();
         if (empty($options->sv_alerts_summerize))
@@ -67,9 +68,10 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return View
+     * @return \XF\Mvc\Reply\AbstractReply
+     * @noinspection PhpUnusedParameterInspection
      */
-    public function actionAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
+    public function actionAlert(ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
@@ -134,7 +136,7 @@ class Account extends XFCP_Account
     }
 
     /**
-     * @return \XF\Mvc\Reply\Redirect|View
+     * @return \XF\Mvc\Reply\AbstractReply
      */
     public function actionAlerts()
     {
@@ -233,11 +235,7 @@ class Account extends XFCP_Account
         return $reply;
     }
 
-    /**
-     * @param AbstractCollection $alerts
-     * @return array
-     */
-    protected function groupAlertsByDay($alerts)
+    protected function groupAlertsByDay(AbstractCollection $alerts): array
     {
         $dowTranslation = [
             0 => 'sunday',
@@ -293,8 +291,9 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return \XF\Mvc\Reply\Redirect
+     * @noinspection PhpUnusedParameterInspection
      */
-    public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
+    public function actionUnreadAlert(ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
@@ -317,8 +316,9 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return \XF\Mvc\Reply\Redirect
+     * @noinspection PhpUnusedParameterInspection
      */
-    public function actionUnsummarizeAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
+    public function actionUnsummarizeAlert(ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');

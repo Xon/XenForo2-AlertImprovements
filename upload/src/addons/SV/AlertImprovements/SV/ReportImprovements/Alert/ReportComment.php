@@ -22,13 +22,9 @@ class ReportComment extends XFCP_ReportComment implements ISummarizeAlert
     }
 
     /**
-     * @param string $contentType
-     * @param int    $contentId
-     * @param array  $item
-     * @return bool
      * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
-    public function consolidateAlert(&$contentType, &$contentId, array $item)
+    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool
     {
         switch ($contentType)
         {

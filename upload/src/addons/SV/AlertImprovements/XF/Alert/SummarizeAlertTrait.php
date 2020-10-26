@@ -38,7 +38,7 @@ trait SummarizeAlertTrait
      * @return array|null
      * @noinspection PhpUnusedParameterInspection
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, $groupingStyle)
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)
     {
         if ($groupingStyle !== 'content')
         {
