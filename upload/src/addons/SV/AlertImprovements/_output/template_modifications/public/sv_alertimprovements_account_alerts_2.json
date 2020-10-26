@@ -4,6 +4,6 @@
     "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",
-    "find": "#(<ol class=\"listPlain\">.*?<\\/ol>)#s",
+    "find": "#(<ol class=\"listPlain\"[^>]*>.*?<\\/ol>)#s",
     "replace": "<xf:include template=\"svAlertsImprov_account_alerts_group_by_date\" />"
 }

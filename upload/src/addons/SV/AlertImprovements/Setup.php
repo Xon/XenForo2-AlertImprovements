@@ -146,6 +146,21 @@ class Setup extends AbstractSetup
 
     }
 
+    public function upgrade2080000Step1()
+    {
+        $this->installStep1();
+    }
+
+    public function upgrade2080000Step2()
+    {
+        // Thread Starter Alerts v2.2.0 support
+        $this->db()->query("
+            UPDATE xf_user_alert
+            SET auto_read = 0
+            WHERE summerize_id IS NULL AND action IN ('staff_insert', 'op_insert', 'followed_insert') and content_type = 'post'
+        ");
+    }
+
     public function uninstallStep1()
     {
         $sm = $this->schemaManager();
@@ -186,7 +201,21 @@ class Setup extends AbstractSetup
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
+            $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1)->after('read_date');
             $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
+
+            // index is superseded
+            $table->dropIndexes('contentType_contentId');
+
+            // for basic content type lookups
+            $table->addKey(['content_type', 'content_id', 'user_id']);
+
+            // primarily for looking up active alerts for a user from a set of content -- content_id will generally
+            // be a multiple element list, so further columns aren't particularly helpful
+            $table->addKey(['alerted_user_id', 'content_type', 'content_id']);
+
+            // for unviewed calculations
+            $table->addKey(['alerted_user_id', 'view_date']);
         };
 
         return $tables;
