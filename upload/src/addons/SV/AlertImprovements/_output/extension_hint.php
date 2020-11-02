@@ -45,6 +45,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller
 namespace SV\AlertImprovements\XF\Repository
 {
 	class XFCP_UserAlert extends \XF\Repository\UserAlert {}
+	class XFCP_UserAlertBackport extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertPatch extends \XF\Repository\UserAlert {}
 }
 
