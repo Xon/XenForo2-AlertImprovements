@@ -10,6 +10,8 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
+use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
+use XF\Entity\UserAlert as UserAlertEntity;
 
 /**
  * Class Account
@@ -235,6 +237,9 @@ class Account extends XFCP_Account
         return $reply;
     }
 
+    /**
+     * @param AbstractCollection|ExtendedUserAlertEntity[] $alerts
+     */
     protected function groupAlertsByDay(AbstractCollection $alerts): array
     {
         $dowTranslation = [
@@ -247,28 +252,26 @@ class Account extends XFCP_Account
             6 => 'saturday',
         ];
 
-        $newAlerts = [];
         $language = $this->app()->language(\XF::visitor()->language_id);
-        $timeRef = $language->getDayStartTimestamps();
+        $dayStartTimestamps = $language->getDayStartTimestamps();
 
-        /** @var \XF\Entity\UserAlert $alert */
-        foreach ($alerts AS $alert)
+        return $alerts->groupBy(function (UserAlertEntity $alert) use($language, $dayStartTimestamps, $dowTranslation)
         {
             $timestamp = $alert->event_date;
             /** @noinspection PhpUnusedLocalVariableInspection */
             list($date, $time) = $language->getDateTimeParts($timestamp);
 
-            if ($timestamp >= $timeRef['today'])
+            if ($timestamp >= $dayStartTimestamps['today'])
             {
                 $groupedDate = \XF::phrase('sv_alertimprovements.today')->render();
             }
-            else if ($timestamp >= $timeRef['yesterday'])
+            else if ($timestamp >= $dayStartTimestamps['yesterday'])
             {
                 $groupedDate = \XF::phrase('sv_alertimprovements.yesterday')->render();
             }
-            else if ($timestamp >= $timeRef['week'])
+            else if ($timestamp >= $dayStartTimestamps['week'])
             {
-                $dow = $timeRef['todayDow'] - ceil(($timeRef['today'] - $timestamp) / 86400);
+                $dow = $dayStartTimestamps['todayDow'] - \ceil(($dayStartTimestamps['today'] - $timestamp) / 86400);
                 if ($dow < 0)
                 {
                     $dow += 7;
@@ -281,11 +284,8 @@ class Account extends XFCP_Account
                 $groupedDate = $date;
             }
 
-
-            $newAlerts[$groupedDate][$timestamp] = $alert;
-        }
-
-        return $newAlerts;
+            return $groupedDate;
+        });
     }
 
     /**
