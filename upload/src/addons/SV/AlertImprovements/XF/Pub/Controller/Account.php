@@ -293,31 +293,6 @@ class Account extends XFCP_Account
      * @return \XF\Mvc\Reply\Redirect
      * @noinspection PhpUnusedParameterInspection
      */
-    public function actionUnreadAlert(ParameterBag $params)
-    {
-        $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'int');
-
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->changeAlertStatus($visitor, $alertId, false);
-
-        $linkParams = [
-            'skip_mark_read' => true,
-        ];
-
-        return $this->redirect(
-            $this->buildLink(
-                'account/alerts', [], $linkParams
-            )
-        );
-    }
-
-    /**
-     * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\Redirect
-     * @noinspection PhpUnusedParameterInspection
-     */
     public function actionUnsummarizeAlert(ParameterBag $params)
     {
         $visitor = \XF::visitor();
