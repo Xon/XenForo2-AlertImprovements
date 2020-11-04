@@ -88,7 +88,7 @@ class UserAlertBackport extends XFCP_UserAlertBackport
 
     protected function svSyncUserAlertUnreadCount($user)
     {
-        if (!$user || !($user instanceof UserEntity))
+        if (!($user instanceof UserEntity))
         {
             return;
         }
