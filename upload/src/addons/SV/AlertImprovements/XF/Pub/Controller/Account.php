@@ -4,7 +4,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\XF\Entity\UserOption;
-use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
@@ -61,7 +61,7 @@ class Account extends XFCP_Account
 
         $this->assertNotFlooding('alertSummarize', max(1, (int)$options->sv_alerts_summerize_flood));
 
-        /** @var UserAlert $alertRepo */
+        /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->summarizeAlertsForUser(\XF::visitor()->user_id);
 
@@ -81,7 +81,7 @@ class Account extends XFCP_Account
         $page = $this->filterPage();
         $perPage = $this->options()->alertsPerPage;
 
-        /** @var UserAlert $alertRepo */
+        /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         if (!$skipMarkAsRead && $page === 1)
         {
@@ -175,7 +175,7 @@ class Account extends XFCP_Account
                 /** @var AbstractCollection $alerts */
                 $alerts = $response->getParam('alerts');
                 $newAlerts = $this->groupAlertsByDay($alerts);
-                $response->setParam('alerts', $newAlerts);
+                $response->setParam('groupedAlerts', $newAlerts);
             }
         }
 
@@ -205,7 +205,7 @@ class Account extends XFCP_Account
             // if skipping alerts read, ensure user-alerts are read anyway, otherwise they don't go away as expected
             if ($visitor->alerts_unread && Globals::$skipMarkAlertsRead)
             {
-                /** @var UserAlert $alertRepo */
+                /** @var ExtendedUserAlertRepo $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
                 $alertRepo->markUserAlertsReadForContent('user', $visitor->user_id);
             }
@@ -298,7 +298,7 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
 
-        /** @var UserAlert $alertRepo */
+        /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->changeAlertStatus($visitor, $alertId, false);
 
@@ -323,7 +323,7 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');
 
-        /** @var UserAlert $alertRepo */
+        /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->insertUnsummarizedAlerts($visitor, $alertId);
 

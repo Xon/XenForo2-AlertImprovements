@@ -1,9 +1,9 @@
 {
     "template": "account_alerts",
-    "description": "Extra controls for alerts",
+    "description": "Add \"Alert preferences\", \"Resummarize alerts\" and \"Mark read\" buttons above alerts list",
     "execution_order": 6398,
     "enabled": true,
-    "action": "str_replace",
-    "find": "<xf:if is=\"$alerts is not empty\">",
-    "replace": "$0\n<xf:include template=\"svAlertsImprov_account_alerts_controls\" />"
+    "action": "preg_replace",
+    "find": "#((^[\\s]<div class=\"block-outer.*?class=\"buttonGroup.*?>)(.*?)(<\\/div>.*?<\\/xf:trim><\\/div>$.*?))?(^[\\s]<div class=\"block-container)#sim",
+    "replace": "<xf:set var=\"$svAlertImproveButtonsHtml\">\n\t\t<xf:if is=\"$xf.versionId < 2020010\">\n\t\t\t<xf:js src=\"sv/alerts/alerts.js\" addon=\"SV/AlertImprovements\" min=\"1\" />\n\t\t\t<xf:button href=\"{{ link('account/alerts/mark-read') }}\" class=\"button--link\" data-xf-click=\"sv-alert-improvements--mark-alerts-read\"><xf:trim>\n\t\t\t\t{{ phrase('svAlertImprov_mark_read') }}\n\t\t\t</xf:trim></xf:button>\n\t\t</xf:if>\n\t\t<xf:button href=\"{{ link('account/preferences') }}#alerts\" class=\"button--link\" overlay=\"true\"><xf:trim>\n\t\t\t{{ phrase('sv_alert_preferences') }}\n\t\t</xf:trim></xf:button>\n\t\t<xf:if is=\"$xf.options.sv_alerts_summerize\">\n\t\t\t<xf:button href=\"{{ link('account/summarize-alerts') }}\" class=\"button--link\"><xf:trim>\n\t\t\t\t{{ phrase('sv_resummarize_alerts') }}\n\t\t\t</xf:trim></xf:button>\n\t\t</xf:if>\n\t</xf:set>\n\n$2$3\t{{ $xf.versionId >= 2020010 ? $svAlertImproveButtonsHtml|raw : '' }}\n\t\t\t$4\n\t<xf:if is=\"$xf.versionId < 2020010\">\n\t\t<div class=\"block-outer\"><xf:trim>\n\t\t\t<div class=\"block-outer-opposite\">\n\t\t\t\t<div class=\"buttonGroup\">\n\t\t\t\t\t{{ $svAlertImproveButtonsHtml|raw }}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</xf:trim></div>\n\t</xf:if>\n$5"
 }

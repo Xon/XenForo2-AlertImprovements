@@ -2,17 +2,19 @@
 	<div class="menu-scroller">
 		<ol class="listPlain">
 			<xf:foreach loop="$unreadAlerts" value="$alert">
-				<li class="menu-row menu-row--separated menu-row--clickable {{ $alert.isUnviewed() ? 'menu-row--highlighted' : ($alert.isRecentlyViewed() ? '' : 'menu-row--alt') }}">
+				<li class="alert js-alert menu-row menu-row--separated menu-row--clickable {{ $alert.isUnreadInUi() ? 'is-unread' : ($alert.isRecentlyRead() ? '' : 'menu-row--alt') }}">
 					<div class="fauxBlockLink">
 						<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
 					</div>
 				</li>
 			</xf:foreach>
+
 			<xf:if is="$unreadAlerts is not empty and $alerts is not empty">
 				<li class="menu-row menu-row--separated" style="border-top-width: 2px;"></li>
 			</xf:if>
+
 			<xf:foreach loop="$alerts" value="$alert">
-				<li class="menu-row menu-row--separated menu-row--clickable {{ $alert.isUnviewed() ? 'menu-row--highlighted' : ($alert.isRecentlyViewed() ? '' : 'menu-row--alt') }}">
+				<li class="alert js-alert menu-row menu-row--separated menu-row--clickable {{ $alert.isUnreadInUi() ? 'is-unread' : ($alert.isRecentlyRead() ? '' : 'menu-row--alt') }}">
 					<div class="fauxBlockLink">
 						<xf:macro template="alert_macros" name="row" arg-alert="{$alert}" />
 					</div>

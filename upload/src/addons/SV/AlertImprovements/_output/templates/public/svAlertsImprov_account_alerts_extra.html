@@ -1,16 +1,24 @@
 <xf:if is="$alert.is_new">
-	<span class="user-alert--newIcon fa fa-star" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}"></span>
+	<xf:fa icon="fa fa-star" class="unread-alert" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" />
 </xf:if>
-<xf:if is="$alert.view_date or $__globals.markedAlertsRead">
-    <xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
-    <a class="markAlertUnread" data-xf-click="mark-alert-unread" href="{{ link('account/unread-alert', '', {'alert_id':$alert.alert_id}) }}">
-        <xf:comment>Lack of linebreaks necessary to avoid unnecessary space</xf:comment>
-        <span class="user-alert--unreadLink">{{ phrase('sv_mark_unread') }}</span></a>{{ $alert.is_summary ? ',' : '' }}
+
+<xf:if is="$xf.versionId < 2020010">
+	<xf:css src="svAlertsImprov_account_alerts_extra.less" />
+	<xf:js src="sv/alerts/alerts.js" addon="SV/AlertImprovements" min="1" />
+	
+	<span class="u-pullRight">
+		<a href="{{ link('account/alert-toggle', null, {'alert_id': $alert.alert_id}) }}" class="js-alertToggle alertToggler"
+		   data-xf-init="tooltip" data-xf-click="sv-alert-improvements--alert-toggler" data-content="{{ $alert.isUnreadInUi() ? phrase('mark_read') : phrase('mark_unread') }}"
+		   data-read="{{ phrase('mark_read') }}" data-unread="{{ phrase('mark_unread') }}"><xf:trim>
+			<xf:fa icon="fa-circle" class="alertToggler-icon" />
+		</xf:trim></a>
+	</span>
 </xf:if>
+
 <xf:if is="$alert.is_summary">
-    <a class="unsummarizeAlert" href="{{ link('account/unsummarize-alert', '', {'alert_id':$alert.alert_id}) }}">
-        <span class="user-alert--unreadLink">
-            {{phrase('sv_unsummarize_alert')}}
-        </span>
-    </a>
+	<a class="unsummarizeAlert" href="{{ link('account/unsummarize-alert', '', {'alert_id':$alert.alert_id}) }}">
+		<span class="user-alert--unreadLink">
+			{{phrase('sv_unsummarize_alert')}}
+		</span>
+	</a>
 </xf:if>

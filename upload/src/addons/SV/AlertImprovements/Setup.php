@@ -201,7 +201,7 @@ class Setup extends AbstractSetup
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
-            $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1)->after('read_date');
+            $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1)->after(\XF::$versionId > 2020010 ? 'read_date' : 'view_date');
             $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
 
             // index is superseded

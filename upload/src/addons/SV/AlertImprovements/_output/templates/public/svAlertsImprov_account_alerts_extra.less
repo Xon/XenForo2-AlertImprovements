@@ -1,0 +1,18 @@
+.alert
+{
+	&.is-unread
+	{
+		.xf-contentHighlightBase();
+		
+		.alertToggler-icon
+		{
+			font-weight: @faWeight-solid;
+		}
+	}
+	
+	.alertToggler-icon
+	{
+		font-size: .75em;
+		font-weight: min(@xf-fontAwesomeWeight, @faWeight-regular);
+	}
+}

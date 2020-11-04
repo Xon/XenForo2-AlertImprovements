@@ -1,9 +1,0 @@
-{
-    "template": "alert_macros",
-    "description": "Inject extra css",
-    "execution_order": 6398,
-    "enabled": true,
-    "action": "str_replace",
-    "find": "<div class=\"contentRow\">",
-    "replace": "<div class=\"contentRow user-alert\">"
-}

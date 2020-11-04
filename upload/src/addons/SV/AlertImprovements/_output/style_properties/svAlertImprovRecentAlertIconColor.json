@@ -1,0 +1,13 @@
+{
+    "group_name": "color",
+    "title": "Recent alert icon color",
+    "description": "",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "color",
+    "value_parameters": "",
+    "depends_on": "",
+    "value_group": "AlertImprovements",
+    "property_value": "rgb(255,215,0)",
+    "display_order": 12000
+}

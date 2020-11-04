@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts_popup",
+    "description": "Add \"js-alert\" and \"alert\" class to alert items in popup menu",
+    "execution_order": 6398,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#^([\\s]*<xf:foreach loop=\".*?<li class=\")(.*?\\.)(isUnviewed)(\\(\\))#sim",
+    "replace": "$1{{ $xf.versionId < 2020010 ? ' alert js-alert ' : '' }}$2isUnreadInUi$4"
+}
