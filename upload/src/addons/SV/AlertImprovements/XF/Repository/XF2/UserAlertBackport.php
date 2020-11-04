@@ -79,7 +79,7 @@ class UserAlertBackport extends XFCP_UserAlertBackport
                 UPDATE xf_user
                 SET alerts_unread = LEAST(alerts_unread + ?, 65535)
                 WHERE user_id = ?
-            ", [1, $user->user_id]);
+            ", [1, $alert->alerted_user_id]);
 
             $this->syncUserAlertUnreadCountIfNeededForSvAlertImprov($user);
 
