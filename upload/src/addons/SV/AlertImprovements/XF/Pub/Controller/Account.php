@@ -83,13 +83,12 @@ class Account extends XFCP_Account
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        if (!$skipMarkAsRead && $page === 1)
+        /** @var ExtendedUserAlertEntity $alert */
+        $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
+
+        if (!$skipMarkAsRead && $page === 1 && $alert->auto_read)
         {
             $alert = $alertRepo->changeAlertStatus($visitor, $alertId, true);
-        }
-        else
-        {
-            $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
         }
         /** @var \SV\AlertImprovements\XF\Entity\UserAlert $alert */
         if (!$alert)
