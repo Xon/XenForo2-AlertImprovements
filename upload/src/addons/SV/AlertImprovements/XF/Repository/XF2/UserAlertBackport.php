@@ -45,7 +45,7 @@ class UserAlertBackport extends XFCP_UserAlertBackport
                 WHERE user_id = ?
             ", [1, $alert->alerted_user_id]);
 
-            $this->syncUserAlertUnreadCountIfNeededForSvAlertImprov($user);
+            $this->svSyncUserAlertUnreadCount($user);
 
         }, \XF\Db\AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
@@ -81,12 +81,12 @@ class UserAlertBackport extends XFCP_UserAlertBackport
                 WHERE user_id = ?
             ", [1, $alert->alerted_user_id]);
 
-            $this->syncUserAlertUnreadCountIfNeededForSvAlertImprov($user);
+            $this->svSyncUserAlertUnreadCount($user);
 
         }, \XF\Db\AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
 
-    protected function syncUserAlertUnreadCountIfNeededForSvAlertImprov($user)
+    protected function svSyncUserAlertUnreadCount($user)
     {
         if (!$user || !($user instanceof UserEntity))
         {
