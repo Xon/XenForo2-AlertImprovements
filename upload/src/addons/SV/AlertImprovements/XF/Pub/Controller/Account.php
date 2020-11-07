@@ -251,7 +251,7 @@ class Account extends XFCP_Account
             6 => 'saturday',
         ];
 
-        $language = $this->app()->language(\XF::visitor()->language_id);
+        $language = \XF::language();
         $dayStartTimestamps = $language->getDayStartTimestamps();
 
         return $alerts->groupBy(function (UserAlertEntity $alert) use($language, $dayStartTimestamps, $dowTranslation)
