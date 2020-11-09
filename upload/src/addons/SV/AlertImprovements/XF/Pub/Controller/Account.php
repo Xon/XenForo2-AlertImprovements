@@ -86,11 +86,10 @@ class Account extends XFCP_Account
         /** @var ExtendedUserAlertEntity $alert */
         $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
 
-        if (!$skipMarkAsRead && $page === 1 && $alert->auto_read)
+        if ($alert && !$skipMarkAsRead && $page === 1 && $alert->auto_read)
         {
-            $alert = $alertRepo->changeAlertStatus($visitor, $alertId, true);
+            $alertRepo->markUserAlertRead($alert);
         }
-        /** @var \SV\AlertImprovements\XF\Entity\UserAlert $alert */
         if (!$alert)
         {
             return $this->notFound();
@@ -111,7 +110,7 @@ class Account extends XFCP_Account
             Globals::$skipSummarizeFilter = false;
         }
         $alertsFinder->where('summerize_id', '=', $alertId);
-        /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
+        /** @var UserAlertEntity[]|AbstractCollection $alerts */
         $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
 
         $alertRepo->addContentToAlerts($alerts);
@@ -167,8 +166,6 @@ class Account extends XFCP_Account
         }
         if ($response instanceof View)
         {
-            $response->setParam('markedAlertsRead', Globals::$markedAlertsRead);
-
             if ($this->app->options()->sv_alerts_groupByDate)
             {
                 /** @var AbstractCollection $alerts */
@@ -216,7 +213,7 @@ class Account extends XFCP_Account
             ($alerts = $reply->getParam('alerts')))
         {
             $unreadAlerts = [];
-            /** @var \XF\Entity\UserAlert $alert */
+            /** @var UserAlertEntity $alert */
             foreach ($alerts as $key => $alert)
             {
                 if (!$alert->view_date)
@@ -234,6 +231,11 @@ class Account extends XFCP_Account
         }
 
         return $reply;
+    }
+
+    protected function markInaccessibleAlertsReadIfNeeded(AbstractCollection $displayedAlerts = null)
+    {
+        // no-op this, as stock calls this stupidly often and loads all unread alerts without sanity checks...
     }
 
     /**

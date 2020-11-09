@@ -13,8 +13,6 @@ namespace SV\AlertImprovements;
 class Globals
 {
     /** @var bool */
-    public static $markedAlertsRead = false;
-    /** @var bool */
     public static $skipSummarize = false;
     /** @var bool */
     public static $skipSummarizeFilter = false;

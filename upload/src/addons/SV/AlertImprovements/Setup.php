@@ -146,12 +146,12 @@ class Setup extends AbstractSetup
 
     }
 
-    public function upgrade2080000Step1()
+    public function upgrade2080001Step1()
     {
         $this->installStep1();
     }
 
-    public function upgrade2080000Step2()
+    public function upgrade2080001Step2()
     {
         // Thread Starter Alerts v2.2.0 support
         $this->db()->query("
@@ -159,6 +159,34 @@ class Setup extends AbstractSetup
             SET auto_read = 0
             WHERE summerize_id IS NULL AND action IN ('staff_insert', 'op_insert', 'followed_insert') and content_type = 'post'
         ");
+    }
+
+    public function upgrade2080001Step3()
+    {
+        if (\XF::$versionId >= 2020000)
+        {
+            return;
+        }
+
+        /** @noinspection SqlWithoutWhere */
+        $this->executeUpgradeQuery("
+			UPDATE xf_user_alert
+			SET read_date = view_date
+		");
+    }
+
+    public function upgrade2080001Step4()
+    {
+        if (\XF::$versionId >= 2020000)
+        {
+            return;
+        }
+
+        /** @noinspection SqlWithoutWhere */
+        $this->executeUpgradeQuery("
+			UPDATE xf_user
+			SET alerts_unviewed = alerts_unread
+		");
     }
 
     public function uninstallStep1()
@@ -201,7 +229,8 @@ class Setup extends AbstractSetup
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
-            $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1)->after(\XF::$versionId > 2020010 ? 'read_date' : 'view_date');
+            $this->addOrChangeColumn($table, 'read_date', 'int')->setDefault(0)->after('view_date');
+            $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1)->after('read_date');
             $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
 
             // index is superseded
@@ -216,6 +245,10 @@ class Setup extends AbstractSetup
 
             // for unviewed calculations
             $table->addKey(['alerted_user_id', 'view_date']);
+        };
+
+        $tables['xf_user'] = function (Alter $table) {
+            $this->addOrChangeColumn($table,'alerts_unviewed', 'smallint', 5)->setDefault(0)->after('trophy_points');
         };
 
         return $tables;

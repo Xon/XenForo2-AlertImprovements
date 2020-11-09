@@ -24,6 +24,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         $startTime = \microtime(true);
         do
         {
+            // TODO; rebuild view/unread counts
             /** @var AbstractStatement $statement */
             $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff) {
                 return $db->query("DELETE FROM xf_user_alert WHERE view_date > 0 AND view_date < ? LIMIT {$this->svBatchLimit}", $cutOff);
@@ -49,6 +50,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         $startTime = \microtime(true);
         do
         {
+            // TODO; rebuild view/unread counts
             /** @var AbstractStatement $statement */
             $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff) {
                 return $db->query("DELETE FROM xf_user_alert WHERE view_date = 0 AND event_date < ? LIMIT {$this->svBatchLimit}", $cutOff);

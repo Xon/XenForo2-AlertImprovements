@@ -8,6 +8,7 @@ use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
 use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 use XF\Entity\User;
+use XF\Entity\UserAlert as UserAlertEntity;
 use XF\Mvc\Entity\Finder;
 
 /**
@@ -41,6 +42,19 @@ class UserAlert extends XFCP_UserAlert
 
             $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+    }
+
+
+    /**
+     * @param User $user
+     * @param int  $alertId
+     * @return \SV\AlertImprovements\XF\Finder\UserAlert|Finder
+     */
+    public function findAlertForUser(User $user, int $alertId)
+    {
+        return $this->finder('XF:UserAlert')
+                    ->where(['alert_id', $alertId])
+                    ->where(['alerted_user_id', $user->user_id]);
     }
 
     /**
@@ -579,18 +593,91 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User     $user
-     * @param null|int $viewDate
+     * @param User $user
+     * @param null|int   $viewDate
      */
-    public function markUserAlertsRead(User $user, $viewDate = null)
+    public function markUserAlertsViewed(User $user, $viewDate = null)
     {
-        if (Globals::$skipMarkAlertsRead)
+        $this->markUserAlertsRead($user, $viewDate);
+    }
+
+    public function markUserAlertViewed(UserAlertEntity $alert, $viewDate = null)
+    {
+        $this->markUserAlertRead($alert, $viewDate);
+    }
+
+    /**
+     * @param User $user
+     * @param null|int   $readDate
+     */
+    public function markUserAlertsRead(User $user, $readDate = null)
+    {
+        if (Globals::$skipMarkAlertsRead || !$user->user_id)
         {
             return;
         }
 
-        Globals::$markedAlertsRead = true;
-        parent::markUserAlertsRead($user, $viewDate);
+        if ($readDate === null)
+        {
+            $readDate = \XF::$time;
+        }
+
+        $db = $this->db();
+        $db->executeTransaction(function() use ($db, $readDate, $user)
+        {
+            $db->update('xf_user_alert', ['view_date' => $readDate], "alerted_user_id = ? AND view_date = 0", $user->user_id);
+            $db->update('xf_user_alert', ['read_date' => $readDate], "alerted_user_id = ? AND read_date = 0", $user->user_id);
+
+            $user->alerts_unviewed = 0;
+            $user->alerts_unread = 0;
+            $user->save(true, false);
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+    }
+
+    public function autoMarkUserAlertsRead(\XF\Mvc\Entity\AbstractCollection $alerts, User $user, $readDate = null)
+    {
+        $alerts = $alerts->filter(function(UserAlertEntity $alert)
+        {
+            return ($alert->isUnread() && $alert->auto_read);
+        });
+
+        $this->markSpecificUserAlertsRead($alerts, $user, $readDate);
+    }
+
+    protected function markSpecificUserAlertsRead(\XF\Mvc\Entity\AbstractCollection $alerts, User $user, int $readDate = null)
+    {
+        $userId = $user->user_id;
+        if (!$userId || !$alerts->count())
+        {
+            return;
+        }
+
+        if ($readDate === null)
+        {
+            $readDate = \XF::$time;
+        }
+
+        $unreadAlertIds = [];
+        foreach ($alerts as $alert)
+        {
+            /** @var UserAlertEntity $alert */
+            if ($alert->isUnread())
+            {
+                $unreadAlertIds[] = $alert->alert_id;
+                $alert->setAsSaved('view_date', $readDate);
+                $alert->setAsSaved('read_date', $readDate);
+
+                // we need to treat this as unread for the current request so it can display the way we want
+                $alert->setOption('force_unread_in_ui', true);
+            }
+        }
+
+        if (!$unreadAlertIds)
+        {
+            return;
+        }
+
+        $this->markAlertIdsAsReadAndViewed($user, $unreadAlertIds, $readDate);
     }
 
     public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $viewDate = null)
@@ -607,6 +694,70 @@ class UserAlert extends XFCP_UserAlert
         $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user, $viewDate);
     }
 
+
+    protected function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate)
+    {
+        $userId = $user->user_id;
+        $db = $this->db();
+        $ids = $db->quote($alertIds);
+        $stmt = $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET view_date = ?
+                WHERE view_date = 0 AND alert_id IN (' . $ids . ')
+            ', [$readDate]
+        );
+        $viewRowsAffected = $stmt->rowsAffected();
+
+        $stmt = $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET read_date = ?
+                WHERE read_date = 0 AND alert_id IN (' . $ids . ')
+            ', [$readDate]
+        );
+        $readRowsAffected = $stmt->rowsAffected();
+
+        if (!$viewRowsAffected && !$readRowsAffected)
+        {
+            return;
+        }
+
+        try
+        {
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unviewed = GREATEST(0, cast(alerts_unviewed AS SIGNED) - ?),
+                    alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
+                WHERE user_id = ?
+            ', [$viewRowsAffected, $readRowsAffected, $userId]
+            );
+
+            $alerts_unviewed = max(0,$user->alerts_unviewed - $viewRowsAffected);
+            $alerts_unread = max(0,$user->alerts_unread - $readRowsAffected);
+        }
+            /** @noinspection PhpRedundantCatchClauseInspection */
+        catch (DeadlockException $e)
+        {
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unviewed = GREATEST(0, cast(alerts_unviewed AS SIGNED) - ?),
+                    alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
+                WHERE user_id = ?
+            ', [$viewRowsAffected, $readRowsAffected, $userId]
+            );
+
+            $row = $db->fetchRow('select alerts_unviewed, alerts_unread from xf_user where user_id = ?', $userId);
+            if (!$row)
+            {
+                return;
+            }
+            $alerts_unviewed = $row['alerts_unviewed'];
+            $alerts_unread = $row['alerts_unread'];
+        }
+
+        $user->setAsSaved('alerts_unviewed', $alerts_unviewed);
+        $user->setAsSaved('alerts_unread', $alerts_unread);
+    }
+
     /**
      * @param string        $contentType
      * @param int[]         $contentIds
@@ -614,7 +765,6 @@ class UserAlert extends XFCP_UserAlert
      * @param int           $maxXFVersion
      * @param User|null     $user
      * @param int|null      $viewDate
-     * @throws \XF\Db\Exception
      */
     public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, User $user = null, int $viewDate = null)
     {
@@ -648,12 +798,12 @@ class UserAlert extends XFCP_UserAlert
             SELECT alert_id
             FROM xf_user_alert
             WHERE alerted_user_id = ?
-            AND view_date = 0
+            AND (read_date = 0 OR view_date = 0)
             AND event_date < ?
             AND content_type IN (' . $db->quote($contentType) . ')
             AND content_id IN (' . $db->quote($contentIds) . ")
             {$actionFilter}
-        ", [$userId, \XF::$time]
+        ", [$userId, $viewDate]
         );
 
         if (empty($alertIds))
@@ -661,127 +811,95 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $stmt = $db->query(
-            '
-            UPDATE IGNORE xf_user_alert
-            SET view_date = ?
-            WHERE view_date = 0 AND alert_id IN (' . $db->quote($alertIds) . ')
-        ', [$viewDate]
-        );
+        $this->markAlertIdsAsReadAndViewed($user, $alertIds, $viewDate);
+    }
 
-        $rowsAffected = $stmt->rowsAffected();
 
-        if ($rowsAffected)
+    /**
+     * @param UserAlertEntity $alert
+     * @param int|null $readDate
+     */
+    public function markUserAlertRead(UserAlertEntity $alert, $readDate = null)
+    {
+        if ($readDate === null)
         {
-            try
-            {
-                $db->query(
-                    '
-                    UPDATE xf_user
-                    SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
-                    WHERE user_id = ?
-                ', [$rowsAffected, $visitor->user_id]
-                );
-            }
-                /** @noinspection PhpRedundantCatchClauseInspection */
-            catch (DeadlockException $e)
-            {
-                if ($db->inTransaction())
-                {
-                    $db->rollback();
-
-                    // why the hell are we inside a transaction?
-                    \XF::logException($e, false, 'Unexpected transaction; ');
-                    $rowsAffected = 0;
-                    $alerts_unread = $db->fetchOne(
-                        '
-                            SELECT COUNT(*)
-                            FROM xf_user_alert
-                            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL',
-                        [$visitor->user_id]
-                    );
-                    $visitor->setAsSaved('alerts_unread', $alerts_unread);
-                }
-                else
-                {
-                    $db->query(
-                        '
-                            UPDATE xf_user
-                            SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
-                            WHERE user_id = ?
-                        ', [$rowsAffected, $visitor->user_id]
-                    );
-                }
-            }
-
-            $alerts_unread = $visitor->alerts_unread - $rowsAffected;
-            if ($alerts_unread < 0)
-            {
-                $alerts_unread = 0;
-            }
-            $visitor->setAsSaved('alerts_unread', $alerts_unread);
+            $readDate = \XF::$time;
         }
-    }
 
-    /**
-     * @param User $user
-     * @param int  $alertId
-     * @return \SV\AlertImprovements\XF\Finder\UserAlert|Finder
-     */
-    public function findAlertForUser(User $user, int $alertId)
-    {
-        return $this->finder('XF:UserAlert')
-                    ->where(['alert_id', $alertId])
-                    ->where(['alerted_user_id', $user->user_id]);
-    }
+        if (!$alert->isUnread())
+        {
+            return;
+        }
 
-    /**
-     * @param User $user
-     * @param int  $alertId
-     * @param bool $readStatus
-     * @return Alerts
-     */
-    public function changeAlertStatus(User $user, int $alertId, bool $readStatus)
-    {
+        $user = $alert->Receiver;
+
         $db = $this->db();
-        $db->beginTransaction();
+        $alert->setAsSaved('view_date', $readDate);
+        $alert->setAsSaved('read_date', $readDate);
 
-        /** @var Alerts $alert */
-        $alert = $this->findAlertForUser($user, $alertId)->fetchOne();
-        if (empty($alert) || $readStatus === ($alert->view_date !== 0))
+        $db->executeTransaction(function() use ($db, $alert, $user, $readDate)
         {
-            $db->commit();
-
-            return $alert;
-        }
-
-        $alert->fastUpdate('view_date', $readStatus ? \XF::$time : 0);
-
-        if ($readStatus)
-        {
-            $db->query(
-                '
-                UPDATE xf_user
-                SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - 1)
-                WHERE user_id = ?
-            ', $user->user_id
+            $rows = $db->update('xf_user_alert',
+                ['view_date' => $readDate, 'read_date' => $readDate],
+                'alert_id = ?',
+                $alert->alert_id
             );
-        }
-        else
-        {
-            $db->query(
-                '
+
+            if (!$rows)
+            {
+                return;
+            }
+
+            $statement = $db->query("
                 UPDATE xf_user
-                SET alerts_unread = LEAST(alerts_unread + 1, 65535)
+                SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
                 WHERE user_id = ?
-            ', $user->user_id
-            );
-        }
+            ", [1, $alert->alerted_user_id]);
 
-        $db->commit();
-
-        $user->setAsSaved('alerts_unread', $user->alerts_unread + ($readStatus ? -1 : 1));
-
-        return $alert;
+            if ($user && $statement->rowsAffected())
+            {
+                $user->setAsSaved('alerts_unread', max(0, $user->alerts_unread - 1));
+            }
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
+
+    public function markUserAlertUnread(UserAlertEntity $alert, bool $disableAutoRead = true)
+    {
+        if ($alert->isUnread())
+        {
+            return;
+        }
+
+        $user = $alert->Receiver;
+
+        $db = $this->db();
+
+        $db->executeTransaction(function() use ($db, $alert, $user, $disableAutoRead)
+        {
+            $update = ['view_date' => 0];
+            if ($disableAutoRead)
+            {
+                $update['auto_read'] = 0;
+            }
+
+            $db->update('xf_user_alert',
+                $update,
+                'alert_id = ?',
+                $alert->alert_id
+            );
+
+            $statement = $db->query("
+                UPDATE xf_user
+                SET alerts_unread = LEAST(alerts_unread + ?, 65535)
+                WHERE user_id = ?
+            ", [1, $alert->alerted_user_id]);
+
+            if ($user && $statement->rowsAffected())
+            {
+                $user->setAsSaved('alerts_unread', min(65535, $user->alerts_unread + 1));
+            }
+
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+    }
+
 }
