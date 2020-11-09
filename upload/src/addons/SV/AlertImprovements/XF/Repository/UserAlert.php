@@ -904,6 +904,11 @@ class UserAlert extends XFCP_UserAlert
             WHERE user_id = ?
         ', [$userId, $userId]);
 
+        if (!$statement->rowsAffected())
+        {
+            return false;
+        }
+
         // this doesn't need to be in a transaction as it is an advisory read
         $count = $db->fetchOne('
             SELECT alerts_unviewed 
@@ -936,6 +941,11 @@ class UserAlert extends XFCP_UserAlert
             WHERE user_id = ?
         ', [$userId, $userId]);
 
+        if (!$statement->rowsAffected())
+        {
+            return false;
+        }
+
         // this doesn't need to be in a transaction as it is an advisory read
         $count = $db->fetchOne('
             SELECT alerts_unread 
@@ -944,6 +954,6 @@ class UserAlert extends XFCP_UserAlert
         ', $userId);
         $user->setAsSaved('alerts_unread', $count);
 
-        return $statement->rowsAffected() > 0;
+        return true;
     }
 }
