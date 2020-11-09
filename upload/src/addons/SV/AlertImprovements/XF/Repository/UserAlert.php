@@ -18,36 +18,28 @@ use XF\Mvc\Entity\Finder;
  */
 class UserAlert extends XFCP_UserAlert
 {
-    public function summarizeAlertsForUser(int $userId)
+    public function summarizeAlertsForUser(User $user)
     {
         // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user) {
+
             $db->query("
                 DELETE FROM xf_user_alert
                 WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary'
-            ", $userId);
+            ", $user->user_id);
 
             $db->query('
                 UPDATE xf_user_alert
                 SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id IS NOT NULL
-            ', $userId);
+            ', $user->user_id);
 
-            $db->query('
-                UPDATE xf_user
-                SET alerts_unread = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND read_date = 0)
-                WHERE user_id = ?
-            ', $userId);
-
-            $db->query('
-                UPDATE xf_user
-                SET alerts_unviewed = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND view_date = 0)
-                WHERE user_id = ?
-            ', $userId);
+            $this->updateUnviewedCountForUser($user);
+            $this->updateUnreadCountForUser($user);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // do summerization outside the above transaction
-        $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
+        $this->checkSummarizeAlertsForUser($user->user_id, true, true, \XF::$time);
     }
 
     /**
@@ -837,13 +829,15 @@ class UserAlert extends XFCP_UserAlert
 
             $statement = $db->query("
                 UPDATE xf_user
-                SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
+                SET alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?),
+                    alerts_unviewed = GREATEST(0, cast(alerts_unviewed AS SIGNED) - ?)
                 WHERE user_id = ?
             ", [1, $alert->alerted_user_id]);
 
             if ($user && $statement->rowsAffected())
             {
                 $user->setAsSaved('alerts_unread', max(0, $user->alerts_unread - 1));
+                $user->setAsSaved('alerts_unviewed', max(0, $user->alerts_unviewed - 1));
             }
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
@@ -861,7 +855,7 @@ class UserAlert extends XFCP_UserAlert
 
         $db->executeTransaction(function() use ($db, $alert, $user, $disableAutoRead)
         {
-            $update = ['view_date' => 0];
+            $update = ['view_date' => 0, 'unread_date' => 0];
             if ($disableAutoRead)
             {
                 $update['auto_read'] = 0;
@@ -875,12 +869,14 @@ class UserAlert extends XFCP_UserAlert
 
             $statement = $db->query("
                 UPDATE xf_user
-                SET alerts_unread = LEAST(alerts_unread + ?, 65535)
+                SET alerts_unviewed = LEAST(alerts_unviewed + ?, 65535),
+                    alerts_unread = LEAST(alerts_unread + ?, 65535)
                 WHERE user_id = ?
             ", [1, $alert->alerted_user_id]);
 
             if ($user && $statement->rowsAffected())
             {
+                $user->setAsSaved('alerts_unviewed', min(65535, $user->alerts_unviewed + 1));
                 $user->setAsSaved('alerts_unread', min(65535, $user->alerts_unread + 1));
             }
 
