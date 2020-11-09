@@ -22,7 +22,6 @@ class UserAlert extends XFCP_UserAlert
     {
         // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
-
             $db->query("
                 DELETE FROM xf_user_alert
                 WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary'
@@ -36,14 +35,20 @@ class UserAlert extends XFCP_UserAlert
 
             $db->query('
                 UPDATE xf_user
-                SET alerts_unread = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND view_date = 0)
+                SET alerts_unread = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND read_date = 0)
                 WHERE user_id = ?
             ', $userId);
 
-            $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unviewed = (SELECT count(*) FROM xf_user_alert WHERE alerted_user_id = xf_user.user_id AND view_date = 0)
+                WHERE user_id = ?
+            ', $userId);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-    }
 
+        // do summerization outside the above transaction
+        $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
+    }
 
     /**
      * @param User $user
@@ -152,8 +157,6 @@ class UserAlert extends XFCP_UserAlert
                                  ->fetchOne();
             if (!$summaryAlert)
             {
-                $db->commit();
-
                 return;
             }
             $summaryAlert->delete(false, false);
@@ -161,21 +164,21 @@ class UserAlert extends XFCP_UserAlert
             // Make alerts visible
             $stmt = $db->query('
                 UPDATE xf_user_alert
-                SET summerize_id = NULL
+                SET summerize_id = NULL, view_date = 0, read_date = 0
                 WHERE alerted_user_id = ? AND summerize_id = ?
             ', [$userId, $summaryId]);
 
             // Reset unread alerts counter
             $increment = $stmt->rowsAffected();
             $db->query('
-                UPDATE xf_user SET
-                alerts_unread = alerts_unread + ?
+                UPDATE xf_user
+                SET alerts_unread = LEAST(alerts_unread + ?, 65535),
+                    alerts_unviewed = LEAST(alerts_unviewed + ?, 65535)
                 WHERE user_id = ?
-                    AND alerts_unread < 65535
             ', [$increment, $userId]);
 
-            $alerts_unread = $user->alerts_unread + $increment;
-            $user->setAsSaved('alerts_unread', $alerts_unread);
+            $user->setAsSaved('alerts_unread', $user->alerts_unread + $increment);
+            $user->setAsSaved('alerts_unread', $user->alerts_unviewed + $increment);
         });
     }
 
@@ -197,7 +200,7 @@ class UserAlert extends XFCP_UserAlert
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
         $summarizeUnreadThreshold = $summarizeThreshold * 2 > 25 ? 25 : $summarizeThreshold * 2;
 
-        return $visitor->alerts_unread > $summarizeUnreadThreshold;
+        return $visitor->alerts_unviewed > $summarizeUnreadThreshold;
     }
 
     public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
@@ -347,25 +350,8 @@ class UserAlert extends XFCP_UserAlert
         // update alert totals
         if ($groupedAlerts)
         {
-            $db = $this->db();
-
-            $db->query('
-                UPDATE xf_user
-                SET alerts_unread = (SELECT COUNT(*)
-                    FROM xf_user_alert
-                    WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL)
-                WHERE user_id = ?
-            ', [$visitor->user_id, $visitor->user_id]);
-
-            // this doesn't need to be in a transaction as it is an advisory read
-            $alerts_unread = $db->fetchOne(
-                '
-                    SELECT alerts_unread 
-                    FROM xf_user 
-                    WHERE user_id = ?
-                ', $visitor->user_id
-            );
-            $visitor->setAsSaved('alerts_unread', $alerts_unread);
+            $this->updateUnreadCountForUser($visitor);
+            $this->updateUnviewedCountForUser($visitor);
         }
 
         uasort(
@@ -416,6 +402,7 @@ class UserAlert extends XFCP_UserAlert
             'action'              => $lastAlert['action'] . '_summary',
             'event_date'          => $lastAlert['event_date'],
             'view_date'           => $summaryAlertViewDate,
+            'read_date'           => $summaryAlertViewDate,
             'extra_data'          => [],
         ];
         $contentTypes = [];
@@ -544,13 +531,11 @@ class UserAlert extends XFCP_UserAlert
             $summerizeId = $alert->alert_id;
 
             // hide the non-summary alerts
-            $stmt = $db->query(
-                '
-            UPDATE xf_user_alert
-            SET summerize_id = ?, view_date = if(view_date = 0, ?, view_date)
-            WHERE alert_id IN (' . $db->quote($batchIds) . ')
-        ', [$summerizeId, \XF::$time]
-            );
+            $stmt = $db->query('
+                UPDATE xf_user_alert
+                SET summerize_id = ?, view_date = if(view_date = 0, ?, view_date), read_date = if(read_date = 0, ?, read_date)
+                WHERE alert_id IN (' . $db->quote($batchIds) . ')
+            ', [$summerizeId, \XF::$time, \XF::$time]);
             $rowsAffected = $stmt->rowsAffected();
 
             return $rowsAffected;
@@ -902,4 +887,67 @@ class UserAlert extends XFCP_UserAlert
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
 
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateUnviewedCountForUser(User $user)
+    {
+        $userId = $user->user_id;
+        if (!$userId)
+        {
+            return false;
+        }
+
+        $db = \XF::db();
+        $statement = $db->query('
+            UPDATE xf_user
+            SET alerts_unviewed = (SELECT COUNT(*)
+                FROM xf_user_alert
+                WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL)
+            WHERE user_id = ?
+        ', [$userId, $userId]);
+
+        // this doesn't need to be in a transaction as it is an advisory read
+        $count = $db->fetchOne('
+            SELECT alerts_unviewed 
+            FROM xf_user 
+            WHERE user_id = ?
+        ', $userId);
+        $user->setAsSaved('alerts_unviewed', $count);
+
+        return $statement->rowsAffected() > 0;
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateUnreadCountForUser(User $user)
+    {
+        $userId = $user->user_id;
+        if (!$userId)
+        {
+            return false;
+        }
+
+        $db = \XF::db();
+        $statement = $db->query('
+            UPDATE xf_user
+            SET alerts_unread = (SELECT COUNT(*)
+                FROM xf_user_alert
+                WHERE alerted_user_id = ? AND alerts_unread = 0 AND summerize_id IS NULL)
+            WHERE user_id = ?
+        ', [$userId, $userId]);
+
+        // this doesn't need to be in a transaction as it is an advisory read
+        $count = $db->fetchOne('
+            SELECT alerts_unread 
+            FROM xf_user 
+            WHERE user_id = ?
+        ', $userId);
+        $user->setAsSaved('alerts_unread', $count);
+
+        return $statement->rowsAffected() > 0;
+    }
 }
