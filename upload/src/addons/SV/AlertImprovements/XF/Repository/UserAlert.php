@@ -679,16 +679,16 @@ class UserAlert extends XFCP_UserAlert
         $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
                 SET view_date = ?
-                WHERE view_date = 0 AND alert_id IN (' . $ids . ')
-            ', [$readDate]
+                WHERE view_date = 0 AND alerted_user_id = ? AND alert_id IN (' . $ids . ')
+            ', [$readDate, $userId]
         );
         $viewRowsAffected = $stmt->rowsAffected();
 
         $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
                 SET read_date = ?
-                WHERE read_date = 0 AND alert_id IN (' . $ids . ')
-            ', [$readDate]
+                WHERE read_date = 0 AND alerted_user_id = ? AND alert_id IN (' . $ids . ')
+            ', [$readDate, $userId]
         );
         $readRowsAffected = $stmt->rowsAffected();
 
@@ -742,16 +742,16 @@ class UserAlert extends XFCP_UserAlert
         $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
                 SET view_date = 0
-                WHERE alert_id IN (' . $ids . ')
-            '
+                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ')
+            ', [$userId]
         );
         $viewRowsAffected = $stmt->rowsAffected();
 
         $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
                 SET read_date = 0
-                WHERE alert_id IN (' . $ids . ')
-            '
+                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ')
+            ', [$userId]
         );
         $readRowsAffected = $stmt->rowsAffected();
 
