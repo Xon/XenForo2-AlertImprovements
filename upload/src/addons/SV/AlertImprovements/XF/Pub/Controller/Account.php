@@ -12,6 +12,9 @@ use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use XF\Entity\UserAlert as UserAlertEntity;
+use XF\Mvc\Reply\View as ViewReply;
+use XF\Mvc\Reply\Redirect as RedirectReply;
+use XF\Mvc\Reply\Exception as ExceptionReply;
 
 /**
  * Class Account
@@ -313,5 +316,20 @@ class Account extends XFCP_Account
                 'account/alerts', [], $linkParams
             )
         );
+    }
+
+    /**
+     * Forcing this to return 404 not found because we support marking alerts read via the "checkboxes"
+     * aka the inline moderation wrapper.
+     *
+     * @return RedirectReply|ViewReply
+     *
+     * @throws ExceptionReply
+     */
+    public function actionAlertToggle()
+    {
+        throw $this->exception($this->notFound());
+
+        return parent::actionAlertToggle();
     }
 }
