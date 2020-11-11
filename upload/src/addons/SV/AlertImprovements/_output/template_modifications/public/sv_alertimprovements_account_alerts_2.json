@@ -1,9 +1,0 @@
-{
-    "template": "account_alerts",
-    "description": "Group alerts by day if grouped alerts are found",
-    "execution_order": 6398,
-    "enabled": true,
-    "action": "preg_replace",
-    "find": "#(^[\\s]*<xf:if)( is=\"\\$alerts.*?)(>$)(.*?^[\\s]*<ol.*?>)(.*?^[\\s]*<xf:foreach loop=\")(.*?)(\".*?>)(.*?class=\".*?)(\".*?>.*?<\\/xf:foreach>)#sim",
-    "replace": "\t\t\t<xf:js addon=\"SV/AlertImprovements\" src=\"sv/alerts/alerts.js\" min=\"1\" />\n\n$1 is=\"$groupedAlerts is not empty\">$4\t$5$groupedAlerts\" key=\"$dateGroup\" value=\"$dateAlerts\">\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<h2 class=\"block-formSectionHeader\">{$dateGroup}</h2>\n\t\t\t\t\t\t<ol class=\"listPlain\">$5$dateAlerts$7$8{{ $xf.versionId < 2020010 ? ' alert js-alert ' : '' }}{{ ($alert.isUnviewed() && $alert.isRecentlyRead()) ? '' : 'menu-row--alt' }}$9\n\t\t\t\t\t\t</ol>\n\t\t\t\t\t</li>\n\t\t\t\t</xf:foreach>\n\t\t\t\t</ol>\n\t\t\t<xf:elseif $2 /$3$4$5$6$7$8{{ $xf.versionId < 2020010 ? ' alert js-alert ' : '' }}{{ ($alert.isUnviewed() && $alert.isRecentlyRead()) ? '' : ' menu-row--alt' }}$9"
-}
