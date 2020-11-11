@@ -1,9 +1,9 @@
 {
     "template": "alert_macros",
-    "description": "Add \"Read on\" date and time after the event date",
+    "description": "Add \"Recent alert\" icon\", \"Unsummarize alert\" and \"Read on\" date and time after the event date",
     "execution_order": 6398,
     "enabled": true,
     "action": "preg_replace",
     "find": "#^[\\s]*<div class=\"contentRow-minor\\s.*?<xf:date time=\"\\$alert\\.event_date.*?\\/>#sim",
-    "replace": "$0<xf:trim>\n\t<xf:if is=\"$alert.read_date\">\n\t\t&middot; {{ phrase('svAlertImprov_read_on:') }} <xf:date time=\"$alert.read_date\" />\n\t</xf:if>\n</xf:trim>"
+    "replace": "$0<xf:trim>\n\t<xf:if is=\"$alert.is_new\">\n\t\t<xf:fa icon=\"fa fa-star\" class=\"unread-alert\" aria-hidden=\"true\" title=\"{{ phrase('sv_unread_alert')|for_attr}}\" />\n\t</xf:if>\n\n\t<xf:if is=\"$alert.is_summary\">\n\t\t<a class=\"unsummarizeAlert\" href=\"{{ link('account/unsummarize-alert', '', {'alert_id':$alert.alert_id}) }}\">\n\t\t\t<span class=\"user-alert--unreadLink\">\n\t\t\t\t{{phrase('sv_unsummarize_alert')}}\n\t\t\t</span>\n\t\t</a>\n\t</xf:if>\n\t\n\t<xf:if is=\"$alert.read_date\">\n\t\t&middot; {{ phrase('svAlertImprov_read_on:') }} <xf:date time=\"$alert.read_date\" />\n\t</xf:if>\n</xf:trim>"
 }
