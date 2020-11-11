@@ -1,0 +1,9 @@
+{
+    "template": "alert_macros",
+    "description": "Add \"Read on\" date and time after the event date",
+    "execution_order": 6398,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#^[\\s]*<div class=\"contentRow-minor\\s.*?<xf:date time=\"\\$alert\\.event_date.*?\\/>#sim",
+    "replace": "$0<xf:trim>\n\t<xf:if is=\"$alert.read_date\">\n\t\t&middot; {{ phrase('svAlertImprov_read_on:') }} <xf:date time=\"$alert.read_date\" />\n\t</xf:if>\n</xf:trim>"
+}
