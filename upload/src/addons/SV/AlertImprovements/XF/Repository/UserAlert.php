@@ -671,8 +671,7 @@ class UserAlert extends XFCP_UserAlert
         $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user, $viewDate);
     }
 
-
-    protected function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate)
+    public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate)
     {
         $userId = $user->user_id;
         $db = $this->db();
@@ -718,6 +717,69 @@ class UserAlert extends XFCP_UserAlert
                 UPDATE xf_user
                 SET alerts_unviewed = GREATEST(0, cast(alerts_unviewed AS SIGNED) - ?),
                     alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
+                WHERE user_id = ?
+            ', [$viewRowsAffected, $readRowsAffected, $userId]
+            );
+
+            $row = $db->fetchRow('select alerts_unviewed, alerts_unread from xf_user where user_id = ?', $userId);
+            if (!$row)
+            {
+                return;
+            }
+            $alerts_unviewed = $row['alerts_unviewed'];
+            $alerts_unread = $row['alerts_unread'];
+        }
+
+        $user->setAsSaved('alerts_unviewed', $alerts_unviewed);
+        $user->setAsSaved('alerts_unread', $alerts_unread);
+    }
+
+    protected function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds)
+    {
+        $userId = $user->user_id;
+        $db = $this->db();
+        $ids = $db->quote($alertIds);
+        $stmt = $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET view_date = 0
+                WHERE alert_id IN (' . $ids . ')
+            '
+        );
+        $viewRowsAffected = $stmt->rowsAffected();
+
+        $stmt = $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET read_date = 0
+                WHERE alert_id IN (' . $ids . ')
+            '
+        );
+        $readRowsAffected = $stmt->rowsAffected();
+
+        if (!$viewRowsAffected && !$readRowsAffected)
+        {
+            return;
+        }
+
+        try
+        {
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unviewed = LEAST(alerts_unviewed + ?, 65535),
+                    alerts_unread = LEAST(alerts_unread + ?, 65535)
+                WHERE user_id = ?
+            ', [$viewRowsAffected, $readRowsAffected, $userId]
+            );
+
+            $alerts_unviewed = min(65535,$user->alerts_unviewed - $viewRowsAffected);
+            $alerts_unread = min(65535,$user->alerts_unread - $readRowsAffected);
+        }
+            /** @noinspection PhpRedundantCatchClauseInspection */
+        catch (DeadlockException $e)
+        {
+            $db->query('
+                UPDATE xf_user
+                SET alerts_unviewed = LEAST(alerts_unviewed + ?, 65535),
+                    alerts_unread = LEAST(alerts_unread + ?, 65535)
                 WHERE user_id = ?
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
