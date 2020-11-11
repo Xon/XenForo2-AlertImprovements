@@ -214,25 +214,28 @@ class Account extends XFCP_Account
             Globals::$skipMarkAlertsRead = false;
         }
 
-        if (\XF::options()->svUnreadAlertsAfterReadAlerts &&
-            $reply instanceof View &&
-            ($alerts = $reply->getParam('alerts')))
+        if ($reply instanceof ViewReply)
         {
-            $unreadAlerts = [];
-            /** @var UserAlertEntity $alert */
-            foreach ($alerts as $key => $alert)
-            {
-                if (!$alert->view_date)
-                {
-                    $unreadAlerts[$key] = $alert;
-                    unset($alerts[$key]);
-                }
-            }
+            $reply->setParam('svAlertImprove_avoidApplyAlertListChanges', true);
 
-            if ($unreadAlerts)
+            if (\XF::options()->svUnreadAlertsAfterReadAlerts && ($alerts = $reply->getParam('alerts')))
             {
-                $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
-                $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+                $unreadAlerts = [];
+                /** @var UserAlertEntity $alert */
+                foreach ($alerts as $key => $alert)
+                {
+                    if (!$alert->view_date)
+                    {
+                        $unreadAlerts[$key] = $alert;
+                        unset($alerts[$key]);
+                    }
+                }
+
+                if ($unreadAlerts)
+                {
+                    $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
+                    $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+                }
             }
         }
 
