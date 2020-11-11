@@ -734,7 +734,7 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', $alerts_unread);
     }
 
-    protected function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds)
+    public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds)
     {
         $userId = $user->user_id;
         $db = $this->db();
