@@ -159,6 +159,8 @@ class Account extends XFCP_Account
         {
             Globals::$skipSummarize = true;
         }
+
+        Globals::$showUnreadOnly = $this->filter('show_only', 'str') === 'unread';
         try
         {
             $response = parent::actionAlerts();
@@ -166,6 +168,7 @@ class Account extends XFCP_Account
         finally
         {
             Globals::$skipSummarize = false;
+            Globals::$showUnreadOnly = false;
         }
         if ($response instanceof View)
         {

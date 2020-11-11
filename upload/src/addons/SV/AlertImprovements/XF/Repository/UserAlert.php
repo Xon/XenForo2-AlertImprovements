@@ -68,10 +68,20 @@ class UserAlert extends XFCP_UserAlert
         {
             $finder->where(['summerize_id', null]);
         }
+
+        if (Globals::$showUnreadOnly)
+        {
+            $finder->whereOr([
+                ['read_date', '=', 0],
+                ['view_date', '=', 0]
+            ]);
+        }
+
         if (Globals::$skipSummarize)
         {
             return $finder;
         }
+
         $finder->shimSource(
             function ($limit, $offset) use ($userId, $finder) {
                 if ($offset !== 0)

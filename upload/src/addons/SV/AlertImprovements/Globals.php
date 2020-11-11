@@ -19,5 +19,10 @@ class Globals
     /** @var bool */
     public static $skipMarkAlertsRead = false;
 
+    /**
+     * @var bool
+     */
+    public static $showUnreadOnly = false;
+
     private function __construct() { }
 }
