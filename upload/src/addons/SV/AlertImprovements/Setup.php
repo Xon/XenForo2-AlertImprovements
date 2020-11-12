@@ -229,8 +229,17 @@ class Setup extends AbstractSetup
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
+            $hasReadDate = (bool)$table->getColumnDefinition('read_date');
+            $hasAutoRead = (bool)$table->getColumnDefinition('auto_read');
+
             $this->addOrChangeColumn($table, 'read_date', 'int')->setDefault(0)->after('view_date');
-            $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1)->after('read_date');
+            $col2 = $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1);
+            if ($hasReadDate || !$hasReadDate && !$hasAutoRead)
+            {
+                // XF always does modifies before adds.
+                $col2->after('read_date');
+            }
+
             $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
 
             // index is superseded
