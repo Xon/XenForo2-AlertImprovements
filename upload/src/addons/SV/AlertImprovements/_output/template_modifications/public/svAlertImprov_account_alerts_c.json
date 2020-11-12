@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "<xf:macro template=\"alert_macros\" name=\"row\"",
-    "replace": "<xf:macro template=\"svAlertsImprov_macros\" name=\"alert_row\""
+    "replace": "<xf:macro template=\"svAlertsImprov_macros\" name=\"alert_row\" arg-showSelectCheckbox=\"{{ true }}\""
 }

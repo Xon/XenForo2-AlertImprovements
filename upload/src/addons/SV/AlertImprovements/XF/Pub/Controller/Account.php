@@ -216,8 +216,6 @@ class Account extends XFCP_Account
 
         if ($reply instanceof ViewReply)
         {
-            $reply->setParam('svAlertImprove_avoidApplyAlertListChanges', true);
-
             if (\XF::options()->svUnreadAlertsAfterReadAlerts && ($alerts = $reply->getParam('alerts')))
             {
                 $unreadAlerts = [];

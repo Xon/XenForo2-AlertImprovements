@@ -4,7 +4,7 @@
 			<xf:foreach loop="$unreadAlerts" value="$alert">
 				<li class="alert js-alert menu-row menu-row--separated menu-row--clickable {{ $alert.isUnreadInUi() ? 'is-unread' : ($alert.isRecentlyRead() ? '' : 'menu-row--alt') }}">
 					<div class="fauxBlockLink">
-						<xf:macro emplate="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
+						<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
 					</div>
 				</li>
 			</xf:foreach>
