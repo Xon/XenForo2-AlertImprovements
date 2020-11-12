@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "preg_replace",
     "find": "#(^[\\s]*<div class=\"block-outer-opposite.*?>$.*?)([\\s]*<\\/div>$)#sim",
-    "replace": "<xf:trim><xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_filter\"/></xf:trim>\n\n$1\n\n<xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_controls\"/>\n\n$2"
+    "replace": "\t\t<xf:trim><xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_filter\"/></xf:trim>\n\n$1\n\t\t\t\t<xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_controls\"/>$2"
 }
