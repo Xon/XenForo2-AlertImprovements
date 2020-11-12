@@ -51,6 +51,9 @@ class UserAlert extends XFCP_UserAlert
     {
         return $this->finder('XF:UserAlert')
                     ->where(['alert_id', $alertId])
+                    ->whereAddOnActive([
+                        'column' => 'depends_on_addon_id'
+                    ])
                     ->where(['alerted_user_id', $user->user_id]);
     }
 
@@ -217,8 +220,17 @@ class UserAlert extends XFCP_UserAlert
         /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
         $finder = $this->finder('XF:UserAlert')
                        ->where('alerted_user_id', $userId)
+                       ->whereAddOnActive([
+                           'column' => 'depends_on_addon_id'
+                       ])
                        ->order('event_date', 'desc');
-
+        if (Globals::$showUnreadOnly)
+        {
+            $finder->whereOr([
+                ['read_date', '=', 0],
+                ['view_date', '=', 0]
+            ]);
+        }
         $finder->where('summerize_id', null);
 
         /** @var array $alerts */
