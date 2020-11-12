@@ -78,7 +78,7 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return \XF\Mvc\Reply\AbstractReply
-     * @throws \XF\Mvc\Reply\Exception
+     * @throws ExceptionReply
      * @noinspection PhpUnusedParameterInspection
      */
     public function actionSummarizeAlerts(ParameterBag $params)
@@ -274,6 +274,7 @@ class Account extends XFCP_Account
 
     /**
      * @param AbstractCollection|ExtendedUserAlertEntity[] $alerts
+     * @return array
      */
     protected function groupAlertsByDay(AbstractCollection $alerts): array
     {
@@ -325,7 +326,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\Redirect
+     * @return RedirectReply
      * @noinspection PhpUnusedParameterInspection
      */
     public function actionUnsummarizeAlert(ParameterBag $params)

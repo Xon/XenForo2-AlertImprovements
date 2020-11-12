@@ -5,9 +5,6 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\Thread as ThreadEntity;
 use XF\Mvc\Entity\AbstractCollection;
-use XF\Mvc\ParameterBag;
-use XF\Mvc\Reply\AbstractReply;
-use XF\Mvc\Reply\View;
 
 /**
  * Class Thread
