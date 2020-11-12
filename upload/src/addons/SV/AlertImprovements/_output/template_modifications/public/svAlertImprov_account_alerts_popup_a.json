@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts_popup",
+    "description": "Patch alert row macro usage",
+    "execution_order": 6398,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:macro template=\"alert_macros\" name=\"row\"",
+    "replace": "<xf:macro template=\"svAlertsImprov_macros\" name=\"alert_row\""
+}
