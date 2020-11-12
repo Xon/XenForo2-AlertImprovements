@@ -107,7 +107,7 @@
 			<div class="contentRow-minor contentRow-minor--smaller">
 				<ul class="listInline listInline--bullet">
 					<xf:if is="$alert.is_new">
-						<li><xf:fa icon="fa fa-star" class="unread-alert" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
+						<li><xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
 					</xf:if>
 					<li><xf:date time="$alert.event_date" /></li>
 					<xf:if is="$alert.read_date">
