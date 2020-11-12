@@ -344,6 +344,10 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         $alertIds = $this->filter('alert_ids', 'array-uint');
         $alertIds = \array_slice($alertIds, 0, $this->options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
+        if (!\count($alertIds))
+        {
+            throw $this->exception($this->error(\XF::phrase('svAlertImprov_please_select_at_least_one_alert_to_update')));
+        }
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
