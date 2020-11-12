@@ -23,6 +23,33 @@ use XF\Mvc\Reply\Exception as ExceptionReply;
  */
 class Account extends XFCP_Account
 {
+    public function actionAlertsMarkRead()
+    {
+        $visitor = \XF::visitor();
+
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+
+        $redirect = $this->getDynamicRedirect($this->buildLink('account/alerts',null, ['skip_mark_read' => 1]));
+
+        if ($this->isPost())
+        {
+            $alertRepo->markUserAlertsRead($visitor);
+
+            return $this->redirect($redirect, \XF::phrase('svAlertImprov_all_alerts_marked_as_read'));
+        }
+
+        $viewParams = [
+            'redirect' => $redirect
+        ];
+        $view = $this->view(
+            'SV\AlertImprovements\XF:Account\AlertsMarkRead',
+            'svAlertImprov_account_alerts_mark_read',
+            $viewParams
+        );
+        return $this->addAccountWrapperParams($view, 'alerts');
+    }
+
     /**
      * @param User $visitor
      * @return \XF\Mvc\FormAction
