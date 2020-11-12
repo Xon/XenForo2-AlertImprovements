@@ -7,7 +7,7 @@
 	<div class="block-body">
 		<ol class="listPlain">
 			<li data-alert-id="{$alert.alert_id}"
-				class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
+				class="alert js-alert block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
 				<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
 			</li>
 		</ol>
@@ -21,7 +21,7 @@
 								<xf:foreach loop="$alertsDay" value="$alert">
 									<xf:if is="$alert.getHandler()">
 										<li data-alert-id="{$alert.alert_id}"
-											class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
+											class="alert js-alert block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
 											<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
 										</li>
 									</xf:if>
