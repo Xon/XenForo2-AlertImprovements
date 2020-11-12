@@ -46,7 +46,7 @@
 </xf:macro>
 
 <xf:macro name="alert_reactions" arg-alert="!">
-	<xf:css src="sv_alertimprovements_macros_alert_reactions.less" />
+	<xf:css src="svAlertsImprov_macros_alert_reactions.less" />
 	<xf:set var="$reactions" value="{$alert.extra_data.reaction_id}" />
 
 	<div class="sv-alert-improv-reactions--summary">
@@ -59,5 +59,85 @@
 				<div class="sv-alert-improv-reactions--counter" style="white-space: pre-wrap;"> x {$reactCounter|number}</div>
 			</div>
 		</xf:foreach>
+	</div>
+</xf:macro>
+
+<xf:macro name="alerts_filter" 
+		  arg-selected=""
+		  >
+	<div class="block-outer-main">
+		<div class="buttonGroup"><xf:trim>
+			<xf:button href="{{ link('account/alerts') }}" class="button--link"><xf:trim>
+				{{ phrase('all') }}
+				</xf:trim></xf:button>
+			<xf:button href="{{ link('account/alerts', null, {'show_only': 'unread'}) }}" class="button--link"><xf:trim>
+				{{ phrase('svAlertImprov_unread') }}
+				</xf:trim></xf:button>
+		</xf:trim></div>
+	</div>
+</xf:macro>
+
+<xf:macro name="alerts_controls">
+	<xf:if is="$xf.versionId < 2020000">
+		<xf:button href="{{ link('account/alerts/mark-read') }}" class="button--link" data-xf-click="sv-alert-improvements--mark-alerts-read"><xf:trim>
+			{{ phrase('svAlertImprov_mark_read') }}
+			</xf:trim></xf:button>
+	</xf:if>
+
+	<xf:button href="{{ link('account/preferences') }}#alerts" class="button--link" overlay="true"><xf:trim>
+		{{ phrase('sv_alert_preferences') }}
+	</xf:trim></xf:button>
+
+	<xf:if is="$xf.options.sv_alerts_summerize">
+		<xf:button href="{{ link('account/summarize-alerts') }}" class="button--link"><xf:trim>
+			{{ phrase('sv_resummarize_alerts') }}
+		</xf:trim></xf:button>
+	</xf:if>
+</xf:macro>
+
+<xf:macro name="alert_row" arg-alert="!">
+	<div class="contentRow">
+		<div class="contentRow-figure">
+			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
+		</div>
+		<div class="contentRow-main contentRow-main--close">
+			{$alert.render()|raw}
+			<div class="contentRow-minor contentRow-minor--smaller">
+				<xf:if is="!$__globals.svAlertImprove_avoidApplyAlertListChanges">
+					<ul class="listInline listInline--bullet">
+						<li>
+							<xf:checkbox standalone="true">
+								<xf:option value="{$alert.alert_id}" class="js-inlineModToggle"
+										   data-xf-init="tooltip"
+										   title="{{ phrase('svAlertImprov_select_for_bulk_update') }}" />
+							</xf:checkbox>
+						</li>
+						<xf:if is="$alert.is_new">
+							<li><xf:fa icon="fa fa-star" class="unread-alert" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
+						</xf:if>
+						<li><xf:date time="$alert.event_date" /></li>
+						<xf:if is="$alert.read_date">
+							<li>{{ phrase('svAlertImprov_read_on:') }} <xf:date time="$alert.read_date" /></li>
+						</xf:if>
+						<xf:if is="$alert.is_summary">
+							<li><a class="unsummarizeAlert" href="{{ link('account/unsummarize-alert', '', {'alert_id':$alert.alert_id}) }}">
+								<span class="user-alert--unreadLink">
+									{{phrase('sv_unsummarize_alert')}}
+								</span>
+								</a></li>
+						</xf:if>
+						<xf:set var="$svAlertImprovOtherItemsTpl"><xf:trim>
+
+
+							</xf:trim></xf:set>
+						<xf:if is="$svAlertImprovOtherItemsTpl is not empty">
+							<li>
+							</li>
+						</xf:if>
+					</ul>
+				<xf:else />
+					<xf:date time="$alert.event_date" />
+				</xf:if></div>
+		</div>
 	</div>
 </xf:macro>

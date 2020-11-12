@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "preg_replace",
     "find": "#(^[\\s]*<div class=\"block-outer-opposite.*?>$.*?)([\\s]*<\\/div>$)#sim",
-    "replace": "<xf:trim><div class=\"block-outer-main\">\n\t<div class=\"buttonGroup\"><xf:trim>\n\t\t<xf:button href=\"{{ link('account/alerts') }}\" class=\"button--link\"><xf:trim>\n\t\t\t{{ phrase('all') }}\n\t\t</xf:trim></xf:button>\n\t\t<xf:button href=\"{{ link('account/alerts', null, {'show_only': 'unread'}) }}\" class=\"button--link\"><xf:trim>\n\t\t\t{{ phrase('svAlertImprov_unread') }}\n\t\t</xf:trim></xf:button>\n\t</xf:trim></div>\n</div></xf:trim>\n\n$1\n\n<xf:button href=\"{{ link('account/preferences') }}#alerts\" class=\"button--link\" overlay=\"true\"><xf:trim>\n\t{{ phrase('sv_alert_preferences') }}\n</xf:trim></xf:button>\n\n<xf:if is=\"$xf.options.sv_alerts_summerize\">\n\t<xf:button href=\"{{ link('account/summarize-alerts') }}\" class=\"button--link\"><xf:trim>\n\t\t{{ phrase('sv_resummarize_alerts') }}\n\t</xf:trim></xf:button>\n</xf:if>\n\n$2"
+    "replace": "<xf:trim><xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_filter\"/></xf:trim>\n\n$1\n\n<xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_controls\"/>\n\n$2"
 }
