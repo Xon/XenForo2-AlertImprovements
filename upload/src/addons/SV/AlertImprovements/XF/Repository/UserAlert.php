@@ -849,9 +849,9 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $visitor = $user ? $user : \XF::visitor();
-        $userId = $visitor->user_id;
-        if (!$userId || !$visitor->alerts_unread)
+        $user = $user ?: \XF::visitor();
+        $userId = $user->user_id;
+        if (!$userId || !$user->alerts_unread)
         {
             return;
         }
