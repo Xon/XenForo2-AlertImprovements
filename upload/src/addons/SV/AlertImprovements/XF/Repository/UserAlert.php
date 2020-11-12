@@ -180,7 +180,7 @@ class UserAlert extends XFCP_UserAlert
                 SET alerts_unread = LEAST(alerts_unread + ?, 65535),
                     alerts_unviewed = LEAST(alerts_unviewed + ?, 65535)
                 WHERE user_id = ?
-            ', [$increment, $userId]);
+            ', [$increment, $increment, $userId]);
 
             $user->setAsSaved('alerts_unread', $user->alerts_unread + $increment);
             $user->setAsSaved('alerts_unread', $user->alerts_unviewed + $increment);
