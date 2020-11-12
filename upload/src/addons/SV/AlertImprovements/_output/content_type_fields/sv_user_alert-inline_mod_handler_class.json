@@ -1,5 +1,0 @@
-{
-    "content_type": "sv_user_alert",
-    "field_name": "inline_mod_handler_class",
-    "field_value": "SV\\AlertImprovements\\InlineMod\\UserAlert"
-}
