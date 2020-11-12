@@ -358,7 +358,7 @@ class Account extends XFCP_Account
                 break;
 
             default:
-                throw $this->exception($this->noPermission());
+                throw $this->exception($this->error(\XF::phrase('svAlertImprov_please_select_valid_action_to_perform')));
         }
 
         return $this->redirect(
