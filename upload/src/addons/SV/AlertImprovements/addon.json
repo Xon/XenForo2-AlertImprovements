@@ -15,6 +15,7 @@
         "SV/StandardLib": [1000000,"Standard Library by Xon v1.0.0+"]
     },
     "require-soft": {
+        "SV/WarningImprovements": [2050400, "Warning Improvements v2.5.4+", false],
         "SV/ContentRatings": [1030000, "Content Ratings v1.3.0+", true]
     },
     "icon": "fa-bell"
