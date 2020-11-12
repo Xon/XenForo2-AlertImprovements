@@ -797,11 +797,11 @@ class UserAlert extends XFCP_UserAlert
         $viewRowsAffected = $stmt->rowsAffected();
 
         /** @noinspection SqlWithoutWhere */
-        $stmt = $db->query("
+        $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
                 SET read_date = 0 ' . $disableAutoReadSql . '
-                WHERE alerted_user_id = ? AND alert_id IN (" . $ids . ")
-            ", [$userId]
+                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ')
+            ', [$userId]
         );
         $readRowsAffected = $stmt->rowsAffected();
 
