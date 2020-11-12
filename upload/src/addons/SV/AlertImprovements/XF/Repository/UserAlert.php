@@ -690,7 +690,7 @@ class UserAlert extends XFCP_UserAlert
             $onlyActions = [$onlyActions];
         }
 
-        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user, $viewDate);
+        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user ?: \XF::visitor(), $viewDate);
     }
 
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate)
