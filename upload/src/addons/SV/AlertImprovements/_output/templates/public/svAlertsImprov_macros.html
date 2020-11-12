@@ -92,6 +92,13 @@
 <xf:macro name="alert_row" arg-alert="!">
 	<div class="contentRow user-alert">
 		<div class="contentRow-figure">
+			<xf:if is="!$__globals.svAlertImprove_avoidApplyAlertListChanges">
+				<xf:checkbox standalone="true">
+					<xf:option name="alert_ids[]" value="{$alert.alert_id}" class="js-inlineModToggle"
+							   data-xf-init="tooltip"
+							   title="{{ phrase('svAlertImprov_select_for_bulk_update') }}" />
+				</xf:checkbox>
+			</xf:if>
 			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
 		</div>
 		<div class="contentRow-main contentRow-main--close">
@@ -99,13 +106,6 @@
 			<div class="contentRow-minor contentRow-minor--smaller">
 				<xf:if is="!$__globals.svAlertImprove_avoidApplyAlertListChanges">
 					<ul class="listInline listInline--bullet">
-						<li>
-							<xf:checkbox standalone="true">
-								<xf:option value="{$alert.alert_id}" class="js-inlineModToggle"
-										   data-xf-init="tooltip"
-										   title="{{ phrase('svAlertImprov_select_for_bulk_update') }}" />
-							</xf:checkbox>
-						</li>
 						<xf:if is="$alert.is_new">
 							<li><xf:fa icon="fa fa-star" class="unread-alert" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
 						</xf:if>

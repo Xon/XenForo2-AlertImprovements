@@ -335,7 +335,35 @@ class Account extends XFCP_Account
     public function actionAlertToggle()
     {
         throw $this->exception($this->notFound());
+    }
 
-        return parent::actionAlertToggle();
+    public function actionBulkUpdateAlerts()
+    {
+        $this->assertPostOnly();
+
+        $visitor = \XF::visitor();
+        $alertIds = $this->filter('alert_ids', 'array-uint');
+        $alertIds = \array_slice($alertIds, 0, $this->options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
+
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        switch ($this->filter('state', 'str'))
+        {
+            case 'read':
+                $alertRepo->markAlertIdsAsReadAndViewed($visitor, $alertIds, \XF::$time);
+                break;
+
+            case 'unread':
+                $alertRepo->markAlertIdsAsUnreadAndUnviewed($visitor, $alertIds);
+                break;
+
+            default:
+                throw $this->exception($this->noPermission());
+        }
+
+        return $this->redirect(
+            $this->getDynamicRedirect($this->buildLink('account/alerts')),
+            \XF::phrase('svAlertImprov_selected_alerts_have_been_updated')
+        );
     }
 }
