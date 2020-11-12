@@ -154,6 +154,7 @@ class UserAlert extends XFCP_UserAlert
 
         if (\XF::$versionId < 2020000)
         {
+            $structure->columns['read_date'] = ['type' => self::UINT, 'default' => 0];
             $structure->columns['auto_read'] = ['type' => self::BOOL, 'default' => true];
             $structure->options['force_unread_in_ui'] = false;
         }
