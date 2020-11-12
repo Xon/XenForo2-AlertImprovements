@@ -78,12 +78,6 @@
 </xf:macro>
 
 <xf:macro name="alerts_controls">
-	<xf:if is="$xf.versionId < 2020000">
-		<xf:button href="{{ link('account/alerts/mark-read') }}" class="button--link" data-xf-click="sv-alert-improvements--mark-alerts-read"><xf:trim>
-			{{ phrase('svAlertImprov_mark_read') }}
-			</xf:trim></xf:button>
-	</xf:if>
-
 	<xf:button href="{{ link('account/preferences') }}#alerts" class="button--link" overlay="true"><xf:trim>
 		{{ phrase('sv_alert_preferences') }}
 	</xf:trim></xf:button>

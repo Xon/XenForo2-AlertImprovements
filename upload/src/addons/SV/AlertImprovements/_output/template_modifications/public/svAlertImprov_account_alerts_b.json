@@ -1,7 +1,7 @@
 {
     "template": "account_alerts",
     "description": "Add \"Alert preferences\", \"Resummarize alerts\" and \"Mark read\" buttons above alerts list",
-    "execution_order": 6398,
+    "execution_order": 6397,
     "enabled": true,
     "action": "preg_replace",
     "find": "#(^[\\s]*<div class=\"block-outer-opposite.*?>$.*?)([\\s]*<\\/div>$)#sim",

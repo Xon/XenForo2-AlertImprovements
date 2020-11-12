@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts",
+    "description": "Shim menu for XF2.1",
+    "execution_order": 6396,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#(<div class=\"block[^\"]*\">)(\\s*<div class=\"block-container)#si",
+    "replace": "$1\n<div class=\"block-outer\"><xf:trim>\n\t\t<div class=\"block-outer-opposite\">\n\t\t\t<div class=\"buttonGroup\">\n\t\t\t\t<xf:button href=\"{{ link('account/alerts/mark-read') }}\"\n\t\t\t\t\tclass=\"button--link\" overlay=\"true\">\n\t\t\t\t\t{{ phrase('mark_read') }}\n\t\t\t\t</xf:button>\n\t\t\t</div>\n\t\t</div>\n\t</xf:trim></div>\n$2"
+}
