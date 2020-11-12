@@ -91,14 +91,15 @@
 
 <xf:macro name="alert_row" arg-alert="!" arg-showSelectCheckbox="{{ false }}">
 	<div class="contentRow user-alert">
-		<div class="contentRow-figure">
-			<xf:if is="$showSelectCheckbox">
+		<xf:if is="$showSelectCheckbox">
+			<div class="contentRow-figure contentRow-figure--svAlertImprovAlertSelector">
 				<xf:checkbox standalone="true">
-					<xf:option name="alert_ids[]" value="{$alert.alert_id}" class="js-inlineModToggle"
-							   data-xf-init="tooltip"
+					<xf:option name="alert_ids[]" value="{$alert.alert_id}" data-xf-init="tooltip"
 							   title="{{ phrase('svAlertImprov_select_for_bulk_update') }}" />
 				</xf:checkbox>
-			</xf:if>
+			</div>
+		</xf:if>
+		<div class="contentRow-figure">
 			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
 		</div>
 		<div class="contentRow-main contentRow-main--close">

@@ -326,8 +326,6 @@ class Account extends XFCP_Account
      * Forcing this to return 404 not found because we support marking alerts read via the "checkboxes"
      * aka the inline moderation wrapper.
      *
-     * @return RedirectReply|ViewReply
-     *
      * @throws ExceptionReply
      */
     public function actionAlertToggle()
@@ -335,7 +333,10 @@ class Account extends XFCP_Account
         throw $this->exception($this->notFound());
     }
 
-    public function actionBulkUpdateAlerts()
+    /**
+     * @throws ExceptionReply
+     */
+    public function actionBulkUpdateAlerts() : RedirectReply
     {
         $this->assertPostOnly();
 
