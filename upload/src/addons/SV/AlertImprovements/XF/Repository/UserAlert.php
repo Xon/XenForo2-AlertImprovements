@@ -683,6 +683,11 @@ class UserAlert extends XFCP_UserAlert
 
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate)
     {
+        if (!\count($alertIds))
+        {
+            return;
+        }
+
         $userId = $user->user_id;
         $db = $this->db();
         $ids = $db->quote($alertIds);
@@ -746,6 +751,11 @@ class UserAlert extends XFCP_UserAlert
 
     public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds)
     {
+        if (!\count($alertIds))
+        {
+            return;
+        }
+
         $userId = $user->user_id;
         $db = $this->db();
         $ids = $db->quote($alertIds);
