@@ -8,6 +8,6 @@
     "value_parameters": "",
     "depends_on": "",
     "value_group": "AlertImprovements",
-    "property_value": "rgb(255,215,0)",
+    "property_value": "DarkGoldenRod",
     "display_order": 12000
 }
