@@ -1,10 +1,12 @@
-.user-alert
-{
-	.unread-alert
+<xf:if is="$xf.versionId < 2020010">
+	.alert
 	{
-		color: @xf-svAlertImprovRecentAlertIconColor;
+		&.is-unread
+		{
+			.xf-contentHighlightBase();
+		}
 	}
-}
+</xf:if>
 
 .alert
 {
