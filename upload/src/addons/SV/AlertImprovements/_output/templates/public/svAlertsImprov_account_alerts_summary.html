@@ -5,14 +5,12 @@
 
 <div class="block-container">
 	<div class="block-body">
-		<h2 class="textHeading"></h2>
 		<ol class="listPlain">
 			<li data-alert-id="{$alert.alert_id}"
 				class="block-row block-row--separated{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
 				<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
 			</li>
 		</ol>
-		<div class="block-row"></div>
 		<xf:if is="$alerts is not empty">
 			<ol class="listPlain">
 				<xf:if is="$xf.options.sv_alerts_groupByDate">
