@@ -1,6 +1,6 @@
 {
     "from_class": "XF\\Pub\\Controller\\Account",
     "to_class": "SV\\AlertImprovements\\XF\\Pub\\Controller\\Account",
-    "execute_order": 6398,
+    "execute_order": 1,
     "active": true
 }
