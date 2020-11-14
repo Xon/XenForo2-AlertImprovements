@@ -172,25 +172,37 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         /** @var UserOption $option */
         $option = $visitor->Option;
-        $explicitSkipMarkAsRead = $this->request->exists('skip_mark_read') ? $this->filter('skip_mark_read', 'bool') : null;
-        $explicitSkipSummarize = $this->request->exists('skip_summarize') ? $this->filter('skip_summarize', 'bool') : null;
+        $showOnlyFilter = $this->filter('show_only', '?str');
+        $skipMarkAsRead = $this->filter('skip_mark_read', '?bool');
+        $skipSummarize = $this->filter('skip_summarize', '?bool');
         if (Globals::isPrefetchRequest())
         {
-            $explicitSkipMarkAsRead = $explicitSkipSummarize = true;
+            $skipMarkAsRead = $skipSummarize = true;
         }
-
-        if (!empty($option->sv_alerts_page_skips_mark_read) && $explicitSkipMarkAsRead === null)
+        if (!empty($option->sv_alerts_page_skips_mark_read))
         {
-            $this->request->set('skip_mark_read', 1);
+            $skipMarkAsRead = true;
+        }
+        $page = $this->filterPage();
+        if ($page > 1 || !empty($option->sv_alerts_page_skips_summarize))
+        {
+            $skipSummarize = true;
         }
 
-        $page = $this->filterPage();
-        if ($page > 1 || !empty($option->sv_alerts_page_skips_summarize) || $explicitSkipSummarize)
+        // defaults
+        $skipMarkAsRead = $skipMarkAsRead ?? false;
+        $skipSummarize = $skipSummarize ?? false;
+        $showOnlyFilter = $showOnlyFilter ?? ($visitor->alerts_unread ? 'unread' : 'all');
+
+        if ($skipSummarize)
         {
             Globals::$skipSummarize = true;
         }
-
-        Globals::$showUnreadOnly = $this->filter('show_only', 'str') === 'unread';
+        if ($skipMarkAsRead)
+        {
+            $this->request->set('skip_mark_read', 1);
+        }
+        Globals::$showUnreadOnly = $showOnlyFilter === 'unread';
         try
         {
             $response = parent::actionAlerts();
@@ -202,6 +214,7 @@ class Account extends XFCP_Account
         }
         if ($response instanceof View)
         {
+            $response->setParam('showOnlyFilter', $showOnlyFilter);
             /** @var AbstractCollection $alerts */
             $alerts = $response->getParam('alerts');
             if ($alerts)
@@ -210,6 +223,12 @@ class Account extends XFCP_Account
 
                 $response->setParam('groupedAlerts', $groupedAlerts);
             }
+
+            $navParams = $response->getParam('navParams') ?? [];
+            $navParams = $navParams + [
+                    'show_only' => $showOnlyFilter,
+                ];
+            $response->setParam('navParams', $navParams);
         }
 
         return $response;

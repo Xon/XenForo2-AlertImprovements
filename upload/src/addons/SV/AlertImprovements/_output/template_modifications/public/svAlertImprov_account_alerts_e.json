@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts",
+    "description": "Patch pagenav",
+    "execution_order": 6396,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:pagenav",
+    "replace": "$0 params=\"{$navParams}\""
+}
