@@ -145,6 +145,7 @@ class Account extends XFCP_Account
         $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
 
         $alertRepo->addContentToAlerts($alerts);
+        $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
         $alerts = $alerts->filterViewable();
 
         $groupedAlerts = !empty($options->sv_alerts_groupByDate) ? $this->groupAlertsByDay($alerts) : null;
@@ -194,14 +195,10 @@ class Account extends XFCP_Account
         $skipSummarize = $skipSummarize ?? false;
         $showOnlyFilter = $showOnlyFilter ?? ($visitor->alerts_unread ? 'unread' : 'all');
 
-        if ($skipSummarize)
-        {
-            Globals::$skipSummarize = true;
-        }
-        if ($skipMarkAsRead)
-        {
-            $this->request->set('skip_mark_read', 1);
-        }
+        // make XF mark-alert handling sane
+        $this->request->set('skip_mark_read', 1);
+        Globals::$skipMarkAlertsRead = true;
+        Globals::$skipSummarize = $skipSummarize;
         Globals::$showUnreadOnly = $showOnlyFilter === 'unread';
         try
         {
@@ -209,16 +206,19 @@ class Account extends XFCP_Account
         }
         finally
         {
+            Globals::$skipMarkAlertsRead = false;
             Globals::$skipSummarize = false;
             Globals::$showUnreadOnly = false;
         }
         if ($response instanceof View)
         {
             $response->setParam('showOnlyFilter', $showOnlyFilter);
-            /** @var AbstractCollection $alerts */
+            /** @var AbstractCollection|UserAlertEntity[] $alerts */
             $alerts = $response->getParam('alerts');
             if ($alerts)
             {
+                $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
+
                 $groupedAlerts = empty($options->sv_alerts_groupByDate) ? null : $this->groupAlertsByDay($alerts);
 
                 $response->setParam('groupedAlerts', $groupedAlerts);
@@ -239,50 +239,73 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         /** @var UserOption $option */
         $option = $visitor->Option;
-        if (Globals::isPrefetchRequest() || $option->sv_alerts_popup_skips_mark_read)
-        {
-            Globals::$skipMarkAlertsRead = true;
-        }
+        $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_skips_mark_read);
+        Globals::$skipMarkAlertsRead = true;
         try
         {
             $reply = parent::actionAlertsPopup();
         }
         finally
         {
-            // if skipping alerts read, ensure user-alerts are read anyway, otherwise they don't go away as expected
-            if ($visitor->alerts_unread && Globals::$skipMarkAlertsRead)
-            {
-                /** @var ExtendedUserAlertRepo $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markUserAlertsReadForContent('user', $visitor->user_id);
-            }
             Globals::$skipMarkAlertsRead = false;
         }
 
         if ($reply instanceof ViewReply)
         {
-            if (\XF::options()->svUnreadAlertsAfterReadAlerts && ($alerts = $reply->getParam('alerts')))
+            /** @var AbstractCollection|UserAlertEntity[] $alerts */
+            $alerts = $reply->getParam('alerts');
+            if ($alerts)
             {
-                $unreadAlerts = [];
-                /** @var UserAlertEntity $alert */
-                foreach ($alerts as $key => $alert)
-                {
-                    if (!$alert->view_date)
-                    {
-                        $unreadAlerts[$key] = $alert;
-                        unset($alerts[$key]);
-                    }
-                }
+                $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
 
-                if ($unreadAlerts)
+                if (\XF::options()->svUnreadAlertsAfterReadAlerts)
                 {
-                    $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
-                    $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+                    $unreadAlerts = [];
+                    /** @var UserAlertEntity $alert */
+                    foreach ($alerts as $key => $alert)
+                    {
+                        if (!$alert->view_date)
+                        {
+                            $unreadAlerts[$key] = $alert;
+                            unset($alerts[$key]);
+                        }
+                    }
+
+                    if ($unreadAlerts)
+                    {
+                        $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
+                        $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+                    }
                 }
             }
         }
 
         return $reply;
+    }
+
+    /**
+     * @param AbstractCollection|UserAlertEntity[] $alerts
+     * @param bool $skipMarkAsRead
+     */
+    protected function markViewedAlertsRead($alerts, bool $skipMarkAsRead)
+    {
+        $visitor = \XF::visitor();
+        if ($skipMarkAsRead)
+        {
+            // if skipping alerts read, ensure user-alerts are read anyway, otherwise they don't go away as expected
+            if ($visitor->alerts_unread)
+            {
+                /** @var ExtendedUserAlertRepo $alertRepo */
+                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo->markUserAlertsReadForContent('user', $visitor->user_id);
+            }
+        }
+        else
+        {
+            /** @var ExtendedUserAlertRepo $alertRepo */
+            $alertRepo = $this->repository('XF:UserAlert');
+            $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
+        }
     }
 
     protected function markInaccessibleAlertsReadIfNeeded(AbstractCollection $displayedAlerts = null)
