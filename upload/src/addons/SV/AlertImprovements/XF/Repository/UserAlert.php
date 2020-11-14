@@ -643,6 +643,11 @@ class UserAlert extends XFCP_UserAlert
 
     public function autoMarkUserAlertsRead(\XF\Mvc\Entity\AbstractCollection $alerts, User $user, $readDate = null)
     {
+        if (Globals::$skipMarkAlertsRead)
+        {
+            return;
+        }
+
         $alerts = $alerts->filter(function(UserAlertEntity $alert)
         {
             return ($alert->isUnread() && $alert->auto_read);
