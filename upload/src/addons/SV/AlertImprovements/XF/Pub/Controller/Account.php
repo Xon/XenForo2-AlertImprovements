@@ -459,7 +459,7 @@ class Account extends XFCP_Account
                 break;
 
             case 'unread':
-                $alertRepo->markAlertIdsAsUnreadAndUnviewed($visitor, $alertIds);
+                $alertRepo->markAlertIdsAsUnreadAndUnviewed($visitor, $alertIds, true);
                 break;
 
             default:
