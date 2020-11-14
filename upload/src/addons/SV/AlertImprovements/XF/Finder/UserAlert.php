@@ -76,8 +76,11 @@ class UserAlert extends XFCP_UserAlert
                 $userIds[$rawEntity['alerted_user_id']] = true;
             }
         }
-        $userIds = array_keys($userIds);
-        $em->getFinder('XF:User')->whereIds($userIds)->fetch();
+        if ($userIds)
+        {
+            $userIds = array_keys($userIds);
+            $em->getFinder('XF:User')->whereIds($userIds)->fetch();
+        }
 
         // materialize raw entities into Entities
         foreach ($rawEntities as $rawEntity)
