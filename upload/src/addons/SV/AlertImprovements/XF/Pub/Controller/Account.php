@@ -176,6 +176,8 @@ class Account extends XFCP_Account
         $showOnlyFilter = $this->filter('show_only', '?str');
         $skipMarkAsRead = $this->filter('skip_mark_read', '?bool');
         $skipSummarize = $this->filter('skip_summarize', '?bool');
+        $page = $this->filterPage();
+        $options = $this->options();
         if (Globals::isPrefetchRequest())
         {
             $skipMarkAsRead = $skipSummarize = true;
@@ -184,7 +186,6 @@ class Account extends XFCP_Account
         {
             $skipMarkAsRead = true;
         }
-        $page = $this->filterPage();
         if ($page > 1 || !empty($option->sv_alerts_page_skips_summarize))
         {
             $skipSummarize = true;
