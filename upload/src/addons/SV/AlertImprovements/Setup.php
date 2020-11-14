@@ -38,7 +38,7 @@ class Setup extends AbstractSetup
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_popup_skips_mark_read' => 0,
-            'sv_alerts_page_skips_mark_read'  => 1,
+            'sv_alerts_page_skips_mark_read'  => 0,
             'sv_alerts_page_skips_summarize'  => 0,
             'sv_alerts_summarize_threshold'   => 4,
         ]);
@@ -189,6 +189,27 @@ class Setup extends AbstractSetup
 		");
     }
 
+    public function upgrade2080001Step5()
+    {
+        /** @var \XF\Entity\Option $option */
+        $option = \XF::app()->finder('XF:Option')
+                     ->where('option_id', '=', 'registrationDefaults')
+                     ->fetchOne();
+        $registrationDefaults = $option->option_value;
+        $registrationDefaults['sv_alerts_popup_skips_mark_read'] = 0;
+        $registrationDefaults['sv_alerts_page_skips_mark_read'] = 0;
+        $option->option_value = $registrationDefaults;
+        $option->saveIfChanged();
+    }
+
+    public function upgrade2080001Step6()
+    {
+        $this->db()->update('xf_user_option', [
+            'sv_alerts_popup_skips_mark_read' => 0,
+            'sv_alerts_page_skips_mark_read' => 0,
+        ], '');
+    }
+
     public function uninstallStep1()
     {
         $sm = $this->schemaManager();
@@ -223,7 +244,7 @@ class Setup extends AbstractSetup
 
         $tables['xf_user_option'] = function (Alter $table) {
             $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
-            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(1);
+            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_mark_read', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
         };
