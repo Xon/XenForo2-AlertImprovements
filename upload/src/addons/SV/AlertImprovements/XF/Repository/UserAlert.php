@@ -91,7 +91,7 @@ class UserAlert extends XFCP_UserAlert
                 {
                     return null;
                 }
-                $alerts = $this->checkSummarizeAlertsForUser($userId);
+                $alerts = $this->checkSummarizeAlertsForUser($userId, false, !Globals::$showUnreadOnly, \XF::$time);
 
                 if ($alerts === null)
                 {
@@ -117,7 +117,7 @@ class UserAlert extends XFCP_UserAlert
      * @return array|null
      * @throws \Exception
      */
-    protected function checkSummarizeAlertsForUser(int $userId, $force = false, $ignoreReadState = false, $summaryAlertViewDate = 0)
+    protected function checkSummarizeAlertsForUser(int $userId, bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
     {
         if ($userId !== \XF::visitor()->user_id)
         {
@@ -143,7 +143,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int  $summaryAlertViewDate
      * @return null|array
      */
-    protected function checkSummarizeAlerts(bool $force = false, bool $ignoreReadState = false, int $summaryAlertViewDate = 0)
+    protected function checkSummarizeAlerts(bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
     {
         if ($force || $this->canSummarizeAlerts())
         {
@@ -227,7 +227,7 @@ class UserAlert extends XFCP_UserAlert
                            'column' => 'depends_on_addon_id'
                        ])
                        ->order('event_date', 'desc');
-        if (Globals::$showUnreadOnly)
+        if (!$ignoreReadState)
         {
             $finder->whereOr([
                 ['read_date', '=', 0],
