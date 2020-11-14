@@ -97,8 +97,10 @@ class UserAlert extends XFCP_UserAlert
                 {
                     return null;
                 }
-
-                $alerts = array_slice($alerts, 0, $limit, true);
+                if ($limit > 0)
+                {
+                    $alerts = array_slice($alerts, 0, $limit, true);
+                }
 
                 return $finder->materializeAlerts($alerts);
             }
@@ -211,6 +213,7 @@ class UserAlert extends XFCP_UserAlert
     public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
     {
         // TODO : finish summarizing alerts
+        $xfOptions = \XF::options();
         $visitor = \XF::visitor();
         $userId = $visitor->user_id;
         /** @var \SV\AlertImprovements\XF\Entity\UserOption $option */
@@ -232,6 +235,11 @@ class UserAlert extends XFCP_UserAlert
             ]);
         }
         $finder->where('summerize_id', null);
+
+        if (!empty($xfOptions->svAlertsSummerizeLimit) && $xfOptions->svAlertsSummerizeLimit > 0)
+        {
+            $finder->limit($xfOptions->svAlertsSummerizeLimit);
+        }
 
         /** @var array $alerts */
         $alerts = $finder->fetchRaw();
