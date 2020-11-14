@@ -887,8 +887,9 @@ class UserAlert extends XFCP_UserAlert
      * @param int           $maxXFVersion
      * @param User|null     $user
      * @param int|null      $viewDate
+     * @param bool          $respectAutoMarkRead
      */
-    public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, User $user = null, int $viewDate = null)
+    public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, User $user = null, int $viewDate = null, bool $respectAutoMarkRead = false)
     {
         // do not mark alerts as read when prefetching is happening
         if (Globals::isPrefetchRequest())
@@ -918,6 +919,7 @@ class UserAlert extends XFCP_UserAlert
         $db = $this->db();
 
         $actionFilter = $actions ? ' AND action in (' . $db->quote($actions) . ') ' : '';
+        $autoMarkReadFilter = $respectAutoMarkRead ? ' AND auto_read = 1 ' : '';
 
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
@@ -926,7 +928,7 @@ class UserAlert extends XFCP_UserAlert
             SELECT alert_id
             FROM xf_user_alert
             WHERE alerted_user_id = ?
-            AND (read_date = 0 OR view_date = 0)
+            AND (read_date = 0 OR view_date = 0) ' . $autoMarkReadFilter. '
             AND event_date < ?
             AND content_type IN (' . $db->quote($contentType) . ')
             AND content_id IN (' . $db->quote($contentIds) . ")

@@ -318,12 +318,12 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         if ($skipMarkAsRead)
         {
-            // if skipping alerts read, ensure user-alerts are read anyway, otherwise they don't go away as expected
+            // if skipping alerts read, ensure non-auto read user-alerts are read anyway, otherwise they don't go away as expected
             if ($visitor->alerts_unread)
             {
                 /** @var ExtendedUserAlertRepo $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markUserAlertsReadForContent('user', $visitor->user_id);
+                $alertRepo->markAlertsReadForContentIds('user', [$visitor->user_id], null, 0, $visitor, null, true);
             }
         }
         else
