@@ -184,7 +184,7 @@ class Account extends XFCP_Account
         $floodChecker = $this->service('XF:FloodCheck');
         $timeRemaining = $floodChecker->checkFlooding('alertSummarize', $visitor->user_id, $floodingLimit);
 
-        return $timeRemaining >= 0;
+        return $timeRemaining > 0;
     }
 
     /**
