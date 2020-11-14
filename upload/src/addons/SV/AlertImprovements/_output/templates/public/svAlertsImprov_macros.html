@@ -63,14 +63,15 @@
 </xf:macro>
 
 <xf:macro name="alerts_filter" 
+		  arg-navParams="{{ [] }}"
 		  arg-selected=""
 		  >
 	<div class="block-outer-main">
 		<div class="buttonGroup"><xf:trim>
-			<xf:button href="{{ link('account/alerts', null, {'show_only': 'all'}) }}" class="button {{ $selected === 'all' ? 'button--alt' : 'button--link' }}"><xf:trim>
+			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'all')|replace('page', '')) }}" class="button {{ $selected === 'all' ? 'button--alt' : 'button--link' }}"><xf:trim>
 				{{ phrase('all') }}
 				</xf:trim></xf:button>
-			<xf:button href="{{ link('account/alerts', null, {'show_only': 'unread'}) }}" class="button {{ $selected === 'unread' ? 'button--alt' : 'button--link' }}"><xf:trim>
+			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'unread')|replace('page', '')) }}" class="button {{ $selected === 'unread' ? 'button--alt' : 'button--link' }}"><xf:trim>
 				{{ phrase('svAlertImprov_unread') }}
 				</xf:trim></xf:button>
 		</xf:trim></div>

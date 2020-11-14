@@ -212,7 +212,6 @@ class Account extends XFCP_Account
         }
         if ($response instanceof View)
         {
-            $response->setParam('showOnlyFilter', $showOnlyFilter);
             /** @var AbstractCollection|UserAlertEntity[] $alerts */
             $alerts = $response->getParam('alerts');
             if ($alerts)
@@ -225,9 +224,11 @@ class Account extends XFCP_Account
             }
 
             $navParams = $response->getParam('navParams') ?? [];
-            $navParams = $navParams + [
-                    'show_only' => $showOnlyFilter,
-                ];
+            $navParams = array_merge([
+                'skip_mark_read' => $skipMarkAsRead,
+                'skip_summarize' => $skipSummarize,
+                'show_only'      => $showOnlyFilter,
+            ], $navParams);
             $response->setParam('navParams', $navParams);
         }
 
@@ -417,6 +418,13 @@ class Account extends XFCP_Account
             throw $this->exception($this->error(\XF::phrase('svAlertImprov_please_select_at_least_one_alert_to_update')));
         }
 
+        $redirectParams = $this->filter([
+            'show_only'      => '?str',
+            'skip_mark_read' => '?bool',
+            'skip_summarize' => '?bool',
+            'page'           => 'int',
+        ]);
+
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         switch ($this->filter('state', 'str'))
@@ -434,7 +442,7 @@ class Account extends XFCP_Account
         }
 
         return $this->redirect(
-            $this->getDynamicRedirect($this->buildLink('account/alerts')),
+            $this->buildLink('account/alerts', null, $redirectParams),
             \XF::phrase('svAlertImprov_selected_alerts_have_been_updated')
         );
     }
