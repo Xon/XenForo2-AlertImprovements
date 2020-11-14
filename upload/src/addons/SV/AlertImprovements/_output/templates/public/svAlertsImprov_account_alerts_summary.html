@@ -13,7 +13,7 @@
 		</ol>
 		<xf:if is="$alerts is not empty">
 			<ol class="listPlain">
-				<xf:if is="$xf.options.sv_alerts_groupByDate">
+				<xf:if is="$groupedAlerts is not empty">
 					<xf:foreach loop="$alerts" key="$date" value="$alertsDay">
 						<li>
 							<h2 class="block-formSectionHeader">{$date}</h2>

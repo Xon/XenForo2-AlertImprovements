@@ -109,7 +109,8 @@ class Account extends XFCP_Account
         $alertId = $this->filter('alert_id', 'int');
         $skipMarkAsRead = $this->filter('skip_mark_read', 'bool');
         $page = $this->filterPage();
-        $perPage = $this->options()->alertsPerPage;
+        $options = $this->options();
+        $perPage = $options->alertsPerPage;
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
@@ -146,15 +147,13 @@ class Account extends XFCP_Account
         $alertRepo->addContentToAlerts($alerts);
         $alerts = $alerts->filterViewable();
 
-        if ($this->app->options()->sv_alerts_groupByDate)
-        {
-            $alerts = $this->groupAlertsByDay($alerts);
-        }
+        $groupedAlerts = !empty($options->sv_alerts_groupByDate) ? $this->groupAlertsByDay($alerts) : null;
 
         $viewParams = [
-            'navParams' => ['alert_id' => $alert->alert_id],
-            'alert'     => $alert,
-            'alerts'    => $alerts,
+            'navParams'     => ['alert_id' => $alert->alert_id],
+            'alert'         => $alert,
+            'alerts'        => $alerts,
+            'groupedAlerts' => $groupedAlerts,
 
             'page'        => $page,
             'perPage'     => $perPage,
@@ -203,18 +202,14 @@ class Account extends XFCP_Account
         }
         if ($response instanceof View)
         {
-            if ($this->app->options()->sv_alerts_groupByDate)
+            /** @var AbstractCollection $alerts */
+            $alerts = $response->getParam('alerts');
+            if ($alerts)
             {
-                /** @var AbstractCollection $alerts */
-                $alerts = $response->getParam('alerts');
-                $newAlerts = $this->groupAlertsByDay($alerts);
-                $response->setParam('groupedAlerts', $newAlerts);
-            }
-        }
+                $groupedAlerts = empty($options->sv_alerts_groupByDate) ? null : $this->groupAlertsByDay($alerts);
 
-        if ($explicitSkipMarkAsRead === false)
-        {
-            return $this->redirect($this->buildLink('account/alerts'));
+                $response->setParam('groupedAlerts', $groupedAlerts);
+            }
         }
 
         return $response;
