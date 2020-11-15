@@ -90,6 +90,27 @@
 	</xf:if>
 </xf:macro>
 
+<xf:macro name="alerts_select">
+	<div class="block-footer block-footer--split">
+		<span class="block-footer-counter"></span>
+		<span class="block-footer-select"><xf:checkbox standalone="true"><xf:option check-all="< .block-container" label="{{ phrase('select_all') }}" data-xf-init="tooltip" title="{{ phrase('select_all') }}" /></xf:checkbox></span>
+		<span class="block-footer-controls">
+			<xf:hiddenval name="show_only">{$navParams.show_only}</xf:hiddenval>
+			<xf:hiddenval name="skip_mark_read">1</xf:hiddenval>
+			<xf:hiddenval name="skip_summarize">1</xf:hiddenval>
+			<xf:hiddenval name="page">{$page}}</xf:hiddenval>
+			<xf:select name="state" class="input--inline">
+				<xf:option>{{ phrase('with_selected...') }}</xf:option>
+				<!--[XF:action_menu:top]-->
+				<xf:option value="read">{{ phrase('svAlertImprov_mark_read') }}</xf:option>
+				<xf:option value="unread">{{ phrase('svAlertImprov_mark_unread') }}</xf:option>
+				<!--[XF:action_menu:bottom]-->
+			</xf:select>
+			<xf:button type="submit">{{ phrase('go') }}</xf:button>
+		</span>
+	</div>
+</xf:macro>
+
 <xf:macro name="alert_row" arg-alert="!" arg-showSelectCheckbox="{{ false }}">
 	<div class="contentRow user-alert">
 		<xf:if is="$showSelectCheckbox">
