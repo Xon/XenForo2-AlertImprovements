@@ -4,9 +4,10 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\ISummarizeAlert;
+use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
-use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
+use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use XF\Entity\User;
 use XF\Entity\UserAlert as UserAlertEntity;
 use XF\Mvc\Entity\Finder;
@@ -45,16 +46,26 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User $user
      * @param int  $alertId
-     * @return \SV\AlertImprovements\XF\Finder\UserAlert|Finder
+     * @return ExtendedUserAlertFinder|Finder
      */
-    public function findAlertForUser(User $user, int $alertId)
+    public function findAlertForUser(User $user, int $alertId): ExtendedUserAlertFinder
     {
-        return $this->finder('XF:UserAlert')
+        /** @var ExtendedUserAlertFinder $finder */
+        $finder = $this->finder('XF:UserAlert')
                     ->where(['alert_id', $alertId])
                     ->whereAddOnActive([
                         'column' => 'depends_on_addon_id'
-                    ])
-                    ->where(['alerted_user_id', $user->user_id]);
+                    ]);
+        if ($user->user_id)
+        {
+            $finder->where(['alerted_user_id', $user->user_id]);
+        }
+        else
+        {
+            $finder->whereImpossible();
+        }
+
+        return $finder;
     }
 
     /**
@@ -65,7 +76,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function findAlertsForUser($userId, $cutOff = null)
     {
-        /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
+        /** @var ExtendedUserAlertFinder $finder */
         $finder = parent::findAlertsForUser($userId, $cutOff);
         if (!Globals::$skipSummarizeFilter)
         {
@@ -158,7 +169,7 @@ class UserAlert extends XFCP_UserAlert
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryId) {
             $userId = $user->user_id;
             // Delete summary alert
-            /** @var Alerts $summaryAlert */
+            /** @var ExtendedUserAlertEntity $summaryAlert */
             $summaryAlert = $this->finder('XF:UserAlert')
                                  ->where('alert_id', $summaryId)
                                  ->fetchOne();
@@ -220,7 +231,7 @@ class UserAlert extends XFCP_UserAlert
         $option = $visitor->Option;
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
-        /** @var \SV\AlertImprovements\XF\Finder\UserAlert $finder */
+        /** @var ExtendedUserAlertFinder $finder */
         $finder = $this->finder('XF:UserAlert')
                        ->where('alerted_user_id', $userId)
                        ->whereAddOnActive([
@@ -392,16 +403,16 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param ISummarizeAlert $handler
-     * @param int             $summarizeThreshold
-     * @param string          $contentType
-     * @param int             $contentId
-     * @param Alerts[]        $alertGrouping
-     * @param int             $grouped
-     * @param Alerts[]        $outputAlerts
-     * @param string          $groupingStyle
-     * @param int             $senderUserId
-     * @param int             $summaryAlertViewDate
+     * @param ISummarizeAlert           $handler
+     * @param int                       $summarizeThreshold
+     * @param string                    $contentType
+     * @param int                       $contentId
+     * @param ExtendedUserAlertEntity[] $alertGrouping
+     * @param int                       $grouped
+     * @param ExtendedUserAlertEntity[] $outputAlerts
+     * @param string                    $groupingStyle
+     * @param int                       $senderUserId
+     * @param int                       $summaryAlertViewDate
      * @return bool
      */
     protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate) : bool
@@ -546,7 +557,7 @@ class UserAlert extends XFCP_UserAlert
         // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
         $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected, &$summerizeId) {
             // database update
-            /** @var Alerts $alert */
+            /** @var ExtendedUserAlertEntity $alert */
             $alert = $this->em->create('XF:UserAlert');
             $alert->bulkSet($summaryAlert);
             $alert->save(true, false);
