@@ -121,7 +121,7 @@ class Account extends XFCP_Account
         {
             $alertRepo->markUserAlertRead($alert);
         }
-        if (!$alert)
+        if (!$alert || !$alert->canView())
         {
             return $this->notFound();
         }
