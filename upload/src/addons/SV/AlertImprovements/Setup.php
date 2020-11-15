@@ -146,12 +146,12 @@ class Setup extends AbstractSetup
 
     }
 
-    public function upgrade2080001Step1()
+    public function upgrade2080002Step1()
     {
         $this->installStep1();
     }
 
-    public function upgrade2080001Step2()
+    public function upgrade2080002Step2()
     {
         // Thread Starter Alerts v2.2.0 support
         $this->db()->query("
@@ -161,7 +161,7 @@ class Setup extends AbstractSetup
         ");
     }
 
-    public function upgrade2080001Step3()
+    public function upgrade2080002Step3()
     {
         if (\XF::$versionId >= 2020000)
         {
@@ -175,7 +175,7 @@ class Setup extends AbstractSetup
 		");
     }
 
-    public function upgrade2080001Step4()
+    public function upgrade2080002Step4()
     {
         if (\XF::$versionId >= 2020000)
         {
@@ -189,7 +189,7 @@ class Setup extends AbstractSetup
 		");
     }
 
-    public function upgrade2080001Step5()
+    public function upgrade2080002Step5()
     {
         /** @var \XF\Entity\Option $option */
         $option = \XF::app()->finder('XF:Option')
@@ -202,7 +202,7 @@ class Setup extends AbstractSetup
         $option->saveIfChanged();
     }
 
-    public function upgrade2080001Step6()
+    public function upgrade2080002Step6()
     {
         $this->db()->update('xf_user_option', [
             'sv_alerts_popup_skips_mark_read' => 0,
