@@ -717,6 +717,12 @@ class UserAlert extends XFCP_UserAlert
         $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user ?: \XF::visitor(), $viewDate);
     }
 
+    /**
+     * @param User  $user
+     * @param int[] $alertIds
+     * @param int   $readDate
+     * @param bool  $updateAlertEntities
+     */
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
     {
         if (!\count($alertIds))
@@ -800,6 +806,12 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', $alerts_unread);
     }
 
+    /**
+     * @param User  $user
+     * @param int[] $alertIds
+     * @param bool  $disableAutoRead
+     * @param bool  $updateAlertEntities
+     */
     public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
     {
         if (!\count($alertIds))
