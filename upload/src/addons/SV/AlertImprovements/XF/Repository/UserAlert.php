@@ -179,24 +179,31 @@ class UserAlert extends XFCP_UserAlert
             }
             $summaryAlert->delete(false, false);
 
+            $db->query('select user_id from xf_user where user_id = ? for update', $userId);
+
             // Make alerts visible
-            $stmt = $db->query('
-                UPDATE xf_user_alert
-                SET summerize_id = NULL, view_date = 0, read_date = 0
-                WHERE alerted_user_id = ? AND summerize_id = ?
-            ', [$userId, $summaryId]);
+            $unreadIncrement = $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET summerize_id = NULL, read_date = 0
+                WHERE alerted_user_id = ? AND summerize_id = ? AND read_date <> 0
+            ', [$userId, $summaryId])->rowsAffected();
+
+            $unviewedIncrement = $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET summerize_id = NULL, view_date = 0
+                WHERE alerted_user_id = ? AND summerize_id = ? AND view_date <> 0
+            ', [$userId, $summaryId])->rowsAffected();
 
             // Reset unread alerts counter
-            $increment = $stmt->rowsAffected();
             $db->query('
                 UPDATE xf_user
                 SET alerts_unread = LEAST(alerts_unread + ?, 65535),
                     alerts_unviewed = LEAST(alerts_unviewed + ?, 65535)
                 WHERE user_id = ?
-            ', [$increment, $increment, $userId]);
+            ', [$unreadIncrement, $unviewedIncrement, $userId]);
 
-            $user->setAsSaved('alerts_unread', $user->alerts_unread + $increment);
-            $user->setAsSaved('alerts_unread', $user->alerts_unviewed + $increment);
+            $user->setAsSaved('alerts_unread', $user->alerts_unread + $unreadIncrement);
+            $user->setAsSaved('alerts_unread', $user->alerts_unviewed + $unviewedIncrement);
         });
     }
 
