@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}",
-    "replace": "{{ $alert.isUnreadInUi() ? ' is-unread' : ($alert.isRecentlyViewed() ? ' is-recently-read' : ' block-row--alt is-read') }}"
+    "replace": "{{ $alert.isUnreadInUi() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' block-row--alt is-read') }}"
 }
