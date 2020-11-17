@@ -1,17 +1,9 @@
-<xf:if is="$xf.versionId < 2020010">
-	.alert
-	{
-		&.is-unread
-		{
-			.xf-contentHighlightBase();
-		}
-	}
-</xf:if>
-
-.alert
+.js-alertsMenuBody .alert,
+.alert-list .alert 
 {
 	&.is-unread
 	{
+		.xf-contentHighlightBase();
 	}
 
 	&.is-read
@@ -19,16 +11,14 @@
 		.xf-contentAltBase();
 	}
 
-	.alert-list &.is-recently-read
+	 &.is-recently-read
 	{
 		.xf-contentAltBase();
 	}
+}
 
-	.js-alertsMenuBody &.is-recently-read
-	{
-		.xf-contentHighlightBase();
-	}
-
+.alert
+{
 	.unread-indicator-icon
 	{
 		color: @xf-svAlertImprovRecentAlertIconColor;
