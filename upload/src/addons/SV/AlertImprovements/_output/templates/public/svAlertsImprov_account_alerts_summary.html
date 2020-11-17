@@ -14,29 +14,25 @@
 		<xf:if is="$alerts is not empty">
 			<ol class="listPlain">
 				<xf:if is="$groupedAlerts is not empty">
-					<xf:foreach loop="$alerts" key="$date" value="$alertsDay">
+					<xf:foreach loop="$groupedAlerts" key="$dateGroup" value="$dateAlerts">
 						<li>
-							<h2 class="block-formSectionHeader">{$date}</h2>
+							<h2 class="block-formSectionHeader">{$dateGroup}</h2>
 							<ol class="listPlain">
-								<xf:foreach loop="$alertsDay" value="$alert">
-									<xf:if is="$alert.getHandler()">
-										<li data-alert-id="{$alert.alert_id}"
-											class="alert js-alert block-row block-row--separated{{ $alert.isUnviewed() ? ' is-unread' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
-											<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
-										</li>
-									</xf:if>
+								<xf:foreach loop="$dateAlerts" value="$alert">
+									<li data-alert-id="{$alert.alert_id}"
+										class="alert js-alert block-row block-row--separated{{ $alert.isUnviewed() ? ' is-unread' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
+										<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
+									</li>
 								</xf:foreach>
 							</ol>
 						</li>
 					</xf:foreach>
 				<xf:else />
 					<xf:foreach loop="$alerts" value="$alert">
-						<xf:if is="$alert.getHandler()">
-							<li data-alert-id="{$alert.alert_id}"
-								class="alert js-alert block-row block-row--separated{{ $alert.isUnviewed() ? ' is-unread' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
-								<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
-							</li>
-						</xf:if>
+						<li data-alert-id="{$alert.alert_id}"
+							class="alert js-alert block-row block-row--separated{{ $alert.isUnviewed() ? ' is-unread' : ($alert.isRecentlyRead() ? '' : ' block-row--alt') }}">
+							<xf:macro template="svAlertsImprov_macros" name="alert_row" arg-alert="{$alert}" />
+						</li>
 					</xf:foreach>
 				</xf:if>
 			</ol>
