@@ -1,1 +1,2 @@
-Allows grouping of alerts by content type or user to reduce clutter when a user receives a high numbers of alerts.
+Allows grouping of alerts by content type or user to reduce clutter when a user receives a high numbers of alerts.<br/>
+This feature currently only works with reactions
