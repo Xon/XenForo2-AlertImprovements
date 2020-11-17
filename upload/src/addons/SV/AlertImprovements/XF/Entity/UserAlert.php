@@ -20,6 +20,18 @@ use XF\Mvc\Entity\Structure;
  */
 class UserAlert extends XFCP_UserAlert
 {
+    public function getHandler()
+    {
+        if (\array_key_exists('Handler', $this->_getterCache))
+        {
+            return $this->_getterCache['Handler'];
+        }
+
+        $this->_getterCache['Handler'] = parent::getHandler();
+
+        return $this->_getterCache['Handler'];
+    }
+
     /**
      * @return int
      */

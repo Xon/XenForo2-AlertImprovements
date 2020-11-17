@@ -661,7 +661,7 @@ class UserAlert extends XFCP_UserAlert
 
         $alerts = $alerts->filter(function(UserAlertEntity $alert)
         {
-            return ($alert->isUnread() && $alert->auto_read);
+            return $alert->getHandler() === null || ($alert->isUnread() && $alert->auto_read);
         });
 
         $this->markSpecificUserAlertsRead($alerts, $user, $readDate);
