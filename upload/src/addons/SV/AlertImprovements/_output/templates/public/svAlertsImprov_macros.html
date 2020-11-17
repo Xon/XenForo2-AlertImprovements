@@ -66,6 +66,7 @@
 		  arg-navParams="{{ [] }}"
 		  arg-selected=""
 		  >
+	<xf:css src="svAlertImprovements.less" />
 	<div class="block-outer-main">
 		<div class="buttonGroup"><xf:trim>
 			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'all')|replace('page', '')) }}" class="button {{ $selected === 'all' ? 'button--alt' : 'button--link' }}"><xf:trim>
@@ -112,6 +113,7 @@
 </xf:macro>
 
 <xf:macro name="alert_row" arg-alert="!" arg-showSelectCheckbox="{{ false }}">
+	<xf:css src="svAlertImprovements.less" />
 	<div class="contentRow user-alert">
 		<xf:if is="$showSelectCheckbox">
 			<div class="contentRow-figure contentRow-figure--svAlertImprovAlertSelector">
