@@ -161,9 +161,45 @@ class Account extends XFCP_Account
             'perPage'     => $perPage,
             'totalAlerts' => $alertsFinder->total(),
         ];
-        $view = $this->view('XF:Account\Alerts', 'svAlertsImprov_account_alerts_summary', $viewParams);
+        $view = $this->view('XF:Account\AlertsSummary', 'svAlertsImprov_account_alerts_summary', $viewParams);
 
         return $this->addAccountWrapperParams($view, 'alerts');
+    }
+
+    public function actionAlertUnRead()
+    {
+        $this->assertPostOnly();
+
+        $visitor = \XF::visitor();
+        $alertId = $this->filter('alert_id', 'uint');
+
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+
+        /** @var ExtendedUserAlertEntity $alert */
+        $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
+        if (!$alert || !$alert->canView())
+        {
+            return $this->notFound();
+        }
+
+        $showSelectCheckbox = $this->filter('inlist', 'bool');
+        $newUnreadStatus = $this->filter('unread', 'bool', $alert->isUnread() ? false : true);
+
+        if ($newUnreadStatus)
+        {
+            $alertRepo->markUserAlertUnread($alert, true);
+        }
+        else
+        {
+            $alertRepo->markUserAlertRead($alert, \XF::$time);
+        }
+
+        $viewParams = [
+            'alert'              => $alert,
+            'showSelectCheckbox' => $showSelectCheckbox,
+        ];
+        return $this->view('XF:Account\Alert', 'svAlertsImprov_alert', $viewParams);
     }
 
     protected function hasRecentlySummarizedAlerts(): bool
@@ -402,7 +438,7 @@ class Account extends XFCP_Account
      * @return RedirectReply
      * @noinspection PhpUnusedParameterInspection
      */
-    public function actionUnsummarizeAlert(ParameterBag $params)
+    public function actionAlertUnsummarize(ParameterBag $params)
     {
         $visitor = \XF::visitor();
         $alertId = $this->filter('alert_id', 'int');

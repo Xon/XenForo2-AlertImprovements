@@ -149,12 +149,12 @@
 					<xf:if is="$alert.read_date">
 						<li>{{ phrase('svAlertImprov_read_on:') }} <xf:date time="$alert.read_date" /></li>
 					</xf:if>
+					<xf:if is="$alert.view_date || $alert.getOption('force_unread_in_ui')">
+						<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
+						<li><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', '', {'alert_id':$alert.alert_id}) }}">{{ phrase('sv_mark_unread') }}</a></li>
+					</xf:if>
 					<xf:if is="$alert.is_summary">
-						<li><a class="unsummarizeAlert" href="{{ link('account/unsummarize-alert', '', {'alert_id':$alert.alert_id}) }}">
-							<span class="alert--unsummarizeLink">
-								{{phrase('sv_unsummarize_alert')}}
-							</span>
-							</a></li>
+						<li><a class="alert--unsummarize" href="{{ link('account/alert/unsummarize', '', {'alert_id':$alert.alert_id}) }}">{{phrase('sv_unsummarize_alert')}}</a></li>
 					</xf:if>
 				</ul>
 			</div>
