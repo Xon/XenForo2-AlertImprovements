@@ -189,6 +189,13 @@ class Setup extends AbstractSetup
 		");
     }
 
+    public function upgrade2080100Step1()
+    {
+        $this->renameOption('sv_alerts_summerize', 'svAlertsSummarize');
+        $this->renameOption('sv_alerts_summerize_flood', 'svAlertsSummarizeFlood');
+        $this->renameOption('sv_alerts_groupByDate', 'svAlertsGroupByDate');
+    }
+
 //    public function upgrade2080002Step5()
 //    {
 //        /** @var \XF\Entity\Option $option */

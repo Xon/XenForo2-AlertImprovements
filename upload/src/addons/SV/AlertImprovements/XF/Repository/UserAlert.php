@@ -214,7 +214,7 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        if (empty(\XF::options()->sv_alerts_summerize))
+        if (empty(\XF::options()->svAlertsSummarize))
         {
             return false;
         }

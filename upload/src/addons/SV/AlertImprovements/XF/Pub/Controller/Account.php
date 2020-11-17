@@ -84,12 +84,13 @@ class Account extends XFCP_Account
     public function actionSummarizeAlerts(ParameterBag $params)
     {
         $options = \XF::options();
-        if (empty($options->sv_alerts_summerize))
+        if (empty($options->svAlertsSummarize))
         {
             return $this->notFound();
         }
 
-        $this->assertNotFlooding('alertSummarize', max(1, (int)$options->sv_alerts_summerize_flood));
+        $floodingLimit = max(1, isset($options->svAlertsSummarizeFlood) ? $options->svAlertsSummarizeFlood : 1);
+        $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
@@ -148,7 +149,7 @@ class Account extends XFCP_Account
         $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
         $alerts = $alerts->filterViewable();
 
-        $groupedAlerts = !empty($options->sv_alerts_groupByDate) ? $this->groupAlertsByDay($alerts) : null;
+        $groupedAlerts = !empty($options->svAlertsGroupByDate) ? $this->groupAlertsByDay($alerts) : null;
 
         $viewParams = [
             'navParams'     => ['alert_id' => $alert->alert_id],
@@ -168,11 +169,11 @@ class Account extends XFCP_Account
     protected function hasRecentlySummarizedAlerts(): bool
     {
         $options = \XF::options();
-        if (empty($options->sv_alerts_summerize))
+        if (empty($options->svAlertsSummarize))
         {
             return true;
         }
-        $floodingLimit = max(1, isset($options->sv_alerts_summerize_flood) ? $options->sv_alerts_summerize_flood : 1);
+        $floodingLimit = max(1, isset($options->svAlertsSummarizeFlood) ? $options->svAlertsSummarizeFlood : 1);
 
         $visitor = \XF::visitor();
         if ($visitor->hasPermission('general', 'bypassFloodCheck'))
@@ -241,7 +242,7 @@ class Account extends XFCP_Account
             {
                 $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
 
-                $groupedAlerts = empty($options->sv_alerts_groupByDate) ? null : $this->groupAlertsByDay($alerts);
+                $groupedAlerts = empty($options->svAlertsGroupByDate) ? null : $this->groupAlertsByDay($alerts);
 
                 $response->setParam('groupedAlerts', $groupedAlerts);
             }
