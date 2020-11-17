@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "preg_replace",
     "find": "#(^<div class=\"block(?:.*?)?\".*?)(<div class=\"block-body.*?>.*?<\\/xf:if>.*<\\/div>)(.*?</div>\\s*<xf:pagenav.*?^<\\/div>$)#sim",
-    "replace": "<xf:form action=\"{{ link('account/bulk-update-alerts') }}\" ajax=\"true\" data-force-flash-message=\"true\">\n$1$2\n\t<xf:if is=\"$alerts is not empty\">\n\t\t<xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_select\" />\n\t</xf:if>$3\n</xf:form>"
+    "replace": "<xf:form action=\"{{ link('account/bulk-update-alerts') }}\" ajax=\"true\" data-force-flash-message=\"true\">\n$1$2\n\t<xf:if is=\"$alerts is not empty\">\n\t\t<xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_select\" \n\t\t\t\t  arg-page=\"{$page}\"\n\t\t\t\t  arg-navParams=\"{$navParams}\"\n\t\t\t\t  />\n\t</xf:if>$3\n</xf:form>"
 }

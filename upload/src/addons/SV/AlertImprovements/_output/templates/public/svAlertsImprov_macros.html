@@ -90,7 +90,7 @@
 	</xf:if>
 </xf:macro>
 
-<xf:macro name="alerts_select">
+<xf:macro name="alerts_select" arg-page="{{1}}" arg-navParams="{{ {} }}">
 	<div class="block-footer block-footer--split">
 		<span class="block-footer-counter"></span>
 		<span class="block-footer-select"><xf:checkbox standalone="true"><xf:option check-all="< .block-container" label="{{ phrase('select_all') }}" data-xf-init="tooltip" title="{{ phrase('select_all') }}" /></xf:checkbox></span>
