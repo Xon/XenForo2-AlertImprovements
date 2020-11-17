@@ -95,7 +95,7 @@ class Account extends XFCP_Account
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->summarizeAlertsForUser(\XF::visitor());
 
-        return $this->redirect($this->buildLink('account/alerts'));
+        return $this->redirect($this->buildLink('account/alerts', null, ['show_only' => 'all']));
     }
 
     /**
