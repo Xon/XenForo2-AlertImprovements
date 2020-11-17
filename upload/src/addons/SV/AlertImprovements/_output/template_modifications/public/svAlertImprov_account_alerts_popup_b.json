@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts_popup",
+    "description": "Shim class list for XF2.1",
+    "execution_order": 6398,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<li class=\"",
+    "replace": "$0{{ $xf.versionId < 2020010 ? ' alert js-alert ' : '' }}"
+}

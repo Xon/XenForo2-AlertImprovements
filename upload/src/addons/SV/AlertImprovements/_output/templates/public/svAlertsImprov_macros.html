@@ -114,7 +114,7 @@
 
 <xf:macro name="alert_row" arg-alert="!" arg-showSelectCheckbox="{{ false }}">
 	<xf:css src="svAlertImprovements.less" />
-	<div class="contentRow user-alert">
+	<div class="contentRow">
 		<xf:if is="$showSelectCheckbox">
 			<div class="contentRow-figure contentRow-figure--svAlertImprovAlertSelector">
 				<xf:checkbox standalone="true">
@@ -139,7 +139,7 @@
 					</xf:if>
 					<xf:if is="$alert.is_summary">
 						<li><a class="unsummarizeAlert" href="{{ link('account/unsummarize-alert', '', {'alert_id':$alert.alert_id}) }}">
-							<span class="user-alert--unreadLink">
+							<span class="alert--unsummarizeLink">
 								{{phrase('sv_unsummarize_alert')}}
 							</span>
 							</a></li>
