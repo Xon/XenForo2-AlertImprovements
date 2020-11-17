@@ -91,6 +91,18 @@
 	</xf:if>
 </xf:macro>
 
+<xf:macro name="alerts_popup_footer">
+    <span class="menu-footer-main">
+        <a href="{{ link('account/alerts') }}">{{ phrase('show_all') }}</a>
+    </span>
+    <span class="menu-footer-opposite">
+        <ul class="listInline listInline--bullet">
+            <li><a href="{{ link('account/alerts/mark-read') }}" data-xf-click="overlay">{{ phrase('mark_read') }}</a></li>
+            <li><a href="{{ link('account/preferences') }}#alerts">{{ phrase('preferences') }}</a></li>
+        </ul>
+    </span>
+</xf:macro>
+
 <xf:macro name="alerts_select" arg-page="{{1}}" arg-navParams="{{ {} }}">
 	<div class="block-footer block-footer--split">
 		<span class="block-footer-counter"></span>
