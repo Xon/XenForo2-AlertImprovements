@@ -5,7 +5,7 @@
     "sub_options": [],
     "validation_class": "",
     "validation_method": "",
-    "default_value": "10",
+    "default_value": "2",
     "relations": {
         "AlertImprovements": 20,
         "alerts": 420
