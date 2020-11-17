@@ -1056,7 +1056,7 @@ class UserAlert extends XFCP_UserAlert
             UPDATE xf_user
             SET alerts_unread = (SELECT COUNT(*)
                 FROM xf_user_alert
-                WHERE alerted_user_id = ? AND alerts_unread = 0 AND summerize_id IS NULL)
+                WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL)
             WHERE user_id = ?
         ', [$userId, $userId]);
 
