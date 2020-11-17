@@ -299,10 +299,15 @@ class Account extends XFCP_Account
 
                     if ($unreadAlerts)
                     {
-                        $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
                         $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
                     }
                 }
+            }
+
+            // just use svAlertsImprov_account_alerts_popup
+            if ($reply->getTemplateName() === 'account_alerts_popup')
+            {
+                $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
             }
         }
 
