@@ -10,6 +10,23 @@
 
 .alert
 {
+	&.is-unread
+	{
+	}
+
+	&.is-read
+	{
+	}
+
+	&.is-recently-read
+	{
+	}
+
+	.js-alertsMenuBody &.is-recently-read
+	{
+		.xf-contentHighlightBase();
+	}
+
 	.unread-indicator-icon
 	{
 		color: @xf-svAlertImprovRecentAlertIconColor;
