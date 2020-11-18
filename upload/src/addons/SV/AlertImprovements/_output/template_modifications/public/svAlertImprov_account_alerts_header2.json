@@ -1,0 +1,9 @@
+{
+    "template": "account_alerts",
+    "description": "Patch XF2.2 mark-read javascript",
+    "execution_order": 6396,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#(<xf:button href=\"{{ link\\('account/alerts/mark-read'\\) }}\"\\s*class=\"button--link\")(?:\\s*overlay=\"true\"\\s*)(.*?>)#si",
+    "replace": "$1 data-xf-init=\"sv-mark-alerts-read\" $2"
+}

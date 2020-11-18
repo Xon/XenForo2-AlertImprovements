@@ -36,6 +36,24 @@ class Account extends XFCP_Account
         {
             $alertRepo->markUserAlertsRead($visitor);
 
+            $alertIds = $this->filter('alert_ids', 'array-uint');
+            if ($alertIds)
+            {
+                /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
+                $alerts = $alertRepo->findAlertForUser($visitor, $alertIds)
+                                    ->limit(\XF::options()->alertsPerPage * 2)
+                                    ->fetch();
+                $alertRepo->addContentToAlerts($alerts);
+                $alerts = $alerts->filterViewable();
+
+                $viewParams = [
+                    'alerts'             => $alerts,
+                    'showSelectCheckbox' => true,
+                ];
+
+                return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+            }
+
             return $this->redirect($redirect, \XF::phrase('svAlertImprov_all_alerts_marked_as_read'));
         }
 
@@ -182,10 +200,10 @@ class Account extends XFCP_Account
         }
 
         $viewParams = [
-            'alert'              => $alert,
+            'alerts'             => new ArrayCollection([$alert]),
             'showSelectCheckbox' => $showSelectCheckbox,
         ];
-        return $this->view('XF:Account\Alert', 'svAlertsImprov_alert', $viewParams);
+        return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
     }
 
     protected function hasRecentlySummarizedAlerts(): bool

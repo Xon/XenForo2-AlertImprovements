@@ -16,6 +16,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         eventType: 'click',
 
         options: {
+            inListSelector: '.contentRow-figure--selector',
             successMessageFlashTimeOut: 3000
         },
 
@@ -42,7 +43,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             let self = this,
                 $target = this.$target,
                 $alert = $target.closest('.js-alert'),
-                inList = $alert.find("input[name='alert_ids[]']").length > 0;
+                inList = $alert.find(this.options.inListSelector).length > 0;
 
             XF.ajax('POST', $target.attr('href'), {
                 inlist: inList ? 1 : 0
@@ -75,18 +76,123 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             {
                 $alert.removeClass('is-recently-read').addClass('is-unread');
             }
+
             if (data.html)
             {
-                XF.setupHtmlInsert(data.html, function($html, data, onComplete)
-                {
-                    $alert.empty();
-                    $alert.append($html);
-                });
+                var id = $alert.data('alert_id');
+                if (id) {
+                    var $replacementHtml = data.html ? $(data.html) : $('<div/>');
+                    var $replacementAlert = $replacementHtml.find("[data-alert-id='" + id + "']");
+                    if ($replacementAlert.length) {
+                        if (wasNotInList) {
+                            $replacementAlert.find(this.options.inListSelector).remove()
+                        }
+                        XF.setupHtmlInsert($replacementAlert.children(), function ($html, data, onComplete) {
+                            $alert.empty();
+                            $alert.append($html);
+                        });
+                    }
+                }
             }
-
-
         }
     });
 
+    SV.AlertImprovements.AlertsList = XF.Element.newHandler({
+        eventNameSpace: 'SVAlertImprovementsAlertListMarkReadClick',
+        eventType: 'click',
+
+        options: {
+            successMessageFlashTimeOut: 3000,
+            inListSelector: '.contentRow-figure--selector',
+            alertItemSelector: '< .block | .js-alert'
+        },
+
+        processing: null,
+
+        init: function()
+        {
+            this.processing = false;
+        },
+
+        /**
+         * @param {Event} e
+         */
+        click: function(e)
+        {
+            e.preventDefault();
+
+            if (this.processing)
+            {
+                return;
+            }
+            this.processing = true;
+
+            let self = this,
+                $target = this.$target,
+                alertIdLookup = {},
+                alertIds = [],
+                $alerts = XF.findRelativeIf(this.options.alertItemSelector, this.$target);
+
+            $alerts.each(function(){
+                var $alert = $(this),
+                    alertId = $alert.data('alert_id');
+                if (alertId && !(alertId in alertIdLookup)) {
+                    alertIdLookup[alertId] = 1
+                    alertIds.push(alertId);
+                }
+            });
+
+            XF.ajax('POST', $target.attr('href'), {
+                alert_ids: alertIds
+            }, $.proxy(this, 'handleMarkAllReadAjax')).always(function ()
+            {
+                self.processing = false;
+            });
+        },
+
+        /**
+         * @param {Object} data
+         */
+        handleMarkAllReadAjax: function(data)
+        {
+            if (data.message)
+            {
+                XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
+            }
+
+            var $replacementHtml = data.html ? $(data.html) : $('<div/>');
+
+            XF.findRelativeIf(this.options.alertItemSelector, this.$target).each(function () {
+                let $alert = $(this),
+                    wasUnread = $alert.hasClass('is-unread'),
+                    wasNotInList = !!$alert.find(this.options.inListSelector).length;
+
+                if (wasUnread)
+                {
+                    $alert.removeClass('is-unread').addClass('is-recently-read');
+                }
+                else
+                {
+                    $alert.removeClass('is-read').removeClass('is-recently-read').addClass('is-unread');
+                }
+
+                var id = $alert.data('alert_id');
+                if (id) {
+                    var $replacementAlert = $replacementHtml.find("[data-alert-id='" + id + "']");
+                    if ($replacementAlert.length) {
+                        if (wasNotInList) {
+                            $replacementAlert.find(this.options.inListSelector).remove()
+                        }
+                        XF.setupHtmlInsert($replacementAlert.children(), function ($html, data, onComplete) {
+                            $alert.empty();
+                            $alert.append($html);
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    //XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.AlertListMarkRead');
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
 } (jQuery, window, document));

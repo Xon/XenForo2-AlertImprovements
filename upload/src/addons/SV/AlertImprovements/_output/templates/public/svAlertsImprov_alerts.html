@@ -1,0 +1,9 @@
+<xf:foreach loop="$alerts" value="$alert">
+	<div data-alert-id="{$alert.alert_id}">
+		<xf:macro template="svAlertsImprov_macros"
+				  name="alert_row"
+				  arg-alert="{$alert}"
+				  arg-showSelectCheckbox="{$showSelectCheckbox}"
+				  />
+	</div>
+</xf:foreach>
