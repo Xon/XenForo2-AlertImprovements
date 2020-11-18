@@ -1,0 +1,1 @@
+User alerts will disappear from the alerts list this many days without being viewed from their creation
