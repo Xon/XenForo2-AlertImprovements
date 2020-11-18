@@ -1,24 +1,17 @@
 <xf:macro name="alert_reactions" arg-alert="!">
-	<xf:css src="svAlertsImprov_macros_alert_reactions.less" />
 	<xf:set var="$reactions" value="{$alert.extra_data.reaction_id}" />
-
-	<div class="sv-alert-improv-reactions--summary">
-		<xf:foreach loop="$reactions" key="$reactionId" value="$reactCounter">
-			<div class="sv-alert-improv-reactions--reactionContainer sv-alert-improv-reactions--reactionContainer-{$reactionId}">
-				<div class="sv-alert-improv-reactions--icon">
-					{{ reaction({
-						'id': '$extra.reaction_id',
+	<xf:foreach loop="$reactions" key="$reactionId" value="$reactCounter">
+		<span class="react-summary react-summary--{$reactionId}">
+			<span class="react-summary--alert">{{ reaction({
+						'id': $reactionId,
 						'showtitle': false,
 						'hasreaction': true,
 						'tooltip': true,
 						'small': true
-					})|preescaped }}
-				</div>
-
-				<div class="sv-alert-improv-reactions--counter" style="white-space: pre-wrap;"> x {$reactCounter|number}</div>
-			</div>
-		</xf:foreach>
-	</div>
+					})|preescaped }}</span>
+			<span class="react-summary--count">x {$reactCounter|number}</span>
+		</span>
+	</xf:foreach>
 </xf:macro>
 
 <xf:macro name="alerts_filter" 
