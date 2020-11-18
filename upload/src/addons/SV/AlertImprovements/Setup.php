@@ -186,6 +186,11 @@ class Setup extends AbstractSetup
         $this->renameOption('sv_alerts_groupByDate', 'svAlertsGroupByDate');
     }
 
+    public function upgrade2080606Step1()
+    {
+        $this->installStep1();
+    }
+
 //    public function upgrade2080002Step5()
 //    {
 //        /** @var \XF\Entity\Option $option */
@@ -269,7 +274,7 @@ class Setup extends AbstractSetup
             $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
 
             // index is superseded
-            $table->dropIndexes('contentType_contentId');
+            $table->dropIndexes(['contentType_contentId', 'alertedUserId_viewDate']);
 
             // for basic content type lookups
             $table->addKey(['content_type', 'content_id', 'user_id']);
