@@ -1019,7 +1019,7 @@ class UserAlert extends XFCP_UserAlert
             UPDATE xf_user
             SET alerts_unviewed = LEAST(65535, (SELECT COUNT(*)
                 FROM xf_user_alert
-                WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL),)
+                WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL))
             WHERE user_id = ?
         ', [$userId, $userId]);
 
