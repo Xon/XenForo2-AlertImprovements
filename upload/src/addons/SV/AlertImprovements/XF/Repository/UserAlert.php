@@ -456,69 +456,7 @@ class UserAlert extends XFCP_UserAlert
         ];
         $contentTypes = [];
 
-        if ($lastAlert['action'] === 'rating')
-        {
-            foreach ($alertGrouping AS $alert)
-            {
-                if (!empty($alert['extra_data']) && $alert['action'] === $lastAlert['action'])
-                {
-                    if (!isset($contentTypes[$alert['content_type']]))
-                    {
-                        $contentTypes[$alert['content_type']] = 0;
-                    }
-                    $contentTypes[$alert['content_type']]++;
-
-                    $extraData = @\json_decode($alert['extra_data'], true);
-
-                    if (is_array($extraData))
-                    {
-                        foreach ($extraData AS $extraDataKey => $extraDataValue)
-                        {
-                            if (empty($summaryAlert['extra_data'][$extraDataKey][$extraDataValue]))
-                            {
-                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue] = 1;
-                            }
-                            else
-                            {
-                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue]++;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (isset($summaryAlert['extra_data']['reaction_id']))
-            {
-                $reactionId = $summaryAlert['extra_data']['reaction_id'];
-                if (is_array($reactionId) && count($reactionId) === 1)
-                {
-                    $likeRatingId = (int)$this->app()->options()->svContentRatingsLikeRatingType;
-
-                    if ($likeRatingId && !empty($reactionId[$likeRatingId]))
-                    {
-                        $summaryAlert['extra_data']['likes'] = $reactionId[$likeRatingId];
-                    }
-                }
-            }
-        }
-        else if ($lastAlert['action'] === 'like')
-        {
-            $likesCounter = 0;
-            foreach ($alertGrouping AS $alert)
-            {
-                if ($alert['action'] === 'like')
-                {
-                    if (!isset($contentTypes[$alert['content_type']]))
-                    {
-                        $contentTypes[$alert['content_type']] = 0;
-                    }
-                    $contentTypes[$alert['content_type']]++;
-                    $likesCounter++;
-                }
-            }
-            $summaryAlert['extra_data']['likes'] = $likesCounter;
-        }
-        else if ($lastAlert['action'] === 'reaction')
+        if ($lastAlert['action'] === 'reaction')
         {
             foreach ($alertGrouping AS $alert)
             {

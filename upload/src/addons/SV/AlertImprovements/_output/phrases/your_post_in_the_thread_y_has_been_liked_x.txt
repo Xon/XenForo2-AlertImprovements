@@ -1,1 +1,0 @@
-Your post in the thread {title} <a {unsummarizeAlertLinkAttributes}>has been liked</a> {likes} times

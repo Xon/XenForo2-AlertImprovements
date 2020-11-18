@@ -1,50 +1,3 @@
-<xf:macro name="alert_rating_type" arg-alert="!">
-	<xf:if is="is_addon_active('SV/ContentRatings') && is_addon_active('SV/AlertImprovements')">
-	<xf:css src="sv_contentratings.less" />
-	<xf:set var="$ratingTypes" value="{$alert.extra_data.reaction_id}" />
-
-	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
-		<div class="sv-rating-type sv-rating-type--inline sv-rating-type--icon-only">
-			<div class="sv-rating-type__icon sv-alerts">
-				<xf:if is="{$ratingType}">
-					<xf:macro template="sv_contentratings_macros" name="rating_type_icon" arg-inline="1" arg-ratingType="{$ratingType}" />
-				</xf:if>
-			</div>
-
-			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$ratingTypes.{$ratingTypeId}|number}</div>
-		</div>
-	</xf:foreach>
-	</xf:if>
-</xf:macro>
-
-<xf:macro name="alert_user_type" arg-alert="!">
-	<xf:set var="$extra" value="{$alert.extra_data}" />
-	<xf:if is="is_addon_active('SV/AlertImprovements')">
-		<xf:set var="$likeString" value="{{ $alert.getLikedContentSummary(' ') }}" />
-	</xf:if>
-
-	<xf:if is="!$likeString && $extra.likes">
-		<xf:set var="$likeString">{{ phrase('x_of_content', {'count':$extra.likes}) }}</xf:set>
-	</xf:if>
-	{{ $likeString }}
-</xf:macro>
-
-<xf:macro name="alert_reaction" arg-alert="!">
-	<xf:set var="$reactions" value="{$alert.extra_data.reaction_id}" />
-
-	<xf:foreach loop="$alert.sv_rating_types" key="$ratingTypeId" value="$ratingType">
-		<div class="sv-rating-type sv-rating-type--inline sv-rating-type--icon-only">
-			<div class="sv-rating-type__icon sv-alerts">
-				<xf:if is="{$ratingType}">
-					<xf:macro template="sv_contentratings_macros" name="rating_type_icon" arg-inline="1" arg-ratingType="{$ratingType}" />
-				</xf:if>
-			</div>
-
-			<div class="sv-rating-type__text" style="white-space: pre-wrap;"> x {$ratingTypes.{$ratingTypeId}|number}</div>
-		</div>
-	</xf:foreach>
-</xf:macro>
-
 <xf:macro name="alert_reactions" arg-alert="!">
 	<xf:css src="svAlertsImprov_macros_alert_reactions.less" />
 	<xf:set var="$reactions" value="{$alert.extra_data.reaction_id}" />
@@ -53,7 +6,13 @@
 		<xf:foreach loop="$reactions" key="$reactionId" value="$reactCounter">
 			<div class="sv-alert-improv-reactions--reactionContainer sv-alert-improv-reactions--reactionContainer-{$reactionId}">
 				<div class="sv-alert-improv-reactions--icon">
-					{{ alert_summary_reaction($reactionId)|preEscaped }}
+					{{ reaction({
+						'id': '$extra.reaction_id',
+						'showtitle': false,
+						'hasreaction': true,
+						'tooltip': true,
+						'small': true
+					})|preescaped }}
 				</div>
 
 				<div class="sv-alert-improv-reactions--counter" style="white-space: pre-wrap;"> x {$reactCounter|number}</div>
@@ -66,7 +25,6 @@
 		  arg-navParams="{{ [] }}"
 		  arg-selected=""
 		  >
-	<xf:css src="svAlertImprovements.less" />
 	<div class="block-outer-main">
 		<div class="buttonGroup"><xf:trim>
 			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'all')|replace('page', '')) }}" class="button {{ $selected === 'all' ? 'button--alt' : 'button--link' }}"><xf:trim>

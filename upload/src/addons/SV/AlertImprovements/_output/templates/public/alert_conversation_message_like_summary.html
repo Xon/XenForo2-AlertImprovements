@@ -1,5 +1,0 @@
-{{ phrase('your_message_in_the_conversation_y_has_been_liked_x', {
-	'likes': {$extra.likes|number},
-	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-	'title': '<a href="' . link('conversations/message', $content) . '" class="fauxBlockLink-blockLink">' . $content.Conversation.title . '</a>'
-}) }}

@@ -19,7 +19,7 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
      */
     public function canSummarizeForUser(array $optOuts)
     {
-        return empty($optOuts['conversation_message_like']);
+        return empty($optOuts['conversation_message_react']);
     }
 
     /**

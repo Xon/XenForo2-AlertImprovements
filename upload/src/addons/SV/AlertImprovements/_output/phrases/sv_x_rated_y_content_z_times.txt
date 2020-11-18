@@ -1,1 +1,0 @@
-On <a {unsummarizeAlertLinkAttributes}>{ratedcontent}</a>, {name} rated them {ratings}

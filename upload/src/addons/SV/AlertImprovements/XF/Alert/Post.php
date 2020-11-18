@@ -19,7 +19,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
      */
     public function canSummarizeForUser(array $optOuts)
     {
-        return empty($optOuts['report_comment_like']);
+        return empty($optOuts['report_comment_react']);
     }
 
     /**

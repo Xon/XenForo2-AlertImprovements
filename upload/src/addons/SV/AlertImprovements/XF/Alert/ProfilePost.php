@@ -19,7 +19,7 @@ class ProfilePost extends XFCP_ProfilePost implements ISummarizeAlert
      */
     public function canSummarizeForUser(array $optOuts)
     {
-        return empty($optOuts['profile_post_like']);
+        return empty($optOuts['profile_post_react']);
     }
 
     /**

@@ -47,8 +47,3 @@ namespace SV\AlertImprovements\XF\Repository
 	class XFCP_UserAlert extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertPatch extends \XF\Repository\UserAlert {}
 }
-
-namespace SV\AlertImprovements\XF\Template
-{
-	class XFCP_Templater extends \XF\Template\Templater {}
-}

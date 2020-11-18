@@ -16,7 +16,7 @@
     },
     "require-soft": {
         "SV/WarningImprovements": [2050400, "Warning Improvements v2.5.4+", false],
-        "SV/ContentRatings": [1030000, "Content Ratings v1.3.0+", true]
+        "SV/ContentRatings": [2020000, "Content Ratings v2.2.0+", true]
     },
     "icon": "fa-bell"
 }

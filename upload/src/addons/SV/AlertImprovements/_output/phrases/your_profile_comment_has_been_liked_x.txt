@@ -1,1 +1,0 @@
-Your <a {profilePostCommentLinkAttributes}>comment</a> in the <a {profilePostLinkAttributes}>profile post</a> <a {unsummarizeAlertLinkAttributes}>has been liked</a> {likes} times

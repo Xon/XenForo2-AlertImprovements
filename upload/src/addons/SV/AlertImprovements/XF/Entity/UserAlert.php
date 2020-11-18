@@ -16,7 +16,6 @@ use XF\Mvc\Entity\Structure;
  * @property bool                                     is_new
  * @property bool                                     is_summary
  * @property UserAlert                                SummaryAlert
- * @property \XF\Entity\Reaction[]|AbstractCollection sv_rating_types
  */
 class UserAlert extends XFCP_UserAlert
 {
@@ -87,34 +86,10 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @return null|\XF\Mvc\Entity\ArrayCollection
-     */
-    protected function getSvRatingTypes()
-    {
-        if (isset($this->extra_data['extra_data']['reaction_id']) &&
-            is_array($this->extra_data['extra_data']['reaction_id']))
-        {
-            $ratings = $this->extra_data['extra_data']['reaction_id'];
-
-            /** @var \SV\ContentRatings\XF\Repository\Reaction $ratingTypeRepo */
-            $ratingTypeRepo = $this->repository('SV\ContentRatings:RatingType');
-            $ratingTypes = $ratingTypeRepo->getReactionsAsEntities();
-
-            return $ratingTypes->filter(function ($item) use ($ratings) {
-                /** @noinspection PhpUndefinedClassInspection */
-                /** @var \SV\ContentRatings\Entity\RatingType|\XF\Entity\Reaction $item */
-                return isset($ratings[$item->reaction_id]);
-            });
-        }
-
-        return null;
-    }
-
-    /**
      * @param string $glue
      * @return string
      */
-    public function getLikedContentSummary($glue = ' ')
+    public function getReactedContentSummary($glue = ' ')
     {
         $extra = $this->extra_data;
         if (isset($extra['ct']) && is_array($extra['ct']))
@@ -134,7 +109,7 @@ class UserAlert extends XFCP_UserAlert
 
             if ($phrases)
             {
-                return implode($glue, $phrases);
+                return \utf8_trim(implode($glue, $phrases));
             }
         }
 
@@ -176,7 +151,6 @@ class UserAlert extends XFCP_UserAlert
         $structure->getters['read_date'] = ['getter' => 'getReadDate', 'cache' => false];
         $structure->getters['is_new'] = ['getter' => 'getIsNew', 'cache' => true];
         $structure->getters['is_summary'] = ['getter' => 'getIsSummary', 'cache' => true];
-        $structure->getters['sv_rating_types'] = ['getter' => 'getSvRatingTypes', 'cache' => true];
 
         $structure->relations['SummaryAlert'] = [
             'entity'     => 'XF:UserAlert',
@@ -184,6 +158,8 @@ class UserAlert extends XFCP_UserAlert
             'conditions' => [['alert_id', '=', '$summerize_id']],
             'primary'    => true,
         ];
+
+        $structure->options['svAlertImprov'] = true;
 
         return $structure;
     }

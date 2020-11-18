@@ -18,11 +18,9 @@ Note; Do not use MySQL statement-based replication with this add-on.
 
 ## Supported content types for alert summarization 
 
-- Posts Likes
-- Conversation Message Likes
-- Report Comment Likes
-
-Content Ratings is supported for the above content types.
+- Posts Reactions
+- Conversation Message Reactions
+- Report Comment Reactions
 
 ## Performance impact
 

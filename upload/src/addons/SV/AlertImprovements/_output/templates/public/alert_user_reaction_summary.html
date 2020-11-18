@@ -1,13 +1,11 @@
 <xf:set var="$reactions">
 	<xf:macro template="svAlertsImprov_macros" name="alert_reactions" arg-alert="{$alert}" />
 </xf:set>
-<xf:set var="$likeString">
-	<xf:macro template="svAlertsImprov_macros" name="alert_user_type" arg-alert="{$alert}" />
-</xf:set>
+<xf:set var="$contentSummary" value="{{ $alert.hasOption('svAlertImprov') ? $alert.getReactedContentSummary(' ') : '' }}" />
 
 {{ phrase('sv_x_reacted_y_content_z_times', {
 	'name': username_link($user, false, {'defaultname': $alert.username}),
-	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
+	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', null, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
 	'reactions': {$reactions}|raw,
-	'reactedcontent': trim($likeString)
+	'reactedcontent': $contentSummary
 }) }}

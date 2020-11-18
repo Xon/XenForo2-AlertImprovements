@@ -1,1 +1,0 @@
-<a {post_attributes}>Your comment</a> on {poster}'s profile post <a {unsummarizeAlertLinkAttributes}>has been liked</a> {likes} times
