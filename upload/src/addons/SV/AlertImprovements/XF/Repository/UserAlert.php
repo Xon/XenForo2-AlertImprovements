@@ -863,8 +863,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = min(65535,$user->alerts_unviewed - $viewRowsAffected);
-            $alerts_unread = min(65535,$user->alerts_unread - $readRowsAffected);
+            $alerts_unviewed = min(65535,$user->alerts_unviewed + $viewRowsAffected);
+            $alerts_unread = min(65535,$user->alerts_unread + $readRowsAffected);
         }
             /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
