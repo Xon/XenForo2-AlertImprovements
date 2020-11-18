@@ -1017,9 +1017,9 @@ class UserAlert extends XFCP_UserAlert
         $db = \XF::db();
         $statement = $db->query('
             UPDATE xf_user
-            SET alerts_unviewed = (SELECT COUNT(*)
+            SET alerts_unviewed = LEAST(65535, (SELECT COUNT(*)
                 FROM xf_user_alert
-                WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL)
+                WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL),)
             WHERE user_id = ?
         ', [$userId, $userId]);
 
@@ -1054,9 +1054,9 @@ class UserAlert extends XFCP_UserAlert
         $db = \XF::db();
         $statement = $db->query('
             UPDATE xf_user
-            SET alerts_unread = (SELECT COUNT(*)
+            SET alerts_unread = LEAST(65535, (SELECT COUNT(*)
                 FROM xf_user_alert
-                WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL)
+                WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL))
             WHERE user_id = ?
         ', [$userId, $userId]);
 
