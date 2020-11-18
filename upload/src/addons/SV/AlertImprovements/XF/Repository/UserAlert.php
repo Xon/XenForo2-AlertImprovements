@@ -1015,13 +1015,30 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $db = \XF::db();
+        $inTransaction = $db->inTransaction();
+        if (!$inTransaction)
+        {
+            $db->beginTransaction();
+        }
+
+        $db->fetchOne('select user_id from xf_user where user_id = ? for update', [$userId]);
+
+        $count = min(65535, (int)$db->fetchOne('
+            SELECT COUNT(alert_id) 
+            FROM xf_user_alert
+            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL
+        ', [$userId]));
+
         $statement = $db->query('
             UPDATE xf_user
-            SET alerts_unviewed = LEAST(65535, (SELECT COUNT(*)
-                FROM xf_user_alert
-                WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL))
-            WHERE user_id = ?
-        ', [$userId, $userId]);
+            SET alerts_unviewed = ?
+            WHERE alerts_unviewed != ? AND user_id = ? 
+        ', [$count, $count, $userId]);
+
+        if (!$inTransaction)
+        {
+            $db->commit();
+        }
 
         if (!$statement->rowsAffected())
         {
@@ -1052,13 +1069,30 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $db = \XF::db();
+        $inTransaction = $db->inTransaction();
+        if (!$inTransaction)
+        {
+            $db->beginTransaction();
+        }
+
+        $db->fetchOne('select user_id from xf_user where user_id = ? for update', [$userId]);
+
+        $count = min(65535, (int)$db->fetchOne('
+            SELECT COUNT(alert_id) 
+            FROM xf_user_alert
+            WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL
+        ', [$userId]));
+
         $statement = $db->query('
             UPDATE xf_user
-            SET alerts_unread = LEAST(65535, (SELECT COUNT(*)
-                FROM xf_user_alert
-                WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL))
-            WHERE user_id = ?
-        ', [$userId, $userId]);
+            SET alerts_unread = ?
+            WHERE alerts_unread != ? AND user_id = ? 
+        ', [$count, $count, $userId]);
+
+        if (!$inTransaction)
+        {
+            $db->commit();
+        }
 
         if (!$statement->rowsAffected())
         {
