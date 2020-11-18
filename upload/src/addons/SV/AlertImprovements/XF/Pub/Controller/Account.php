@@ -327,7 +327,7 @@ class Account extends XFCP_Account
                     /** @var UserAlertEntity $alert */
                     foreach ($alerts as $key => $alert)
                     {
-                        if (!$alert->view_date)
+                        if ($alert->isUnreadInUi())
                         {
                             $unreadAlerts[$key] = $alert;
                             unset($alerts[$key]);
