@@ -19,10 +19,19 @@ class User extends XFCP_User
     {
         $structure = parent::getStructure($structure);
 
+        /** @var \SV\AlertImprovements\XF\Repository\UserAlert $alertRepo */
+        $alertRepo = \XF::app()->repository('XF:UserAlert');
+        $userMaxAlertCount = is_callable([$alertRepo,'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
+
         if (\XF::$versionId < 2020000)
         {
-            $structure->columns['alerts_unviewed'] = ['type' => self::UINT, 'forced' => true, 'max' => 65535, 'default' => 0, 'changeLog' => false];
+            $structure->columns['alerts_unviewed'] = ['type' => self::UINT, 'forced' => true, 'max' => $userMaxAlertCount, 'default' => 0, 'changeLog' => false];
         }
+        else
+        {
+            $structure->columns['alerts_unviewed']['max'] = $userMaxAlertCount;
+        }
+        $structure->columns['alerts_unread']['max'] = $userMaxAlertCount;
     
         return $structure;
     }

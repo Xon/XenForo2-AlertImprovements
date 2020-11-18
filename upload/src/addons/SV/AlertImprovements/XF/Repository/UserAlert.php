@@ -19,6 +19,14 @@ use XF\Mvc\Entity\Finder;
  */
 class UserAlert extends XFCP_UserAlert
 {
+    /** @var int */
+    protected $svUserMaxAlertCount = 65535;
+
+    public function getSvUserMaxAlertCount(): int
+    {
+        return $this->svUserMaxAlertCount;
+    }
+
     public function summarizeAlertsForUser(User $user)
     {
         // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
@@ -197,8 +205,8 @@ class UserAlert extends XFCP_UserAlert
             // Reset unread alerts counter
             $db->query('
                 UPDATE xf_user
-                SET alerts_unread = LEAST(alerts_unread + ?, 65535),
-                    alerts_unviewed = LEAST(alerts_unviewed + ?, 65535)
+                SET alerts_unread = LEAST(alerts_unread + ?, ' . $this->svUserMaxAlertCount . '),
+                    alerts_unviewed = LEAST(alerts_unviewed + ?, ' . $this->svUserMaxAlertCount . ')
                 WHERE user_id = ?
             ', [$unreadIncrement, $unviewedIncrement, $userId]);
 
@@ -857,22 +865,22 @@ class UserAlert extends XFCP_UserAlert
         {
             $db->query('
                 UPDATE xf_user
-                SET alerts_unviewed = LEAST(alerts_unviewed + ?, 65535),
-                    alerts_unread = LEAST(alerts_unread + ?, 65535)
+                SET alerts_unviewed = LEAST(alerts_unviewed + ?, ' . $this->svUserMaxAlertCount . '),
+                    alerts_unread = LEAST(alerts_unread + ?, ' . $this->svUserMaxAlertCount . ')
                 WHERE user_id = ?
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = min(65535,$user->alerts_unviewed + $viewRowsAffected);
-            $alerts_unread = min(65535,$user->alerts_unread + $readRowsAffected);
+            $alerts_unviewed = min($this->svUserMaxAlertCount,$user->alerts_unviewed + $viewRowsAffected);
+            $alerts_unread = min($this->svUserMaxAlertCount,$user->alerts_unread + $readRowsAffected);
         }
             /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
         {
             $db->query('
                 UPDATE xf_user
-                SET alerts_unviewed = LEAST(alerts_unviewed + ?, 65535),
-                    alerts_unread = LEAST(alerts_unread + ?, 65535)
+                SET alerts_unviewed = LEAST(alerts_unviewed + ?, ' . $this->svUserMaxAlertCount . '),
+                    alerts_unread = LEAST(alerts_unread + ?, ' . $this->svUserMaxAlertCount . ')
                 WHERE user_id = ?
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
@@ -1023,7 +1031,7 @@ class UserAlert extends XFCP_UserAlert
 
         $db->fetchOne('select user_id from xf_user where user_id = ? for update', [$userId]);
 
-        $count = min(65535, (int)$db->fetchOne('
+        $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
             WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL
@@ -1077,7 +1085,7 @@ class UserAlert extends XFCP_UserAlert
 
         $db->fetchOne('select user_id from xf_user where user_id = ? for update', [$userId]);
 
-        $count = min(65535, (int)$db->fetchOne('
+        $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
             WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL
