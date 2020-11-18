@@ -29,7 +29,7 @@ class UserAlert extends XFCP_UserAlert
 
     public function summarizeAlertsForUser(User $user)
     {
-        // post rating summary alerts really can't me merged, so wipe all summary alerts, and then try again
+        // reaction summary alerts really can't me merged, so wipe all summary alerts, and then try again
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user) {
 
             $db->query("
@@ -42,13 +42,14 @@ class UserAlert extends XFCP_UserAlert
                 SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id IS NOT NULL
             ', $user->user_id);
-
-            $this->updateUnviewedCountForUser($user);
-            $this->updateUnreadCountForUser($user);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // do summerization outside the above transaction
         $this->checkSummarizeAlertsForUser($user->user_id, true, true, \XF::$time);
+
+        // update alert counters last and not in a large transaction
+        $this->updateUnviewedCountForUser($user);
+        $this->updateUnreadCountForUser($user);
     }
 
     /**
