@@ -234,7 +234,7 @@ class Setup extends AbstractSetup
 
     public function postUpgrade($previousVersion, array &$stateChanges)
     {
-        if ($previousVersion >= 2080000 && $previousVersion <= 2080400)
+        if ($previousVersion >= 2080000 && $previousVersion < 2080400)
         {
             \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', 'SV\AlertImprovements:AlertTotalRebuild', [], true);
         }
