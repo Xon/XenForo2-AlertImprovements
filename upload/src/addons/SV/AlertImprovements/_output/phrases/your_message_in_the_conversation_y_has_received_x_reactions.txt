@@ -1,1 +1,1 @@
-Your message in the conversation {title} <a {unsummarizeAlertLinkAttributes}>has received reactions</a> {reactions}
+<a {contentLinkParams}>Your message</a> in the conversation {title} has received <a {unsummarizeAlertLinkAttributes}>reactions</a> {reactions}

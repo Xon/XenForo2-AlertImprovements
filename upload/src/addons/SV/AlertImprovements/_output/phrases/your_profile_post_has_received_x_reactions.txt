@@ -1,1 +1,1 @@
-Your <a {profilePostLinkAttributes}>profile post</a> <a {unsummarizeAlertLinkAttributes}>has received reactions</a> {reactions}
+<a {contentLinkParams}>Your profile post</a> has received <a {unsummarizeAlertLinkAttributes}>reactions</a> {reactions}

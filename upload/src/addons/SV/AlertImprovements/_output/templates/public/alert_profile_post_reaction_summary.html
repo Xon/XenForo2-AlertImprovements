@@ -6,13 +6,13 @@
 	{{ phrase('your_profile_post_has_received_x_reactions', {
 		'reactions': {$reactions}|raw,
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
+		'contentLinkParams': 'href="' . link('profile-posts/comments', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
 <xf:else />
 	{{ phrase('your_profile_post_on_ys_profile_has_received_x_reactions', {
 		'reactions': {$reactions}|raw,
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
 		'profileUserLink': '<a href="' . link('members', $content.ProfileUser) . '">' . $content.ProfileUser.username . '</a>',
-		'profilePostLinkAttributes': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
+		'contentLinkParams': 'href="' . link('profile-posts/comments', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
 </xf:if>

@@ -1,1 +1,1 @@
-Your report comment in the report {title} <a {unsummarizeAlertLinkAttributes}>has received reactions</a> {reactions}
+<a {contentLinkParams}>Your report comment</a> in the report {title} has received <a {unsummarizeAlertLinkAttributes}>reactions</a> {reactions}

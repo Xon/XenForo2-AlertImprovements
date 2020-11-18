@@ -2,8 +2,9 @@
 	<xf:macro template="svAlertsImprov_macros" name="alert_reactions" arg-alert="{$alert}" />
 </xf:set>
 
-{{ phrase('your_post_in_the_thread_y_has_received_reactions_x', {
+{{ phrase('your_post_in_the_thread_y_has_received_x_reactions', {
 	'reactions': {$reactions}|raw,
 	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-	'title': '<a href="' . link('posts', $content) . '" class="fauxBlockLink-blockLink">' . prefix('thread', $content.Thread) . $content.Thread.title . '</a>'
+	'contentLinkParams': 'href="' . link('posts', $content) . '" class="fauxBlockLink-blockLink"',
+	'title': prefix('thread', $content.Thread) . $content.Thread.title
 }) }}

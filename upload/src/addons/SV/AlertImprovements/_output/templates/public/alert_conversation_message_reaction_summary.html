@@ -5,5 +5,6 @@
 {{ phrase('your_message_in_the_conversation_y_has_received_x_reactions', {
 	'reactions': {$reactions}|raw,
 	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', false, {'alert_id': $alert.alert_id}) . '"',
-	'title': '<a href="' . link('conversations/message', $content) . '" class="fauxBlockLink-blockLink">' . $content.Conversation.title . '</a>'
+	'contentLinkParams': 'href="' . link('conversations/message', $content) . '" class="fauxBlockLink-blockLink"',
+	'title': $content.Conversation.title
 }) }}

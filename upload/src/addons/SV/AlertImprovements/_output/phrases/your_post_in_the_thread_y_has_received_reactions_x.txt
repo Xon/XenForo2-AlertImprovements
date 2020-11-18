@@ -1,1 +1,0 @@
-Your post in the thread {title} <a {unsummarizeAlertLinkAttributes}>has received reactions</a> {reactions}
