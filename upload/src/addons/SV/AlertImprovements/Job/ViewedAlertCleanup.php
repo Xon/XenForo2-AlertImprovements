@@ -49,10 +49,11 @@ class ViewedAlertCleanup extends AbstractJob
             return $this->resume();
         }
 
+        /** @var \SV\AlertImprovements\XF\Repository\UserAlertPatch $alertRepo */
+        $alertRepo = \XF::app()->repository('XF:UserAlert');
+
         if (empty($this->data['pruned']))
         {
-            /** @var \SV\AlertImprovements\XF\Repository\UserAlertPatch $alertRepo */
-            $alertRepo = \XF::app()->repository('XF:UserAlert');
             $continue = $alertRepo->pruneViewedAlertsBatch($cutOff, $startTime, $maxRunTime);
             if ($continue)
             {
