@@ -153,16 +153,6 @@ class Setup extends AbstractSetup
 
     public function upgrade2080002Step2()
     {
-        // Thread Starter Alerts v2.2.0 support
-        $this->db()->query("
-            UPDATE xf_user_alert
-            SET auto_read = 0
-            WHERE summerize_id IS NULL AND action IN ('staff_insert', 'op_insert', 'followed_insert') and content_type = 'post'
-        ");
-    }
-
-    public function upgrade2080002Step3()
-    {
         if (\XF::$versionId >= 2020000)
         {
             return;
@@ -175,7 +165,7 @@ class Setup extends AbstractSetup
 		");
     }
 
-    public function upgrade2080002Step4()
+    public function upgrade2080002Step3()
     {
         if (\XF::$versionId >= 2020000)
         {
