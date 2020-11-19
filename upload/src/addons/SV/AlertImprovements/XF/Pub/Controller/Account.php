@@ -107,24 +107,18 @@ class Account extends XFCP_Account
     public function actionAlert(ParameterBag $params)
     {
         $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'int');
+        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
+
         $skipMarkAsRead = $this->filter('skip_mark_read', 'bool');
         $page = $this->filterPage();
         $options = $this->options();
         $perPage = $options->alertsPerPage;
-
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        /** @var ExtendedUserAlertEntity $alert */
-        $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
 
-        if ($alert && !$skipMarkAsRead && $page === 1 && $alert->auto_read)
+        if (!$skipMarkAsRead && $page === 1 && $alert->auto_read)
         {
             $alertRepo->markUserAlertRead($alert);
-        }
-        if (!$alert || !$alert->canView())
-        {
-            return $this->notFound();
         }
 
         /** @var ExtendedUserAlertRepo $alertRepo */
@@ -141,7 +135,7 @@ class Account extends XFCP_Account
             Globals::$skipSummarize = false;
             Globals::$skipSummarizeFilter = false;
         }
-        $alertsFinder->where('summerize_id', '=', $alertId);
+        $alertsFinder->where('summerize_id', '=', $alert->alert_id);
         /** @var UserAlertEntity[]|AbstractCollection $alerts */
         $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
 
@@ -169,19 +163,10 @@ class Account extends XFCP_Account
     public function actionAlertUnread()
     {
         $this->assertPostOnly();
-
-        $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'uint');
+        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-
-        /** @var ExtendedUserAlertEntity $alert */
-        $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
-        if (!$alert || !$alert->canView())
-        {
-            return $this->notFound();
-        }
 
         $showSelectCheckbox = $this->filter('inlist', 'bool');
         $newUnreadStatus = $this->filter('unread', 'bool', !$alert->isUnread());
@@ -441,19 +426,14 @@ class Account extends XFCP_Account
      */
     public function actionAlertUnsummarize(ParameterBag $params)
     {
-        $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'int');
-
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
-
-        /** @var ExtendedUserAlertEntity $alert */
-        $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
-        if (!$alert || !$alert->canView() || !$alert->is_summary)
+        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
+        if (!$alert->is_summary)
         {
             return $this->notFound();
         }
 
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->insertUnsummarizedAlerts($alert);
 
         $linkParams = [
@@ -521,5 +501,30 @@ class Account extends XFCP_Account
             $this->buildLink('account/alerts', null, $redirectParams),
             \XF::phrase('svAlertImprov_selected_alerts_have_been_updated')
         );
+    }
+
+    /**
+     * XF2.2 compatible function
+     *
+     * @param      $id
+     * @param null $with
+     * @param null $phraseKey
+     * @return ExtendedUserAlertEntity
+     * @noinspection PhpUnusedParameterInspection
+     */
+    protected function assertViewableAlert($id, $with = null, $phraseKey = null)
+    {
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        /** @var ExtendedUserAlertEntity $alert */
+        $alert = $alertRepo->findAlertForUser(\XF::visitor(), $id)
+                           ->with($with)
+                           ->fetchOne();
+        if (!$alert || !$alert->canView())
+        {
+            throw $this->exception($this->notFound());
+        }
+
+        return $alert;
     }
 }
