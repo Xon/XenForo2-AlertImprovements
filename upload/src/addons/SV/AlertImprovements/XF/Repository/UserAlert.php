@@ -130,26 +130,19 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
-     * @param int  $summaryId
+     * @param Alerts $summaryAlert
      */
-    public function insertUnsummarizedAlerts(Alerts $alert)
+    public function insertUnsummarizedAlerts(Alerts $summaryAlert)
     {
-        $user = $alert->Receiver;
+        $user = $summaryAlert->Receiver;
+        if (!$user || !$summaryAlert->is_summary)
+        {
+            return;
+        }
 
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryId) {
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
             $userId = $user->user_id;
             // Delete summary alert
-            /** @var Alerts $summaryAlert */
-            $summaryAlert = $this->finder('XF:UserAlert')
-                                 ->where('alert_id', $summaryId)
-                                 ->fetchOne();
-            if (!$summaryAlert)
-            {
-                $db->commit();
-
-                return;
-            }
             $summaryAlert->delete(false, false);
 
             // Make alerts visible
@@ -157,7 +150,7 @@ class UserAlert extends XFCP_UserAlert
                 UPDATE xf_user_alert
                 SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id = ?
-            ', [$userId, $summaryId]);
+            ', [$userId, $summaryAlert->alert_id]);
 
             // Reset unread alerts counter
             $increment = $stmt->rowsAffected();
