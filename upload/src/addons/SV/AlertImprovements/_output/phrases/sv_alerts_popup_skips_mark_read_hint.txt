@@ -1,1 +1,1 @@
-Viewing the alerts pop-up will not mark alerts as read
+Do not mark alerts as read when viewing the alerts pop-up

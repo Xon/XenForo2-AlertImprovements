@@ -1,1 +1,1 @@
-Viewing the alerts page will not summarize alerts
+Do not summarize alerts when viewing the alerts page
