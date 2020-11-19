@@ -5,6 +5,8 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
@@ -72,7 +74,7 @@ class Account extends XFCP_Account
     public function actionAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
         $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'int');
+        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
         $skipMarkAsRead = $this->filter('skip_mark_read', 'bool');
         $page = $this->filterPage();
         $perPage = $this->options()->alertsPerPage;
@@ -81,16 +83,7 @@ class Account extends XFCP_Account
         $alertRepo = $this->repository('XF:UserAlert');
         if (!$skipMarkAsRead && $page === 1)
         {
-            $alert = $alertRepo->changeAlertStatus($visitor, $alertId, true);
-        }
-        else
-        {
-            $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
-        }
-        /** @var \SV\AlertImprovements\XF\Entity\UserAlert $alert */
-        if (!$alert)
-        {
-            return $this->notFound();
+            $alertRepo->changeAlertStatus($visitor, $alert->alert_id, true);
         }
 
         /** @var \XF\Repository\UserAlert $alertRepo */
@@ -107,7 +100,7 @@ class Account extends XFCP_Account
             Globals::$skipSummarize = false;
             Globals::$skipSummarizeFilter = false;
         }
-        $alertsFinder->where('summerize_id', '=', $alertId);
+        $alertsFinder->where('summerize_id', '=', $alert->alert_id);
         /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
         $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
 
@@ -296,12 +289,11 @@ class Account extends XFCP_Account
      */
     public function actionUnreadAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
-        $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'int');
+        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
 
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->changeAlertStatus($visitor, $alertId, false);
+        $alertRepo->changeAlertStatus($alert->Receiver, $alert->alert_id, false);
 
         $linkParams = [
             'skip_mark_read' => true,
@@ -320,12 +312,15 @@ class Account extends XFCP_Account
      */
     public function actionUnsummarizeAlert(/** @noinspection PhpUnusedParameterInspection */ ParameterBag $params)
     {
-        $visitor = \XF::visitor();
-        $alertId = $this->filter('alert_id', 'int');
+        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
+        if (!$alert->is_summary)
+        {
+            return $this->notFound();
+        }
 
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->insertUnsummarizedAlerts($visitor, $alertId);
+        $alertRepo->insertUnsummarizedAlerts($alert);
 
         $linkParams = [
             'skip_mark_read' => true,
@@ -337,5 +332,30 @@ class Account extends XFCP_Account
                 'account/alerts', [], $linkParams
             )
         );
+    }
+
+    /**
+     * XF2.2 compatible function
+     *
+     * @param      $id
+     * @param null $with
+     * @param null $phraseKey
+     * @return ExtendedUserAlertEntity
+     * @noinspection PhpUnusedParameterInspection
+     */
+    protected function assertViewableAlert($id, $with = null, $phraseKey = null)
+    {
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        /** @var ExtendedUserAlertEntity $alert */
+        $alert = $alertRepo->findAlertForUser(\XF::visitor(), $id)
+                           ->with($with ?: [])
+                           ->fetchOne();
+        if (!$alert || !$alert->canView())
+        {
+            throw $this->exception($this->notFound());
+        }
+
+        return $alert;
     }
 }

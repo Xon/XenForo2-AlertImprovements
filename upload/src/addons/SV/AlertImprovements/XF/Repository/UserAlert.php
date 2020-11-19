@@ -133,8 +133,10 @@ class UserAlert extends XFCP_UserAlert
      * @param User $user
      * @param int  $summaryId
      */
-    public function insertUnsummarizedAlerts($user, $summaryId)
+    public function insertUnsummarizedAlerts(Alerts $alert)
     {
+        $user = $alert->Receiver;
+
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryId) {
             $userId = $user->user_id;
             // Delete summary alert
