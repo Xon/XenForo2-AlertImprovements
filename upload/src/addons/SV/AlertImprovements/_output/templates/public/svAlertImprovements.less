@@ -24,13 +24,24 @@
 		color: @xf-svAlertImprovRecentAlertIconColor;
 	}
 	
-	.contentRow-figure--svAlertImprovAlertSelector
+	.contentRow-figure
 	{
-		width: 2rem;
-		
-		+ .contentRow-figure
+		&--selector
 		{
-			margin-left: 0.5rem;
+			width: 2rem;
+
+			+ .contentRow-figure
+			{
+				margin-left: 0.5rem;
+			}
+		}
+
+		&--user.flex
+		{
+			display:flex;
+			flex-direction: column;
+			flex-wrap: wrap;
+			justify-content: space-between;
 		}
 	}
 
@@ -44,6 +55,12 @@
 		{
 			white-space: pre-wrap;
 		}
+	}
+
+	.alert-list &--mark-unread,
+	.alert-list &--mark-read
+	{
+		float:right;
 	}
 }
 
