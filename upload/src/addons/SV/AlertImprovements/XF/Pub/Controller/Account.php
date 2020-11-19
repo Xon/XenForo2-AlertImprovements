@@ -127,7 +127,7 @@ class Account extends XFCP_Account
             return $this->notFound();
         }
 
-        /** @var \XF\Repository\UserAlert $alertRepo */
+        /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
 
         Globals::$skipSummarize = true;
@@ -325,7 +325,7 @@ class Account extends XFCP_Account
                 if (\XF::options()->svUnreadAlertsAfterReadAlerts)
                 {
                     $unreadAlerts = [];
-                    /** @var UserAlertEntity $alert */
+                    /** @var ExtendedUserAlertEntity $alert */
                     foreach ($alerts as $key => $alert)
                     {
                         if ($alert->isUnreadInUi())

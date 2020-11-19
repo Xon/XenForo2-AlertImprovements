@@ -62,10 +62,10 @@ class UserAlert extends XFCP_UserAlert
     {
         /** @var ExtendedUserAlertFinder $finder */
         $finder = $this->finder('XF:UserAlert')
-                    ->where(['alert_id', $alertId])
-                    ->whereAddOnActive([
-                        'column' => 'depends_on_addon_id'
-                    ]);
+                       ->where(['alert_id', $alertId])
+                       ->whereAddOnActive([
+                           'column' => 'depends_on_addon_id'
+                       ]);
         if ($user->user_id)
         {
             $finder->where(['alerted_user_id', $user->user_id]);
@@ -233,6 +233,7 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         /** @var \SV\AlertImprovements\XF\Entity\UserOption $option */
         $option = $visitor->Option;
@@ -291,7 +292,7 @@ class UserAlert extends XFCP_UserAlert
         $groupedContentAlerts = [];
         $groupedUserAlerts = [];
         $groupedAlerts = false;
-        foreach ($alerts AS $id => $item)
+        foreach ($alerts as $id => $item)
         {
             if ((!$ignoreReadState && $item['view_date']) ||
                 empty($handlers[$item['content_type']]) ||
@@ -332,10 +333,10 @@ class UserAlert extends XFCP_UserAlert
 
         // determine what can be summerised by content types. These require explicit support (ie a template)
         $grouped = 0;
-        foreach ($groupedContentAlerts AS $contentType => &$contentIds)
+        foreach ($groupedContentAlerts as $contentType => &$contentIds)
         {
             $handler = $handlers[$contentType];
-            foreach ($contentIds AS $contentId => $alertGrouping)
+            foreach ($contentIds as $contentId => $alertGrouping)
             {
                 if ($this->insertSummaryAlert(
                     $handler, $summarizeThreshold, $contentType, $contentId, $alertGrouping, $grouped, $outputAlerts,
@@ -351,7 +352,7 @@ class UserAlert extends XFCP_UserAlert
         // see if we can group some alert by user (requires deap knowledge of most content types and the template)
         if ($userHandler)
         {
-            foreach ($groupedUserAlerts AS $senderUserId => &$perUserAlerts)
+            foreach ($groupedUserAlerts as $senderUserId => &$perUserAlerts)
             {
                 if (!$summarizeThreshold || $perUserAlerts['c'] < $summarizeThreshold)
                 {
@@ -360,11 +361,11 @@ class UserAlert extends XFCP_UserAlert
                 }
 
                 $userAlertGrouping = [];
-                foreach ($perUserAlerts['d'] AS $contentType => &$contentIds)
+                foreach ($perUserAlerts['d'] as $contentType => &$contentIds)
                 {
-                    foreach ($contentIds AS $contentId => $alertGrouping)
+                    foreach ($contentIds as $contentId => $alertGrouping)
                     {
-                        foreach ($alertGrouping AS $id => $alert)
+                        foreach ($alertGrouping as $id => $alert)
                         {
                             if (isset($groupedContentAlerts[$contentType][$contentId][$id]))
                             {
@@ -380,7 +381,7 @@ class UserAlert extends XFCP_UserAlert
                         'user', $senderUserId, $summaryAlertViewDate
                     ))
                 {
-                    foreach ($userAlertGrouping AS $id => $alert)
+                    foreach ($userAlertGrouping as $id => $alert)
                     {
                         unset($groupedContentAlerts[$alert['content_type_map']][$alert['content_id_map']][$id]);
                     }
@@ -390,11 +391,11 @@ class UserAlert extends XFCP_UserAlert
         }
 
         // output ungrouped alerts
-        foreach ($groupedContentAlerts AS $contentType => $contentIds)
+        foreach ($groupedContentAlerts as $contentType => $contentIds)
         {
-            foreach ($contentIds AS $contentId => $alertGrouping)
+            foreach ($contentIds as $contentId => $alertGrouping)
             {
-                foreach ($alertGrouping AS $alertId => $alert)
+                foreach ($alertGrouping as $alertId => $alert)
                 {
                     $outputAlerts[$alertId] = $alert;
                 }
@@ -436,7 +437,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int                       $summaryAlertViewDate
      * @return bool
      */
-    protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate) : bool
+    protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate): bool
     {
         $grouped = 0;
         if (!$summarizeThreshold || count($alertGrouping) < $summarizeThreshold)
@@ -463,7 +464,7 @@ class UserAlert extends XFCP_UserAlert
 
         if ($lastAlert['action'] === 'reaction')
         {
-            foreach ($alertGrouping AS $alert)
+            foreach ($alertGrouping as $alert)
             {
                 if (!empty($alert['extra_data']) && $alert['action'] === $lastAlert['action'])
                 {
@@ -477,7 +478,7 @@ class UserAlert extends XFCP_UserAlert
 
                     if (is_array($extraData))
                     {
-                        foreach ($extraData AS $extraDataKey => $extraDataValue)
+                        foreach ($extraData as $extraDataKey => $extraDataValue)
                         {
                             if (empty($summaryAlert['extra_data'][$extraDataKey][$extraDataValue]))
                             {
@@ -557,7 +558,7 @@ class UserAlert extends XFCP_UserAlert
         $optOuts = \XF::visitor()->Option->alert_optout;
         $handlers = $this->getAlertHandlers();
         unset($handlers['bookmark_post_alt']);
-        foreach ($handlers AS $key => $handler)
+        foreach ($handlers as $key => $handler)
         {
             /** @var ISummarizeAlert $handler */
             if (!($handler instanceof ISummarizeAlert) || !$handler->canSummarizeForUser($optOuts))
@@ -570,8 +571,8 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
-     * @param null|int   $viewDate
+     * @param User     $user
+     * @param null|int $viewDate
      */
     public function markUserAlertsViewed(User $user, $viewDate = null)
     {
@@ -584,8 +585,8 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
-     * @param null|int   $readDate
+     * @param User|ExtendedUserEntity $user
+     * @param null|int                $readDate
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
@@ -600,8 +601,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $db = $this->db();
-        $db->executeTransaction(function() use ($db, $readDate, $user)
-        {
+        $db->executeTransaction(function () use ($db, $readDate, $user) {
             $db->update('xf_user_alert', ['view_date' => $readDate], "alerted_user_id = ? AND view_date = 0", $user->user_id);
             $db->update('xf_user_alert', ['read_date' => $readDate], "alerted_user_id = ? AND read_date = 0", $user->user_id);
 
@@ -618,8 +618,7 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $alerts = $alerts->filter(function(UserAlertEntity $alert)
-        {
+        $alerts = $alerts->filter(function (ExtendedUserAlertEntity $alert) {
             return $alert->getHandler() === null || ($alert->isUnread() && $alert->auto_read);
         });
 
@@ -642,7 +641,7 @@ class UserAlert extends XFCP_UserAlert
         $unreadAlertIds = [];
         foreach ($alerts as $alert)
         {
-            /** @var UserAlertEntity $alert */
+            /** @var ExtendedUserAlertEntity $alert */
             if ($alert->isUnread())
             {
                 $unreadAlertIds[] = $alert->alert_id;
@@ -677,10 +676,10 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User  $user
-     * @param int[] $alertIds
-     * @param int   $readDate
-     * @param bool  $updateAlertEntities
+     * @param User|ExtendedUserEntity $user
+     * @param int[]                   $alertIds
+     * @param int                     $readDate
+     * @param bool                    $updateAlertEntities
      */
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
     {
@@ -723,8 +722,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = max(0,$user->alerts_unviewed - $viewRowsAffected);
-            $alerts_unread = max(0,$user->alerts_unread - $readRowsAffected);
+            $alerts_unviewed = max(0, $user->alerts_unviewed - $viewRowsAffected);
+            $alerts_unread = max(0, $user->alerts_unread - $readRowsAffected);
         }
             /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
@@ -737,7 +736,7 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $row = $db->fetchRow('select alerts_unviewed, alerts_unread from xf_user where user_id = ?', $userId);
+            $row = $db->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $userId);
             if (!$row)
             {
                 return;
@@ -766,10 +765,10 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User  $user
-     * @param int[] $alertIds
-     * @param bool  $disableAutoRead
-     * @param bool  $updateAlertEntities
+     * @param User|ExtendedUserEntity $user
+     * @param int[]                   $alertIds
+     * @param bool                    $disableAutoRead
+     * @param bool                    $updateAlertEntities
      */
     public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
     {
@@ -815,8 +814,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = min($this->svUserMaxAlertCount,$user->alerts_unviewed + $viewRowsAffected);
-            $alerts_unread = min($this->svUserMaxAlertCount,$user->alerts_unread + $readRowsAffected);
+            $alerts_unviewed = min($this->svUserMaxAlertCount, $user->alerts_unviewed + $viewRowsAffected);
+            $alerts_unread = min($this->svUserMaxAlertCount, $user->alerts_unread + $readRowsAffected);
         }
             /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
@@ -829,7 +828,7 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $row = $db->fetchRow('select alerts_unviewed, alerts_unread from xf_user where user_id = ?', $userId);
+            $row = $db->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $userId);
             if (!$row)
             {
                 return;
@@ -910,7 +909,7 @@ class UserAlert extends XFCP_UserAlert
             SELECT alert_id
             FROM xf_user_alert
             WHERE alerted_user_id = ?
-            AND (read_date = 0 OR view_date = 0) ' . $autoMarkReadFilter. '
+            AND (read_date = 0 OR view_date = 0) ' . $autoMarkReadFilter . '
             AND event_date < ?
             AND content_type IN (' . $db->quote($contentType) . ')
             AND content_id IN (' . $db->quote($contentIds) . ")
@@ -928,8 +927,8 @@ class UserAlert extends XFCP_UserAlert
 
 
     /**
-     * @param UserAlertEntity $alert
-     * @param int|null $readDate
+     * @param UserAlertEntity|ExtendedUserAlertEntity $alert
+     * @param int|null                                $readDate
      */
     public function markUserAlertRead(UserAlertEntity $alert, $readDate = null)
     {
@@ -943,6 +942,10 @@ class UserAlert extends XFCP_UserAlert
         $this->markAlertIdsAsReadAndViewed($user, [$alert->alert_id], $readDate, true);
     }
 
+    /**
+     * @param UserAlertEntity|ExtendedUserAlertEntity $alert
+     * @param bool                                    $disableAutoRead
+     */
     public function markUserAlertUnread(UserAlertEntity $alert, bool $disableAutoRead = true)
     {
         $user = $alert->Receiver;
@@ -973,7 +976,7 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $db->fetchOne('select user_id from xf_user where user_id = ? for update', [$userId]);
+        $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
 
         $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
@@ -1027,7 +1030,7 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $db->fetchOne('select user_id from xf_user where user_id = ? for update', [$userId]);
+        $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
 
         $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 

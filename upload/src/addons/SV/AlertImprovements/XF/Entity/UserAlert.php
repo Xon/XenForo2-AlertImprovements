@@ -3,13 +3,14 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
-use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Structure;
 
 /**
  * Class UserAlert
  * COLUMNS
  * @property int                                      summerize_id
+ * @property bool                                     auto_read
+ * @property bool                                     read_date
  *
  * GETTERS
  * @property bool                                     is_unread

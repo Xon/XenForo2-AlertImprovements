@@ -49,7 +49,7 @@ class UnviewedAlertCleanup extends AbstractJob
             return $this->resume();
         }
 
-        /** @var \SV\AlertImprovements\XF\Repository\UserAlertPatch $alertRepo */
+        /** @var \SV\AlertImprovements\XF\Repository\UserAlertPatch|\SV\AlertImprovements\XF\Repository\UserAlert $alertRepo */
         $alertRepo = \XF::app()->repository('XF:UserAlert');
 
         if (empty($this->data['pruned']))
