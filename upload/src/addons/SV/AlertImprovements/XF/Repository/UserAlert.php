@@ -192,15 +192,21 @@ class UserAlert extends XFCP_UserAlert
             // Make alerts visible
             $unreadIncrement = $db->query('
                 UPDATE IGNORE xf_user_alert
-                SET summerize_id = NULL, read_date = 0
+                SET read_date = 0
                 WHERE alerted_user_id = ? AND summerize_id = ? AND read_date <> 0
             ', [$userId, $summaryId])->rowsAffected();
 
             $unviewedIncrement = $db->query('
                 UPDATE IGNORE xf_user_alert
-                SET summerize_id = NULL, view_date = 0
+                SET view_date = 0
                 WHERE alerted_user_id = ? AND summerize_id = ? AND view_date <> 0
             ', [$userId, $summaryId])->rowsAffected();
+
+            $db->query('
+                UPDATE IGNORE xf_user_alert
+                SET summerize_id = NULL
+                WHERE alerted_user_id = ? AND summerize_id = ?
+            ', [$userId, $summaryId]);
 
             // Reset unread alerts counter
             $db->query('
