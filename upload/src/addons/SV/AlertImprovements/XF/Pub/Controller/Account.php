@@ -518,7 +518,7 @@ class Account extends XFCP_Account
         $alertRepo = $this->repository('XF:UserAlert');
         /** @var ExtendedUserAlertEntity $alert */
         $alert = $alertRepo->findAlertForUser(\XF::visitor(), $id)
-                           ->with($with)
+                           ->with($with ?: [])
                            ->fetchOne();
         if (!$alert || !$alert->canView())
         {
