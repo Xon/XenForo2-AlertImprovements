@@ -109,6 +109,8 @@
 					</xf:if>
 					<xf:if is="$alert.read_date">
 						<li><a class="alert--mark-unread" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', '', {'alert_id':$alert.alert_id, 'unread': 1}) }}">{{ phrase('svAlertImprov_mark_unread') }}</a></li>
+					<xf:else />
+						<li><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', '', {'alert_id':$alert.alert_id, 'unread': 0}) }}">{{ phrase('svAlertImprov_mark_read') }}</a></li>
 					</xf:if>
 				</ul>
 			</div>

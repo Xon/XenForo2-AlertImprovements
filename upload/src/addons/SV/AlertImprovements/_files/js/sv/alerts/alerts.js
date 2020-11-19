@@ -42,12 +42,10 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             let self = this,
                 $target = this.$target,
                 $alert = $target.closest('.js-alert'),
-                wasUnread = $alert.hasClass('is-unread'),
                 inList = $alert.find("input[name='alert_ids[]']").length > 0;
 
             XF.ajax('POST', $target.attr('href'), {
-                inlist: inList ? 1 : 0,
-                unread: wasUnread ? 0 : 1
+                inlist: inList ? 1 : 0
             }, $.proxy(this, 'handleMarkReadAjax')).always(function ()
             {
                 self.processing = false;
@@ -68,13 +66,14 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 $alert = $target.closest('.js-alert'),
                 wasUnread = $alert.hasClass('is-unread');
 
+            $alert.removeClass('is-read');
             if (wasUnread)
             {
-                $alert.removeClass('is-unread').addClass('is-recently-read');
+                $alert.addClass('is-recently-read').removeClass('is-unread');
             }
             else
             {
-                $alert.removeClass('is-read').removeClass('is-recently-read').addClass('is-unread');
+                $alert.removeClass('is-recently-read').addClass('is-unread');
             }
             if (data.html)
             {

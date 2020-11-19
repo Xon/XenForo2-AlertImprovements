@@ -166,7 +166,7 @@ class Account extends XFCP_Account
         return $this->addAccountWrapperParams($view, 'alerts');
     }
 
-    public function actionAlertUnRead()
+    public function actionAlertUnread()
     {
         $this->assertPostOnly();
 
@@ -184,7 +184,7 @@ class Account extends XFCP_Account
         }
 
         $showSelectCheckbox = $this->filter('inlist', 'bool');
-        $newUnreadStatus = $this->filter('unread', 'bool', $alert->isUnread() ? false : true);
+        $newUnreadStatus = $this->filter('unread', 'bool', !$alert->isUnread());
 
         if ($newUnreadStatus)
         {
@@ -193,6 +193,7 @@ class Account extends XFCP_Account
         else
         {
             $alertRepo->markUserAlertRead($alert, \XF::$time);
+            $alert->setOption('force_unread_in_ui', true);
         }
 
         $viewParams = [
