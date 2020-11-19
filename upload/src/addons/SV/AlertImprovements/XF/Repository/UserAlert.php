@@ -177,7 +177,7 @@ class UserAlert extends XFCP_UserAlert
     public function insertUnsummarizedAlerts(ExtendedUserAlertEntity $summaryAlert)
     {
         /** @var ExtendedUserEntity $user */
-        $user = $summaryAlert->User;
+        $user = $summaryAlert->Receiver;
         if (!$user || !$summaryAlert->is_summary)
         {
             return;
