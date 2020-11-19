@@ -446,7 +446,15 @@ class Account extends XFCP_Account
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->insertUnsummarizedAlerts($visitor, $alertId);
+
+        /** @var ExtendedUserAlertEntity $alert */
+        $alert = $alertRepo->findAlertForUser($visitor, $alertId)->fetchOne();
+        if (!$alert || !$alert->canView() || !$alert->is_summary)
+        {
+            return $this->notFound();
+        }
+
+        $alertRepo->insertUnsummarizedAlerts($alert);
 
         $linkParams = [
             'skip_mark_read' => true,

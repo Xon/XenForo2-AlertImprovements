@@ -8,6 +8,7 @@ use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
+use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Entity\User;
 use XF\Entity\UserAlert as UserAlertEntity;
 use XF\Mvc\Entity\Finder;
@@ -173,22 +174,20 @@ class UserAlert extends XFCP_UserAlert
         return null;
     }
 
-    public function insertUnsummarizedAlerts(User $user, int $summaryId)
+    public function insertUnsummarizedAlerts(ExtendedUserAlertEntity $summaryAlert)
     {
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryId) {
-            $userId = $user->user_id;
-            // Delete summary alert
-            /** @var ExtendedUserAlertEntity $summaryAlert */
-            $summaryAlert = $this->finder('XF:UserAlert')
-                                 ->where('alert_id', $summaryId)
-                                 ->fetchOne();
-            if (!$summaryAlert)
-            {
-                return;
-            }
-            $summaryAlert->delete(false, false);
+        /** @var ExtendedUserEntity $user */
+        $user = $summaryAlert->User;
+        if (!$user || !$summaryAlert->is_summary)
+        {
+            return;
+        }
 
-            $db->query('select user_id from xf_user where user_id = ? for update', $userId);
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
+            $summaryId = $summaryAlert->alert_id;
+            $userId = $user->user_id;
+            $db->query('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
+            $summaryAlert->delete(true, false);
 
             // Make alerts visible
             $unreadIncrement = $db->query('
