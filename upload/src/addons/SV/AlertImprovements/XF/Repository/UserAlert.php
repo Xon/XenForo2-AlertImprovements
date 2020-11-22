@@ -57,10 +57,10 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param User $user
-     * @param int  $alertId
+     * @param int[]|int  $alertId
      * @return ExtendedUserAlertFinder|Finder
      */
-    public function findAlertForUser(User $user, int $alertId): ExtendedUserAlertFinder
+    public function findAlertForUser(User $user, $alertId): ExtendedUserAlertFinder
     {
         /** @var ExtendedUserAlertFinder $finder */
         $finder = $this->finder('XF:UserAlert')
