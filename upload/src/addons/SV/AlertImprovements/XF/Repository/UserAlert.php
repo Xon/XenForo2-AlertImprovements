@@ -11,6 +11,8 @@ use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Entity\User;
 use XF\Entity\UserAlert as UserAlertEntity;
+use XF\Mvc\Entity\AbstractCollection;
+use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Finder;
 
 /**
@@ -502,6 +504,31 @@ class UserAlert extends XFCP_UserAlert
         if ($summaryAlert['extra_data'] === false)
         {
             $summaryAlert['extra_data'] = [];
+        }
+
+        // ensure reactions are sorted
+        if (isset($summaryAlert['extra_data']['reaction_id']))
+        {
+            $reactionCounts = new ArrayCollection($summaryAlert['extra_data']['reaction_id']);
+
+            $addOns = \XF::app()->container('addon.cache');
+            if (isset($addOns['SV/ContentRatings']))
+            {
+                /** @var \SV\ContentRatings\XF\Repository\Reaction $reactionRepo */
+                $reactionRepo = $this->app()->repository('XF:Reaction');
+                $reactions = $reactionRepo->getReactionsAsEntities();
+                $reactionIds = $reactions->keys();
+            }
+            else
+            {
+                $reactions = $this->app()->get('reactions');
+                $reactionIds = ($reactions instanceof AbstractCollection)
+                    ? $reactions->keys()
+                    : \array_keys($reactions);
+            }
+            $reactionCounts = $reactionCounts->sortByList($reactionIds);
+
+            $summaryAlert['extra_data']['reaction_id'] = $reactionCounts->toArray();
         }
 
         $summaryAlert = $handler->summarizeAlerts($summaryAlert, $alertGrouping, $groupingStyle);
