@@ -240,7 +240,7 @@ class UserAlert extends XFCP_UserAlert
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
         $summarizeUnreadThreshold = $summarizeThreshold * 2 > 25 ? 25 : $summarizeThreshold * 2;
 
-        return $visitor->alerts_unviewed > $summarizeUnreadThreshold;
+        return ($visitor->alerts_unviewed > $summarizeUnreadThreshold) || ($visitor->alerts_unread > $summarizeUnreadThreshold);
     }
 
     public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
