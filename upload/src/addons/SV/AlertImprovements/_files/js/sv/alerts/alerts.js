@@ -106,7 +106,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         options: {
             successMessageFlashTimeOut: 3000,
             inListSelector: '.contentRow-figure--selector',
-            alertItemSelector: '< .block | .js-alert'
+            alertItemSelector: '.js-alert.is-unread'
         },
 
         processing: null,
@@ -172,6 +172,9 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 }, $.proxy(this, 'handleMarkAllReadAjaxPopup')).always(function () {
                     self.processing = false;
                 });
+            }
+            if (!listAlertIds.length && !popupAlertIds.length) {
+                this.processing = false;
             }
         },
 
