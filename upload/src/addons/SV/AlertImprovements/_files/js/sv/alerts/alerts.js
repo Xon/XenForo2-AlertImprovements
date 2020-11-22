@@ -65,7 +65,8 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
             let $target = this.$target,
                 $alert = $target.closest('.js-alert'),
-                wasUnread = $alert.hasClass('is-unread');
+                wasUnread = $alert.hasClass('is-unread'),
+                inList = $alert.find(this.options.inListSelector).length > 0;
 
             $alert.removeClass('is-read');
             if (wasUnread)
@@ -77,17 +78,18 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 $alert.removeClass('is-recently-read').addClass('is-unread');
             }
 
-            if (data.html)
+            if (data.html && data.html.content)
             {
-                var id = $alert.data('alert_id');
+                var id = $alert.data('alertId');
                 if (id) {
-                    var $replacementHtml = data.html ? $(data.html) : $('<div/>');
+                    var $replacementHtml = $(data.html.content);
                     var $replacementAlert = $replacementHtml.find("[data-alert-id='" + id + "']");
                     if ($replacementAlert.length) {
-                        if (wasNotInList) {
-                            $replacementAlert.find(this.options.inListSelector).remove()
+                        if (!inList) {
+                            $replacementAlert.find(this.options.inListSelector).remove();
                         }
-                        XF.setupHtmlInsert($replacementAlert.children(), function ($html, data, onComplete) {
+                        data.html.content = $replacementAlert;
+                        XF.setupHtmlInsert(data.html, function ($html, data, onComplete) {
                             $alert.empty();
                             $alert.append($html);
                         });
@@ -160,7 +162,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            var $replacementHtml = data.html ? $(data.html) : $('<div/>');
+            var $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>');
 
             XF.findRelativeIf(this.options.alertItemSelector, this.$target).each(function () {
                 let $alert = $(this),
@@ -176,7 +178,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                     $alert.removeClass('is-read').removeClass('is-recently-read').addClass('is-unread');
                 }
 
-                var id = $alert.data('alert_id');
+                var id = $alert.data('alertId');
                 if (id) {
                     var $replacementAlert = $replacementHtml.find("[data-alert-id='" + id + "']");
                     if ($replacementAlert.length) {
