@@ -91,7 +91,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                         data.html.content = $replacementAlert;
                         XF.setupHtmlInsert(data.html, function ($html, data, onComplete) {
                             $alert.empty();
-                            $alert.append($html);
+                            $alert.append($html.children());
                         });
                     }
                 }
@@ -196,6 +196,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
         /**
          * @param {Object} data
+         * @param {boolean} inlist
          */
         handleMarkAllReadAjax: function(data, inlist)
         {
@@ -206,6 +207,10 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
             var $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>');
             var inListSelector = this.options.inListSelector;
+            // javascript load
+            data.html.content = '<div/>';
+            XF.setupHtmlInsert(data.html, function ($html, data, onComplete) {
+            });
 
             XF.findRelativeIf(this.options.alertItemSelector, this.$target).each(function () {
                 let $alert = $(this),
@@ -228,9 +233,9 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                         if (wasNotInList) {
                             $replacementAlert.find(inListSelector).remove();
                         }
-                        XF.setupHtmlInsert($replacementAlert.children(), function ($html, data, onComplete) {
+                        XF.setupHtmlInsert($replacementAlert, function ($html, data, onComplete) {
                             $alert.empty();
-                            $alert.append($html);
+                            $alert.append($html.children());
                         });
                     }
                 }
