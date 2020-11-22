@@ -36,6 +36,7 @@ class Account extends XFCP_Account
         {
             $alertRepo->markUserAlertsRead($visitor);
 
+            $inlist = $this->filter('inlist', 'boolean');
             $alertIds = $this->filter('alert_ids', 'array-uint');
             if ($alertIds)
             {
@@ -48,7 +49,8 @@ class Account extends XFCP_Account
 
                 $viewParams = [
                     'alerts'             => $alerts,
-                    'showSelectCheckbox' => true,
+                    'showSelectCheckbox' => $inlist,
+                    'newIconUnderAvatar' => !$inlist,
                 ];
 
                 return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);

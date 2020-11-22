@@ -99,7 +99,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         }
     });
 
-    SV.AlertImprovements.AlertsList = XF.Element.newHandler({
+    SV.AlertImprovements.BulkMarkRead = XF.Element.newHandler({
         eventNameSpace: 'SVAlertImprovementsAlertListMarkReadClick',
         eventType: 'click',
 
@@ -130,32 +130,71 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             this.processing = true;
 
             let self = this,
+                inListSelector = this.options.inListSelector,
                 $target = this.$target,
-                alertIdLookup = {},
-                alertIds = [],
+                listAlertIdLookup = {},
+                listAlertIds = [],
+                popupAlertIdLookup = {},
+                popupAlertIds = [],
                 $alerts = XF.findRelativeIf(this.options.alertItemSelector, this.$target);
 
             $alerts.each(function(){
                 var $alert = $(this),
-                    alertId = $alert.data('alert_id');
-                if (alertId && !(alertId in alertIdLookup)) {
-                    alertIdLookup[alertId] = 1
-                    alertIds.push(alertId);
+                    alertId = $alert.data('alertId'),
+                    inList = $alert.find(inListSelector).length > 0;
+                if (alertId) {
+                    if (inList) {
+                        if (!(alertId in listAlertIdLookup)) {
+                            listAlertIdLookup[alertId] = 1
+                            listAlertIds.push(alertId);
+                        }
+                    } else {
+                        if (!(alertId in popupAlertIdLookup)) {
+                            popupAlertIdLookup[alertId] = 1
+                            popupAlertIds.push(alertId);
+                        }
+                    }
                 }
             });
 
-            XF.ajax('POST', $target.attr('href'), {
-                alert_ids: alertIds
-            }, $.proxy(this, 'handleMarkAllReadAjax')).always(function ()
-            {
-                self.processing = false;
-            });
+            if (listAlertIds.length) {
+                XF.ajax('POST', $target.attr('href'), {
+                    inlist: 1,
+                    alert_ids: listAlertIds
+                }, $.proxy(this, 'handleMarkAllReadAjaxList')).always(function () {
+                    self.processing = false;
+                });
+            }
+            if (popupAlertIds.length) {
+                XF.ajax('POST', $target.attr('href'), {
+                    inlist: 0,
+                    alert_ids: popupAlertIds
+                }, $.proxy(this, 'handleMarkAllReadAjaxPopup')).always(function () {
+                    self.processing = false;
+                });
+            }
         },
 
         /**
          * @param {Object} data
          */
-        handleMarkAllReadAjax: function(data)
+        handleMarkAllReadAjaxList: function(data)
+        {
+            this.handleMarkAllReadAjax(data, true);
+        },
+
+        /**
+         * @param {Object} data
+         */
+        handleMarkAllReadAjaxPopup: function(data)
+        {
+            this.handleMarkAllReadAjax(data, false);
+        },
+
+        /**
+         * @param {Object} data
+         */
+        handleMarkAllReadAjax: function(data, inlist)
         {
             if (data.message)
             {
@@ -163,11 +202,12 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             }
 
             var $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>');
+            var inListSelector = this.options.inListSelector;
 
             XF.findRelativeIf(this.options.alertItemSelector, this.$target).each(function () {
                 let $alert = $(this),
                     wasUnread = $alert.hasClass('is-unread'),
-                    wasNotInList = !!$alert.find(this.options.inListSelector).length;
+                    wasNotInList = !inlist;
 
                 if (wasUnread)
                 {
@@ -183,7 +223,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                     var $replacementAlert = $replacementHtml.find("[data-alert-id='" + id + "']");
                     if ($replacementAlert.length) {
                         if (wasNotInList) {
-                            $replacementAlert.find(this.options.inListSelector).remove()
+                            $replacementAlert.find(inListSelector).remove();
                         }
                         XF.setupHtmlInsert($replacementAlert.children(), function ($html, data, onComplete) {
                             $alert.empty();
@@ -195,6 +235,6 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         }
     });
 
-    //XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.AlertListMarkRead');
+    XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.BulkMarkRead');
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
 } (jQuery, window, document));
