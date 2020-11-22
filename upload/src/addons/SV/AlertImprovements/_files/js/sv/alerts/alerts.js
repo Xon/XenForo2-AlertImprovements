@@ -99,7 +99,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         }
     });
 
-    SV.AlertImprovements.BulkMarkRead = XF.Element.newHandler({
+    SV.AlertImprovements.BulkMarkRead = XF.Event.newHandler({
         eventNameSpace: 'SVAlertImprovementsAlertListMarkReadClick',
         eventType: 'click',
 
