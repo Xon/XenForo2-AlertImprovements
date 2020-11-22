@@ -548,6 +548,8 @@ class UserAlert extends XFCP_UserAlert
             $alert = $this->em->create('XF:UserAlert');
             $alert->bulkSet($summaryAlert);
             $alert->save(true, false);
+            // we need to treat this as unread for the current request so it can display the way we want
+            $alert->setOption('force_unread_in_ui', true);
             $summerizeId = $alert->alert_id;
 
             // hide the non-summary alerts
