@@ -75,7 +75,11 @@
 	</div>
 </xf:macro>
 
-<xf:macro name="alert_row" arg-alert="!" arg-showSelectCheckbox="{{ false }}">
+<xf:macro name="alert_row"
+		  arg-alert="!"
+		  arg-showSelectCheckbox="{{ false }}"
+		  arg-newIconUnderAvatar="{{ false }}"
+		  >
 	<xf:css src="svAlertImprovements.less" />
 	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
 	<div class="contentRow">
@@ -89,7 +93,7 @@
 		</xf:if>
 		<div class="contentRow-figure contentRow-figure--user{{ $showSelectCheckbox ? '' : ' flex'}}">
 			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
-			<xf:if is="!$showSelectCheckbox && $alert.is_new">
+			<xf:if is="$newIconUnderAvatar && $alert.is_new">
 				<xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" />
 			</xf:if>
 		</div>
@@ -97,7 +101,7 @@
 			{$alert.render()|raw}
 			<div class="contentRow-minor contentRow-minor--smaller">
 				<ul class="listInline listInline--bullet">
-					<xf:if is="$showSelectCheckbox && $alert.is_new">
+					<xf:if is="!$newIconUnderAvatar && $alert.is_new">
 						<li><xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
 					</xf:if>
 					<li><xf:date time="$alert.event_date" /></li>
