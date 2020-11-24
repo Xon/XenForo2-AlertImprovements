@@ -619,7 +619,8 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
-        if (Globals::$skipMarkAlertsRead || !$user->user_id)
+        $userId = $user->user_id;
+        if (Globals::$skipMarkAlertsRead || !$userId)
         {
             return;
         }
@@ -630,14 +631,14 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $db = $this->db();
-        $db->executeTransaction(function () use ($db, $readDate, $user) {
-            $db->update('xf_user_alert', ['view_date' => $readDate], "alerted_user_id = ? AND view_date = 0", $user->user_id);
-            $db->update('xf_user_alert', ['read_date' => $readDate], "alerted_user_id = ? AND read_date = 0", $user->user_id);
-
-            $user->alerts_unviewed = 0;
-            $user->alerts_unread = 0;
-            $user->save(true, false);
+        $db->executeTransaction(function () use ($db, $readDate, $userId) {
+            $db->query('UPDATE xf_user SET alerts_unviewed = 0, alerts_unread = 0 WHERE user_id = ?', [$userId]);
+            $db->query('UPDATE xf_user_alert SET view_date = ? WHERE alerted_user_id = ? AND view_date = 0', [$readDate, $userId]);
+            $db->query('UPDATE xf_user_alert SET read_date = ? WHERE alerted_user_id = ? AND read_date = 0', [$readDate, $userId]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+
+        $user->setAsSaved('alerts_unviewed', 0);
+        $user->setAsSaved('alerts_unread', 0);
     }
 
     public function autoMarkUserAlertsRead(\XF\Mvc\Entity\AbstractCollection $alerts, User $user, $readDate = null)
