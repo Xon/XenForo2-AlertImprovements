@@ -8,6 +8,7 @@ use XF\Mvc\Entity\Structure;
  * Extends \XF\Entity\User
  *
  * @property int alerts_unviewed;
+ * @property UserOption Option
  */
 class User extends XFCP_User
 {

@@ -11,7 +11,7 @@ use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
-use XF\Entity\UserAlert as UserAlertEntity;
+use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Mvc\Reply\View as ViewReply;
 use XF\Mvc\Reply\Redirect as RedirectReply;
 use XF\Mvc\Reply\Exception as ExceptionReply;
@@ -156,7 +156,7 @@ class Account extends XFCP_Account
             Globals::$skipSummarizeFilter = false;
         }
         $alertsFinder->where('summerize_id', '=', $alert->alert_id);
-        /** @var UserAlertEntity[]|AbstractCollection $alerts */
+        /** @var ExtendedUserAlertEntity[]|AbstractCollection $alerts */
         $alerts = $alertsFinder->limitByPage($page, $perPage)->fetch();
 
         $alertRepo->addContentToAlerts($alerts);
@@ -235,8 +235,8 @@ class Account extends XFCP_Account
      */
     public function actionAlerts()
     {
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        /** @var UserOption $option */
         $option = $visitor->Option;
         $showOnlyFilter = $this->filter('show_only', '?str');
         $skipMarkAsRead = $this->filter('skip_mark_read', '?bool');
@@ -259,7 +259,7 @@ class Account extends XFCP_Account
         // defaults
         $skipMarkAsRead = $skipMarkAsRead ?? false;
         $skipSummarize = $skipSummarize ?? false;
-        $showOnlyFilter = $showOnlyFilter ?? ($visitor->alerts_unread ? 'unread' : 'all');
+        $showOnlyFilter = $showOnlyFilter ?? (($visitor->alerts_unread || $visitor->alerts_unviewed) ? 'unread' : 'all');
 
         // make XF mark-alert handling sane
         $this->request->set('skip_mark_read', 1);
@@ -278,7 +278,7 @@ class Account extends XFCP_Account
         }
         if ($response instanceof View)
         {
-            /** @var AbstractCollection|UserAlertEntity[] $alerts */
+            /** @var AbstractCollection|ExtendedUserAlertEntity[] $alerts */
             $alerts = $response->getParam('alerts');
             if ($alerts)
             {
@@ -287,6 +287,15 @@ class Account extends XFCP_Account
                 $groupedAlerts = empty($options->svAlertsGroupByDate) ? null : $this->groupAlertsByDay($alerts);
 
                 $response->setParam('groupedAlerts', $groupedAlerts);
+
+                // This condition is likely because of an unviewable alerts.
+                // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
+                if ($page === 1 && $showOnlyFilter === 'unread' && !$alerts->count())
+                {
+                    /** @var ExtendedUserAlertRepo $alertRepo */
+                    $alertRepo = $this->repository('XF:UserAlert');
+                    $alertRepo->markUserAlertsRead($visitor);
+                }
             }
 
             $navParams = $response->getParam('navParams') ?? [];
@@ -321,7 +330,7 @@ class Account extends XFCP_Account
 
         if ($reply instanceof ViewReply)
         {
-            /** @var AbstractCollection|UserAlertEntity[] $alerts */
+            /** @var AbstractCollection|ExtendedUserAlertEntity[] $alerts */
             $alerts = $reply->getParam('alerts');
             if ($alerts)
             {
@@ -358,7 +367,7 @@ class Account extends XFCP_Account
     }
 
     /**
-     * @param AbstractCollection|UserAlertEntity[] $alerts
+     * @param AbstractCollection|ExtendedUserAlertEntity[] $alerts
      * @param bool $skipMarkAsRead
      */
     protected function markViewedAlertsRead($alerts, bool $skipMarkAsRead)
@@ -406,7 +415,7 @@ class Account extends XFCP_Account
         $language = \XF::language();
         $dayStartTimestamps = $language->getDayStartTimestamps();
 
-        return $alerts->groupBy(function (UserAlertEntity $alert) use($language, $dayStartTimestamps, $dowTranslation)
+        return $alerts->groupBy(function (ExtendedUserAlertEntity $alert) use($language, $dayStartTimestamps, $dowTranslation)
         {
             $timestamp = $alert->event_date;
             /** @noinspection PhpUnusedLocalVariableInspection */
