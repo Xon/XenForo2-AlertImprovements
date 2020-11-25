@@ -256,10 +256,11 @@ class Account extends XFCP_Account
             $skipSummarize = true;
         }
 
+        $hasUnreadAlerts = ($visitor->alerts_unread || $visitor->alerts_unviewed);
         // defaults
         $skipMarkAsRead = $skipMarkAsRead ?? false;
         $skipSummarize = $skipSummarize ?? false;
-        $showOnlyFilter = $showOnlyFilter ?? (($visitor->alerts_unread || $visitor->alerts_unviewed) ? 'unread' : 'all');
+        $showOnlyFilter = $showOnlyFilter ?? ($hasUnreadAlerts ? 'unread' : 'all');
 
         // make XF mark-alert handling sane
         $this->request->set('skip_mark_read', 1);
@@ -290,7 +291,7 @@ class Account extends XFCP_Account
 
                 // This condition is likely because of an unviewable alerts.
                 // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
-                if ($page === 1 && $showOnlyFilter === 'unread' && !$alerts->count())
+                if ($page === 1 && $showOnlyFilter === 'unread' && !$alerts->count() && $hasUnreadAlerts)
                 {
                     /** @var ExtendedUserAlertRepo $alertRepo */
                     $alertRepo = $this->repository('XF:UserAlert');
