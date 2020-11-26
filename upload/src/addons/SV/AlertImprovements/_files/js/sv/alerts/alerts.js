@@ -217,13 +217,14 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                     wasUnread = $alert.hasClass('is-unread'),
                     wasNotInList = !inlist;
 
+                $alert.removeClass('is-read');
                 if (wasUnread)
                 {
-                    $alert.removeClass('is-unread').addClass('is-recently-read');
+                    $alert.addClass('is-recently-read').removeClass('is-unread');
                 }
                 else
                 {
-                    $alert.removeClass('is-read').removeClass('is-recently-read').addClass('is-unread');
+                    $alert.removeClass('is-recently-read').addClass('is-unread');
                 }
 
                 var id = $alert.data('alertId');
