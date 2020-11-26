@@ -3,7 +3,6 @@
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\Globals;
-use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
@@ -25,6 +24,7 @@ class Account extends XFCP_Account
 {
     public function actionAlertsMarkRead()
     {
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
 
         /** @var ExtendedUserAlertRepo $alertRepo */
@@ -126,6 +126,7 @@ class Account extends XFCP_Account
      */
     public function actionAlert(ParameterBag $params)
     {
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
 
@@ -217,6 +218,7 @@ class Account extends XFCP_Account
         }
         $floodingLimit = max(1, isset($options->svAlertsSummarizeFlood) ? $options->svAlertsSummarizeFlood : 1);
 
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         if ($visitor->hasPermission('general', 'bypassFloodCheck'))
         {
@@ -313,8 +315,8 @@ class Account extends XFCP_Account
 
     public function actionAlertsPopup()
     {
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        /** @var UserOption $option */
         $option = $visitor->Option;
         $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_skips_mark_read);
         Globals::$skipMarkAlertsRead = true;
@@ -373,6 +375,7 @@ class Account extends XFCP_Account
      */
     protected function markViewedAlertsRead($alerts, bool $skipMarkAsRead)
     {
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         if ($skipMarkAsRead)
         {
@@ -451,7 +454,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return RedirectReply
+     * @return \XF\Mvc\Reply\AbstractReply
      * @noinspection PhpUnusedParameterInspection
      */
     public function actionAlertUnsummarize(ParameterBag $params)
@@ -496,6 +499,7 @@ class Account extends XFCP_Account
     {
         $this->assertPostOnly();
 
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $alertIds = $this->filter('alert_ids', 'array-uint');
         $alertIds = \array_slice($alertIds, 0, $this->options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
@@ -540,7 +544,6 @@ class Account extends XFCP_Account
      * @param null $with
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
-     * @noinspection PhpUnusedParameterInspection
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {

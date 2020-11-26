@@ -237,7 +237,6 @@ class UserAlert extends XFCP_UserAlert
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        /** @var \SV\AlertImprovements\XF\Entity\UserOption $option */
         $option = $visitor->Option;
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
         $summarizeUnreadThreshold = $summarizeThreshold * 2 > 25 ? 25 : $summarizeThreshold * 2;
@@ -249,9 +248,9 @@ class UserAlert extends XFCP_UserAlert
     {
         // TODO : finish summarizing alerts
         $xfOptions = \XF::options();
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $userId = $visitor->user_id;
-        /** @var \SV\AlertImprovements\XF\Entity\UserOption $option */
         $option = $visitor->Option;
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
@@ -641,7 +640,7 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', 0);
     }
 
-    public function autoMarkUserAlertsRead(\XF\Mvc\Entity\AbstractCollection $alerts, User $user, $readDate = null)
+    public function autoMarkUserAlertsRead(AbstractCollection $alerts, User $user, $readDate = null)
     {
         if (Globals::$skipMarkAlertsRead)
         {
@@ -655,7 +654,7 @@ class UserAlert extends XFCP_UserAlert
         $this->markSpecificUserAlertsRead($alerts, $user, $readDate);
     }
 
-    protected function markSpecificUserAlertsRead(\XF\Mvc\Entity\AbstractCollection $alerts, User $user, int $readDate = null)
+    protected function markSpecificUserAlertsRead(AbstractCollection $alerts, User $user, int $readDate = null)
     {
         $userId = $user->user_id;
         if (!$userId || !$alerts->count())

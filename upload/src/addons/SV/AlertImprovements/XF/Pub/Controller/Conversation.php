@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
+use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Entity\ConversationUser;
 use XF\Mvc\Entity\AbstractCollection;
@@ -30,6 +31,7 @@ class Conversation extends XFCP_Conversation
         {
             /** @var AbstractCollection $messages */
             /** @var \XF\Entity\ConversationMaster $conversation */
+            /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)
@@ -78,6 +80,7 @@ class Conversation extends XFCP_Conversation
         {
             /** @var AbstractCollection $messages */
             /** @var \XF\Entity\ConversationMaster $conversation */
+            /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)

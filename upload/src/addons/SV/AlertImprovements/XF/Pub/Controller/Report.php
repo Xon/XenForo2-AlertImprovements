@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
+use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\View;
@@ -25,6 +26,7 @@ class Report extends XFCP_Report
             ($report = $reply->getParam('report')) &&
             ($comments = $reply->getParam('comments')))
         {
+            /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)

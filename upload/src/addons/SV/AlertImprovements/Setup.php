@@ -265,7 +265,7 @@ class Setup extends AbstractSetup
 
             $this->addOrChangeColumn($table, 'read_date', 'int')->setDefault(0)->after('view_date');
             $col2 = $this->addOrChangeColumn($table, 'auto_read', 'tinyint')->setDefault(1);
-            if ($hasReadDate || !$hasReadDate && !$hasAutoRead)
+            if ($hasReadDate || !$hasAutoRead)
             {
                 // XF always does modifies before adds.
                 $col2->after('read_date');
