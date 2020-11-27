@@ -1,0 +1,11 @@
+{
+    "route_type": "public",
+    "route_prefix": "account",
+    "sub_name": "alert",
+    "format": "alert/:int<alert_id>/",
+    "build_class": "",
+    "build_method": "",
+    "controller": "XF:Account",
+    "context": "account",
+    "action_prefix": "alert"
+}

@@ -1,0 +1,17 @@
+<xf:title>{{ phrase('alert') }} - {$contentTitle}</xf:title>
+
+<xf:wrap template="account_wrapper" />
+
+<xf:form action="{$confirmUrl}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:inforow rowtype="confirm">
+				{$actionText}
+			</xf:inforow>
+		</div>
+
+		<xf:submitrow submit="{$buttonText}" rowtype="simple" />
+	</div>
+
+	<xf:redirect url="{$redirect}" />
+</xf:form>

@@ -78,7 +78,7 @@
 <xf:macro name="alert_row"
 		  arg-alert="!"
 		  arg-showSelectCheckbox="{{ false }}"
-		  arg-newIconUnderAvatar="{{ false }}"
+		  arg-inAlertsPopup="{{ false }}"
 		  >
 	<xf:css src="svAlertImprovements.less" />
 	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
@@ -93,7 +93,7 @@
 		</xf:if>
 		<div class="contentRow-figure contentRow-figure--user{{ $showSelectCheckbox ? '' : ' flex'}}">
 			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
-			<xf:if is="$newIconUnderAvatar && $alert.is_new">
+			<xf:if is="$inAlertsPopup && $alert.is_new">
 				<xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" />
 			</xf:if>
 		</div>
@@ -101,7 +101,7 @@
 			{$alert.render()|raw}
 			<div class="contentRow-minor contentRow-minor--smaller">
 				<ul class="listInline listInline--bullet">
-					<xf:if is="!$newIconUnderAvatar && $alert.is_new">
+					<xf:if is="!$inAlertsPopup && $alert.is_new">
 						<li><xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
 					</xf:if>
 					<li><xf:date time="$alert.event_date" /></li>
@@ -109,12 +109,12 @@
 						<li>{{ phrase('svAlertImprov_read_on:') }} <xf:date time="$alert.read_date" /></li>
 					</xf:if>
 					<xf:if is="$alert.is_summary">
-						<li><a class="alert--unsummarize" href="{{ link('account/alert/unsummarize', '', {'alert_id':$alert.alert_id}) }}">{{phrase('sv_unsummarize_alert')}}</a></li>
+						<li><a class="alert--unsummarize" data-xf-click="unsummarize-alert" href="{{ link('account/alert/unsummarize', $alert) }}">{{phrase('svAlertImprov_unsummarize_alert')}}</a></li>
 					</xf:if>
 					<xf:if is="$alert.read_date">
-						<li class="mark-read"><a class="alert--mark-unread" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', '', {'alert_id':$alert.alert_id, 'unread': 1}) }}">{{ phrase('svAlertImprov_mark_unread') }}</a></li>
+						<li class="mark-read"><a class="alert--mark-unread" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', $alert) }}">{{ phrase('svAlertImprov_mark_unread') }}</a></li>
 					<xf:else />
-						<li class="mark-read"><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', '', {'alert_id':$alert.alert_id, 'unread': 0}) }}">{{ phrase('svAlertImprov_mark_read') }}</a></li>
+						<li class="mark-read"><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/read', $alert) }}">{{ phrase('svAlertImprov_mark_read') }}</a></li>
 					</xf:if>
 				</ul>
 			</div>

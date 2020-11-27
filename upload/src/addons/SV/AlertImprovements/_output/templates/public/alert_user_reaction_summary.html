@@ -5,7 +5,7 @@
 
 {{ phrase('sv_x_reacted_y_content_z_times', {
 	'name': username_link($user, false, {'defaultname': $alert.username}),
-	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', null, {'alert_id': $alert.alert_id}) . '" class="fauxBlockLink-blockLink"',
+	'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '" class="fauxBlockLink-blockLink"',
 	'reactions': {$reactions}|raw,
 	'reactedcontent': $contentSummary
 }) }}

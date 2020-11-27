@@ -70,7 +70,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             }
             this.processing = true;
 
-            let self = this,
+            var self = this,
                 $target = this.$target,
                 $alert = $target.closest('.js-alert'),
                 inList = $alert.find(this.options.inListSelector).length > 0;
@@ -93,7 +93,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            let $target = this.$target,
+            var $target = this.$target,
                 $alert = $target.closest('.js-alert'),
                 notInList = $alert.find(this.options.inListSelector).length > 0,
                 inListSelector = this.options.inListSelector,
@@ -133,7 +133,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             }
             this.processing = true;
 
-            let self = this,
+            var self = this,
                 inListSelector = this.options.inListSelector,
                 $target = this.$target,
                 listAlertIdLookup = {},
@@ -223,6 +223,63 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         }
     });
 
+    SV.AlertImprovements.AlertUnsummarize = XF.Event.newHandler({
+        eventNameSpace: 'SVAlertImprovementsAlertUnsummarizeClick',
+        eventType: 'click',
+
+        options: {
+            alertPopupSelector: '.p-navgroup-link--alerts',
+            successMessageFlashTimeOut: 3000
+        },
+
+        processing: null,
+
+        init: function()
+        {
+            this.processing = false;
+        },
+
+        /**
+         * @param {Event} e
+         */
+        click: function(e) {
+            e.preventDefault();
+
+            if (this.processing) {
+                return;
+            }
+            this.processing = true;
+            var $target = this.$target;
+
+            XF.ajax('POST', $target.attr('href'), {
+                // todo: does anything need to be submitted?
+            }, $.proxy(this, 'handleReloadAlertsPopupList')).always(function () {
+                self.processing = false;
+            });
+        },
+
+        /**
+         * @param {Object} data
+         */
+        handleReloadAlertsPopupList: function(data) {
+            if (data.message)
+            {
+                XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
+            }
+
+            var $target = this.$target,
+                $alert = $target.closest('.js-alert');
+
+            var id = $alert.data('alertId');
+            if (id) {
+                $(".js-alert[data-alert-id='" + id + "']").remove();
+            }
+
+            //var $menu = $(this.options.alertPopupSelector);
+        }
+    });
+
     XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.BulkMarkRead');
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
+    XF.Click.register('unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
 } (jQuery, window, document));

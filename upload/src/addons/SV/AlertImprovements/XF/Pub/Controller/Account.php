@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
+use SV\AlertImprovements\ControllerPlugin\AlertAction;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
@@ -50,7 +51,7 @@ class Account extends XFCP_Account
                 $viewParams = [
                     'alerts'             => $alerts,
                     'showSelectCheckbox' => $inlist,
-                    'newIconUnderAvatar' => !$inlist,
+                    'inAlertsPopup' => !$inlist,
                 ];
 
                 return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
@@ -122,13 +123,12 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return \XF\Mvc\Reply\AbstractReply
-     * @noinspection PhpUnusedParameterInspection
      */
     public function actionAlert(ParameterBag $params)
     {
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
+        $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
 
         $skipMarkAsRead = $this->filter('skip_mark_read', 'bool');
         $page = $this->filterPage();
@@ -181,32 +181,106 @@ class Account extends XFCP_Account
         return $this->addAccountWrapperParams($view, 'alerts');
     }
 
-    public function actionAlertUnread()
+    /**
+     * @param ParameterBag $params
+     * @return \XF\Mvc\Reply\AbstractReply
+     */
+    public function actionAlertRead(ParameterBag $params)
     {
-        $this->assertPostOnly();
-        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
+        $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
 
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        /** @var AlertAction $alertAction */
+        $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
+        return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
+            $showSelectCheckbox = $this->filter('inlist', 'bool');
 
-        $showSelectCheckbox = $this->filter('inlist', 'bool');
-        $newUnreadStatus = $this->filter('unread', 'bool', !$alert->isUnread());
+            /** @var ExtendedUserAlertRepo $alertRepo */
+            $alertRepo = $this->repository('XF:UserAlert');
 
-        if ($newUnreadStatus)
-        {
-            $alertRepo->markUserAlertUnread($alert, true);
-        }
-        else
-        {
             $alertRepo->markUserAlertRead($alert, \XF::$time);
+
+            $redirect = $this->filter('_xfRedirect', 'str');
+            if ($redirect)
+            {
+                return $this->redirect($redirect, '');
+            }
+
             $alert->setOption('force_unread_in_ui', true);
+
+            $viewParams = [
+                'alerts'             => new ArrayCollection([$alert]),
+                'showSelectCheckbox' => $showSelectCheckbox,
+            ];
+
+            return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+        }, \XF::phrase('svAlertImprov_mark_read'),
+            \XF::phrase('svAlertImprov_mark_read'),
+            \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_mark_this_alert_read'),
+            $this->buildLink('account/alert/read', $alert)
+        );
+    }
+
+    /**
+     * @param ParameterBag $params
+     * @return \XF\Mvc\Reply\AbstractReply
+     */
+    public function actionAlertUnread(ParameterBag $params)
+    {
+        $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
+
+        /** @var AlertAction $alertAction */
+        $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
+        return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
+            $showSelectCheckbox = $this->filter('inlist', 'bool');
+
+            /** @var ExtendedUserAlertRepo $alertRepo */
+            $alertRepo = $this->repository('XF:UserAlert');
+
+            $alertRepo->markUserAlertUnread($alert, true);
+
+            $redirect = $this->filter('_xfRedirect', 'str');
+            if ($redirect)
+            {
+                return $this->redirect($redirect, '');
+            }
+
+            $viewParams = [
+                'alerts'             => new ArrayCollection([$alert]),
+                'showSelectCheckbox' => $showSelectCheckbox,
+            ];
+
+            return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+        }, \XF::phrase('svAlertImprov_mark_unread'),
+            \XF::phrase('svAlertImprov_mark_unread'),
+            \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_mark_this_alert_unread'),
+            $this->buildLink('account/alert/unread', $alert)
+        );
+    }
+
+    /**
+     * @param ParameterBag $params
+     * @return \XF\Mvc\Reply\AbstractReply
+     */
+    public function actionAlertUnsummarize(ParameterBag $params)
+    {
+        $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
+        if (!$alert->is_summary)
+        {
+            return $this->notFound();
         }
 
-        $viewParams = [
-            'alerts'             => new ArrayCollection([$alert]),
-            'showSelectCheckbox' => $showSelectCheckbox,
-        ];
-        return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+        /** @var AlertAction $alertAction */
+        $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
+        return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
+            /** @var ExtendedUserAlertRepo $alertRepo */
+            $alertRepo = $this->repository('XF:UserAlert');
+            $alertRepo->insertUnsummarizedAlerts($alert);
+        }, \XF::phrase('svAlertImprov_unsummarize_alert'),
+           \XF::phrase('svAlertImprov_unsummarize_alert'),
+           \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_unsummarize_this_alert'),
+            $this->buildLink('account/alert/unsummarize', $alert),
+            ''
+        );
     }
 
     protected function hasRecentlySummarizedAlerts(): bool
@@ -452,34 +526,6 @@ class Account extends XFCP_Account
         });
     }
 
-    /**
-     * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\AbstractReply
-     * @noinspection PhpUnusedParameterInspection
-     */
-    public function actionAlertUnsummarize(ParameterBag $params)
-    {
-        $alert = $this->assertViewableAlert($this->filter('alert_id', 'uint'));
-        if (!$alert->is_summary)
-        {
-            return $this->notFound();
-        }
-
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->insertUnsummarizedAlerts($alert);
-
-        $linkParams = [
-            'skip_mark_read' => true,
-            'skip_summarize' => true,
-        ];
-
-        return $this->redirect(
-            $this->buildLink(
-                'account/alerts', [], $linkParams
-            )
-        );
-    }
 
     /**
      * Forcing this to return 404 not found because we support marking alerts read via the "checkboxes"
@@ -540,10 +586,11 @@ class Account extends XFCP_Account
     /**
      * XF2.2 compatible function
      *
-     * @param      $id
+     * @param int  $id
      * @param null $with
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
+     * @noinspection PhpMissingParamTypeInspection
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {
