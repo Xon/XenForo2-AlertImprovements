@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "preg_replace",
     "find": "#(js-alertsMenuBody.*?<div class=\"menu-footer[^\"]*\"\\s*>)(?:\\s*(?:(?:<div class=\"menu-footer-main\">.*?</ul>\\s*</div>)|(?:<span class=\"menu-footer-main.*?menu-footer-opposite.*?</span>))\\s*?)([\\t ]*</div>)#si",
-    "replace": "$1\n<xf:macro template=\"svAlertsImprov_macros\" name=\"alerts_popup_footer\" />\n$2"
+    "replace": "$1\n<xf:macro template=\"svAlertImprov_macros\" name=\"alerts_popup_footer\" />\n$2"
 }

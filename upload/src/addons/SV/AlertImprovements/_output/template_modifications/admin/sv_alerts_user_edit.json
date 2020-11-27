@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "preg_replace",
     "find": "#<xf:option name=\"option\\[email_on_conversation\\]\".*?</xf:option>.*?</xf:checkboxrow>#si",
-    "replace": "$0\n<xf:include template=\"svAlertsImprov_user_edits_alerts\" />"
+    "replace": "$0\n<xf:include template=\"svAlertImprov_user_edits_alerts\" />"
 }

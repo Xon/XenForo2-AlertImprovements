@@ -32,12 +32,12 @@
 
 <xf:macro name="alerts_controls">
 	<xf:button href="{{ link('account/preferences') }}#alerts" class="button--link"><xf:trim>
-		{{ phrase('sv_alert_preferences') }}
+		{{ phrase('svAlertImprov_alert_preferences') }}
 	</xf:trim></xf:button>
 
 	<xf:if is="$xf.options.svAlertsSummarize">
 		<xf:button href="{{ link('account/summarize-alerts') }}" class="button--link"><xf:trim>
-			{{ phrase('sv_resummarize_alerts') }}
+			{{ phrase('svAlertImprov_resummarize_alerts') }}
 		</xf:trim></xf:button>
 	</xf:if>
 </xf:macro>
@@ -94,7 +94,7 @@
 		<div class="contentRow-figure contentRow-figure--user{{ $showSelectCheckbox ? '' : ' flex'}}">
 			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
 			<xf:if is="$inAlertsPopup && $alert.is_new">
-				<xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" />
+				<xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('svAlertImprov_new_or_unread_alert')|for_attr}}" />
 			</xf:if>
 		</div>
 		<div class="contentRow-main contentRow-main--close">
@@ -102,7 +102,7 @@
 			<div class="contentRow-minor contentRow-minor--smaller">
 				<ul class="listInline listInline--bullet">
 					<xf:if is="!$inAlertsPopup && $alert.is_new">
-						<li><xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('sv_unread_alert')|for_attr}}" /></li>
+						<li><xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('svAlertImprov_new_or_unread_alert')|for_attr}}" /></li>
 					</xf:if>
 					<li><xf:date time="$alert.event_date" /></li>
 					<xf:if is="$alert.read_date">

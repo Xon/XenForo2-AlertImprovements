@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "preg_replace",
     "find": "#(?:[\\t ]*<h2 class=\"block-formSectionHeader.*?{{ phrase\\('alert_preferences'\\))|(?:[\\t ]*<xf:if is=\"\\$alertOptOuts)#si",
-    "replace": "<xf:include template=\"svAlertsImprov_account_preferences_extra\" />\n$0"
+    "replace": "<xf:include template=\"svAlertImprov_account_preferences_extra\" />\n$0"
 }

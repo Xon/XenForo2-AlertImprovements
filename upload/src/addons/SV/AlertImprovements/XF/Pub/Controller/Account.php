@@ -54,7 +54,7 @@ class Account extends XFCP_Account
                     'inAlertsPopup' => !$inlist,
                 ];
 
-                return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+                return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
             }
 
             return $this->redirect($redirect, \XF::phrase('svAlertImprov_all_alerts_marked_as_read'));
@@ -176,7 +176,7 @@ class Account extends XFCP_Account
             'perPage'     => $perPage,
             'totalAlerts' => $alertsFinder->total(),
         ];
-        $view = $this->view('XF:Account\AlertsSummary', 'svAlertsImprov_account_alerts_summary', $viewParams);
+        $view = $this->view('XF:Account\AlertsSummary', 'svAlertImprov_account_alerts_summary', $viewParams);
 
         return $this->addAccountWrapperParams($view, 'alerts');
     }
@@ -212,7 +212,7 @@ class Account extends XFCP_Account
                 'showSelectCheckbox' => $showSelectCheckbox,
             ];
 
-            return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+            return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
         }, \XF::phrase('svAlertImprov_mark_read'),
             \XF::phrase('svAlertImprov_mark_read'),
             \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_mark_this_alert_read'),
@@ -249,7 +249,7 @@ class Account extends XFCP_Account
                 'showSelectCheckbox' => $showSelectCheckbox,
             ];
 
-            return $this->view('XF:Account\Alert', 'svAlertsImprov_alerts', $viewParams);
+            return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
         }, \XF::phrase('svAlertImprov_mark_unread'),
             \XF::phrase('svAlertImprov_mark_unread'),
             \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_mark_this_alert_unread'),
@@ -433,10 +433,10 @@ class Account extends XFCP_Account
                 }
             }
 
-            // just use svAlertsImprov_account_alerts_popup
+            // just use svAlertImprov_account_alerts_popup
             if ($reply->getTemplateName() === 'account_alerts_popup')
             {
-                $reply->setTemplateName('svAlertsImprov_account_alerts_popup');
+                $reply->setTemplateName('svAlertImprov_account_alerts_popup');
             }
         }
 
@@ -501,11 +501,11 @@ class Account extends XFCP_Account
 
             if ($timestamp >= $dayStartTimestamps['today'])
             {
-                $groupedDate = \XF::phrase('sv_alertimprovements.today')->render();
+                $groupedDate = \XF::phrase('svAlertImprov_date.today')->render();
             }
             else if ($timestamp >= $dayStartTimestamps['yesterday'])
             {
-                $groupedDate = \XF::phrase('sv_alertimprovements.yesterday')->render();
+                $groupedDate = \XF::phrase('svAlertImprov_date.yesterday')->render();
             }
             else if ($timestamp >= $dayStartTimestamps['week'])
             {

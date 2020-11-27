@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "<div class=\"u-inputSpacer\">",
-    "replace": "$0\n<xf:include template=\"svAlertsImprov_option_template_registrationDefaults\" />"
+    "replace": "$0\n<xf:include template=\"svAlertImprov_option_template_registrationDefaults\" />"
 }

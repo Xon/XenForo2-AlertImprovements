@@ -87,64 +87,6 @@ class Setup extends AbstractSetup
         ");
     }
 
-    public function upgrade2070000Step1(array $stepParams)
-    {
-        $templateRenames = [
-            // admin
-            'user_edits_alerts' => 'svAlertsImprov_user_edits_alerts',
-            'option_template_registrationDefaults_alerts' => 'svAlertsImprov_option_template_registrationDefaults',
-            // public
-            'sv_alertimprovements_account_alerts_2' => 'svAlertsImprov_account_alerts_group_by_date',
-            'account_alerts_extra_controls' => 'svAlertsImprov_account_alerts_controls',
-            'account_alerts_summary' => 'svAlertsImprov_account_alerts_summary',
-            'account_alerts_extra' => 'svAlertsImprov_account_alerts_extra',
-            'account_preferences_alerts_extra' => 'svAlertsImprov_account_preferences_extra',
-        ];
-
-        $finder = \XF::finder('XF:Template')
-                     ->where('title', '=', \array_keys($templateRenames));
-        $stepData = isset($stepParams[2]) ? $stepParams[2] : [];
-        if (!isset($stepData['max']))
-        {
-            $stepData['max'] = $finder->total();
-        }
-        $templates = $finder->fetch();
-        if (!$templates->count())
-        {
-            return null;
-        }
-
-        $next = isset($stepParams[0]) ? $stepParams[0] : 0;
-        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
-        $startTime = \microtime(true);
-        foreach($templates as $template)
-        {
-            /** @var \XF\Entity\Template $template*/
-            if (empty($templateRenames[$template->title]))
-            {
-                continue;
-            }
-
-            $next++;
-
-            $template->title = $templateRenames[$template->title];
-            $template->version_id = 2070000;
-            $template->version_string = "2.7.0";
-            $template->save(false, true);
-
-            if (microtime(true) - $startTime >= $maxRunTime)
-            {
-                break;
-            }
-        }
-
-        return [
-            $next,
-            "{$next} / {$stepData['max']}",
-            $stepData
-        ];
-
-    }
 
     public function upgrade2080002Step1()
     {
@@ -211,6 +153,84 @@ class Setup extends AbstractSetup
 //            'sv_alerts_page_skips_mark_read' => 0,
 //        ], '');
 //    }
+
+    public function upgrade2081101Step1(array $stepParams)
+    {
+        $templateRenames = [
+            // admin - pre-2.7
+            'user_edits_alerts' => 'svAlertImprov_user_edits_alerts',
+            'option_template_registrationDefaults_alerts' => 'svAlertImprov_option_template_registrationDefaults',
+            // public - pre-2.7
+            'account_alerts_summary' => 'svAlertImprov_account_alerts_summary',
+            'account_preferences_alerts_extra' => 'svAlertImprov_account_preferences_extra',
+            // admin - 2.7 - 2.8
+            'svAlertsImprov_user_edits_alerts' => 'svAlertImprov_user_edits_alerts',
+            'svAlertsImprov_option_template_registrationDefaults' => 'svAlertImprov_option_template_registrationDefaults',
+            // public - 2.7 - 2.8
+            'svAlertsImprov_account_preferences_extra' => 'svAlertImprov_account_preferences_extra',
+            'svAlertsImprov_account_alerts_summary' => 'svAlertImprov_account_alerts_summary',
+            'svAlertsImprov_account_alerts_popup' => 'svAlertImprov_account_alerts_popup',
+            'svAlertsImprov_alerts' => 'svAlertImprov_alerts',
+            'svAlertsImprov_macros' => 'svAlertImprov_macros',
+        ];
+
+        $finder = \XF::finder('XF:Template')
+                     ->where('title', '=', \array_keys($templateRenames));
+        $stepData = isset($stepParams[2]) ? $stepParams[2] : [];
+        if (!isset($stepData['max']))
+        {
+            $stepData['max'] = $finder->total();
+        }
+        $templates = $finder->fetch();
+        if (!$templates->count())
+        {
+            return null;
+        }
+
+        $next = isset($stepParams[0]) ? $stepParams[0] : 0;
+        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $startTime = \microtime(true);
+        foreach($templates as $template)
+        {
+            /** @var \XF\Entity\Template $template*/
+            if (empty($templateRenames[$template->title]))
+            {
+                continue;
+            }
+
+            $next++;
+
+            $template->title = $templateRenames[$template->title];
+            $template->version_id = 2081101;
+            $template->version_string = "2.8.11";
+            $template->save(false, true);
+
+            if (microtime(true) - $startTime >= $maxRunTime)
+            {
+                break;
+            }
+        }
+
+        return [
+            $next,
+            "{$next} / {$stepData['max']}",
+            $stepData
+        ];
+    }
+
+    public function upgrade2081101Step2()
+    {
+        $this->renamePhrases([
+            'svAlerts_select_all_for'        => 'svAlertImprov_select_all_for',
+            'sv_alertimprovements.today'     => 'svAlertImprov_date.today',
+            'sv_alertimprovements.yesterday' => 'svAlertImprov_date.yesterday',
+            'sv_alerts_page_and_summary'     => 'svAlertImprov_alerts_page_and_summary',
+            'sv_alert_preferences'           => 'svAlertImprov_alert_preferences',
+            'sv_on_viewing_alerts_page'      => 'svAlertImprov_on_viewing_alerts_page',
+            'sv_resummarize_alerts'          => 'svAlertImprov_resummarize_alerts',
+            'sv_unread_alert'                => 'svAlertImprov_new_or_unread_alert',
+        ]);
+    }
 
     public function uninstallStep1()
     {
