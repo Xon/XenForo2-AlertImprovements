@@ -188,7 +188,7 @@ class UserAlert extends XFCP_UserAlert
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
             $summaryId = $summaryAlert->alert_id;
             $userId = $user->user_id;
-            $db->query('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
+            $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
             $summaryAlert->delete(true, false);
 
             // Make alerts visible
@@ -542,7 +542,7 @@ class UserAlert extends XFCP_UserAlert
 
         // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
         $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected, &$summerizeId) {
-            // database update
+            // database update, saving this ensure xf_user/xf_user_alert table lock ordering is consistent
             /** @var ExtendedUserAlertEntity $alert */
             $alert = $this->em->create('XF:UserAlert');
             $alert->bulkSet($summaryAlert);
@@ -631,6 +631,7 @@ class UserAlert extends XFCP_UserAlert
 
         $db = $this->db();
         $db->executeTransaction(function () use ($db, $readDate, $userId) {
+            // table lock ordering required is xf_user, xf_user_alert to avoid deadlocks
             $db->query('UPDATE xf_user SET alerts_unviewed = 0, alerts_unread = 0 WHERE user_id = ?', [$userId]);
             $db->query('UPDATE xf_user_alert SET view_date = ? WHERE alerted_user_id = ? AND view_date = 0', [$readDate, $userId]);
             $db->query('UPDATE xf_user_alert SET read_date = ? WHERE alerted_user_id = ? AND read_date = 0', [$readDate, $userId]);
@@ -719,6 +720,13 @@ class UserAlert extends XFCP_UserAlert
 
         $userId = $user->user_id;
         $db = $this->db();
+        if ($db->inTransaction())
+        {
+            // Only enforce table lock ordering if this function was called inside a transaction
+            // this avoids updating xf_user/xf_user_alert inside a transaction when something else does xf_user_alert/xf_user
+            // outside of a transaction, these tables are not linked
+            $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
+        }
         $ids = $db->quote($alertIds);
         $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
@@ -809,6 +817,13 @@ class UserAlert extends XFCP_UserAlert
         $disableAutoReadSql = $disableAutoRead ? ', auto_read = 0 ' : '';
         $userId = $user->user_id;
         $db = $this->db();
+        if ($db->inTransaction())
+        {
+            // Only enforce table lock ordering if this function was called inside a transaction
+            // this avoids updating xf_user/xf_user_alert inside a transaction when something else does xf_user_alert/xf_user
+            // outside of a transaction, these tables are not linked
+            $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
+        }
         $ids = $db->quote($alertIds);
         /** @noinspection SqlWithoutWhere */
         $stmt = $db->query('
