@@ -139,7 +139,7 @@ class UserAlert extends XFCP_UserAlert
             // Use an update-lock on the user record, to avoid deadlocks.
             // This ensuring consistent table lock ordering when marking as read/unread & alert summarization
             // This is only needed during insert, as read_date/view_date are updated in other transactions after the user record is locked
-            $userId = $this->user_id;
+            $userId = $this->alerted_user_id;
             if ($userId)
             {
                 $this->db()->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
