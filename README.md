@@ -31,7 +31,7 @@ Note; Do not use MySQL statement-based replication with this add-on.
 
 ## Alert Summarization Performance impact
 
-- On accessing alerts above the summerize threshold, fetches all unread alerts and attempts to group them in PHP. 
+- On accessing alerts above the summarize threshold, fetches all unread alerts and attempts to group them in PHP. 
 - On successfully generating summary alerts, 2 queries are done. 
   - insert to add the summary alert
-  - updating summerized alerts.
+  - updating summarized alerts.
