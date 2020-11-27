@@ -20,9 +20,17 @@ class User extends XFCP_User
     {
         $structure = parent::getStructure($structure);
 
-        /** @var \SV\AlertImprovements\XF\Repository\UserAlert $alertRepo */
-        $alertRepo = \XF::app()->repository('XF:UserAlert');
-        $userMaxAlertCount = is_callable([$alertRepo,'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
+        try
+        {
+            /** @var \SV\AlertImprovements\XF\Repository\UserAlert $alertRepo */
+            $alertRepo = \XF::app()->repository('XF:UserAlert');
+        }
+        catch (\Exception $e)
+        {
+            // error because we are still deploying files/updates.
+            $alertRepo = null;
+        }
+        $userMaxAlertCount = $alertRepo && is_callable([$alertRepo, 'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
 
         if (\XF::$versionId < 2020000)
         {
@@ -33,7 +41,7 @@ class User extends XFCP_User
             $structure->columns['alerts_unviewed']['max'] = $userMaxAlertCount;
         }
         $structure->columns['alerts_unread']['max'] = $userMaxAlertCount;
-    
+
         return $structure;
     }
 }
