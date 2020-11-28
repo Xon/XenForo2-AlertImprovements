@@ -37,7 +37,7 @@ class Account extends XFCP_Account
         {
             $alertRepo->markUserAlertsRead($visitor);
 
-            $inlist = $this->filter('inlist', 'boolean');
+            $inlist = $this->filter('inlist', 'bool');
             $alertIds = $this->filter('alert_ids', 'array-uint');
             if ($alertIds)
             {
@@ -51,7 +51,7 @@ class Account extends XFCP_Account
                 $viewParams = [
                     'alerts'             => $alerts,
                     'showSelectCheckbox' => $inlist,
-                    'inAlertsPopup' => !$inlist,
+                    'inAlertsPopup'      => !$inlist,
                 ];
 
                 return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
@@ -192,7 +192,7 @@ class Account extends XFCP_Account
         /** @var AlertAction $alertAction */
         $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
-            $showSelectCheckbox = $this->filter('inlist', 'bool');
+            $inlist = $this->filter('inlist', 'bool');
 
             /** @var ExtendedUserAlertRepo $alertRepo */
             $alertRepo = $this->repository('XF:UserAlert');
@@ -209,7 +209,8 @@ class Account extends XFCP_Account
 
             $viewParams = [
                 'alerts'             => new ArrayCollection([$alert]),
-                'showSelectCheckbox' => $showSelectCheckbox,
+                'showSelectCheckbox' => $inlist,
+                'inAlertsPopup'      => !$inlist,
             ];
 
             return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
@@ -231,7 +232,7 @@ class Account extends XFCP_Account
         /** @var AlertAction $alertAction */
         $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
-            $showSelectCheckbox = $this->filter('inlist', 'bool');
+            $inlist = $this->filter('inlist', 'bool');
 
             /** @var ExtendedUserAlertRepo $alertRepo */
             $alertRepo = $this->repository('XF:UserAlert');
@@ -246,7 +247,8 @@ class Account extends XFCP_Account
 
             $viewParams = [
                 'alerts'             => new ArrayCollection([$alert]),
-                'showSelectCheckbox' => $showSelectCheckbox,
+                'showSelectCheckbox' => $inlist,
+                'inAlertsPopup'      => !$inlist,
             ];
 
             return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);

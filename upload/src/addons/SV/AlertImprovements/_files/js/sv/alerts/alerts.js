@@ -95,7 +95,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
             var $target = this.$target,
                 $alert = $target.closest('.js-alert'),
-                notInList = $alert.find(this.options.inListSelector).length > 0,
+                notInList = !$alert.find(this.options.inListSelector).length,
                 inListSelector = this.options.inListSelector,
                 $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>');
 
