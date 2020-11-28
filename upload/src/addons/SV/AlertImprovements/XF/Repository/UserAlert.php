@@ -56,11 +56,11 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
-     * @param int[]|int  $alertId
+     * @param int       $userId
+     * @param int[]|int $alertId
      * @return ExtendedUserAlertFinder|Finder
      */
-    public function findAlertForUser(User $user, $alertId): ExtendedUserAlertFinder
+    public function findAlertByIdsForUser(int $userId, $alertId): ExtendedUserAlertFinder
     {
         /** @var ExtendedUserAlertFinder $finder */
         $finder = $this->finder('XF:UserAlert')
@@ -68,14 +68,16 @@ class UserAlert extends XFCP_UserAlert
                        ->whereAddOnActive([
                            'column' => 'depends_on_addon_id'
                        ]);
-        if ($user->user_id)
+        if ($userId)
         {
-            $finder->where(['alerted_user_id', $user->user_id]);
+            $finder->where(['alerted_user_id', $userId]);
         }
         else
         {
             $finder->whereImpossible();
         }
+
+        $finder->markUnviewableAsUnread();
 
         return $finder;
     }
@@ -90,6 +92,7 @@ class UserAlert extends XFCP_UserAlert
     {
         /** @var ExtendedUserAlertFinder $finder */
         $finder = parent::findAlertsForUser($userId, $cutOff);
+        $finder->markUnviewableAsUnread();
         if (!Globals::$skipSummarizeFilter)
         {
             $finder->where(['summerize_id', null]);

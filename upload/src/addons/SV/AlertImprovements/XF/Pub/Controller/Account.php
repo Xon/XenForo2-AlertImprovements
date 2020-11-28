@@ -42,7 +42,7 @@ class Account extends XFCP_Account
             if ($alertIds)
             {
                 /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
-                $alerts = $alertRepo->findAlertForUser($visitor, $alertIds)
+                $alerts = $alertRepo->findAlertByIdsForUser($visitor->user_id, $alertIds)
                                     ->limit(\XF::options()->alertsPerPage * 2)
                                     ->fetch();
                 $alertRepo->addContentToAlerts($alerts);
@@ -591,17 +591,26 @@ class Account extends XFCP_Account
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
      * @noinspection PhpMissingParamTypeInspection
+     * @noinspection PhpUnusedParameterInspection
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         /** @var ExtendedUserAlertEntity $alert */
-        $alert = $alertRepo->findAlertForUser(\XF::visitor(), $id)
+        $alert = $alertRepo->findAlertByIdsForUser(\XF::visitor()->user_id, $id)
                            ->with($with ?: [])
                            ->fetchOne();
-        if (!$alert || !$alert->canView())
+        if (!$alert)
         {
+            throw $this->exception($this->notFound());
+        }
+
+        if (!$alert->canView())
+        {
+            // an alert for a user is not visible, mark as read to get rid of it
+            $alertRepo->markUserAlertRead($alert);
+
             throw $this->exception($this->notFound());
         }
 

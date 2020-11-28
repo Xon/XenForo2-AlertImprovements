@@ -3,6 +3,8 @@
 
 namespace SV\AlertImprovements\XF\Finder;
 
+use XF\Mvc\Entity\AbstractCollection;
+
 /**
  * Class UserAlert
  *
@@ -14,6 +16,10 @@ class UserAlert extends XFCP_UserAlert
      * @var \Closure|null
      */
     protected $shimSource;
+    /**
+     * @var bool
+     */
+    protected $shimCollectionViewable = false;
 
     public function shimSource(\Closure $shimSource = null)
     {
@@ -21,9 +27,24 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
+     * XF2.1 function, XF2.2 technically has markInaccessibleAlertsReadIfNeeded but it's usage in some cases is broken
+     *
+     * @param bool $shimCollectionViewable
+     */
+    public function markUnviewableAsUnread(bool $shimCollectionViewable = true)
+    {
+        $this->shimCollectionViewable = $shimCollectionViewable;
+    }
+
+    public function getShimmedCollection(array $entities): AbstractCollection
+    {
+        return new MarkReadAlertArrayCollection($entities);
+    }
+
+    /**
      * @param int|null $limit
      * @param int|null $offset
-     * @return \XF\Mvc\Entity\AbstractCollection
+     * @return AbstractCollection
      */
     public function fetch($limit = null, $offset = null)
     {
@@ -43,11 +64,23 @@ class UserAlert extends XFCP_UserAlert
             $output = $shimSource($limit, $offset);
             if ($output !== null)
             {
+                if ($this->shimCollectionViewable)
+                {
+                    return $this->getShimmedCollection($output);
+                }
+
                 return $this->em->getBasicCollection($output);
             }
         }
 
-        return parent::fetch($limit, $offset);
+        $collection = parent::fetch($limit, $offset);
+
+        if ($this->shimCollectionViewable && $collection instanceof AbstractCollection)
+        {
+            $collection = $this->getShimmedCollection($collection->toArray());
+        }
+
+        return $collection;
     }
 
     /**
