@@ -98,7 +98,9 @@
 			</xf:if>
 		</div>
 		<div class="contentRow-main contentRow-main--close">
+			<xf:if is="$inAlertsPopup"><div class="fauxBlockLink"></xf:if>
 			{$alert.render()|raw}
+			<xf:if is="$inAlertsPopup"></div></xf:if>
 			<div class="contentRow-minor contentRow-minor--smaller">
 				<ul class="listInline listInline--bullet">
 					<xf:if is="!$inAlertsPopup && $alert.is_new">
