@@ -1,6 +1,6 @@
 {
     "template": "PAGE_CONTAINER",
-    "description": "Patch Alerts pop-up footer",
+    "description": "Patch Alerts pop-up footer & inject css/javascript",
     "execution_order": 1,
     "enabled": true,
     "action": "preg_replace",

@@ -31,6 +31,8 @@
 </xf:macro>
 
 <xf:macro name="alerts_controls">
+	<xf:css src="svAlertImprovements.less" />
+	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
 	<xf:button href="{{ link('account/preferences') }}#alerts" class="button--link"><xf:trim>
 		{{ phrase('svAlertImprov_alert_preferences') }}
 	</xf:trim></xf:button>
@@ -43,6 +45,8 @@
 </xf:macro>
 
 <xf:macro name="alerts_popup_footer">
+	<xf:css src="svAlertImprovements.less" />
+	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
     <span class="menu-footer-main">
         <a href="{{ link('account/alerts', null, {'show_only':'all'}) }}">{{ phrase('show_all') }}</a>
     </span>
@@ -80,8 +84,6 @@
 		  arg-showSelectCheckbox="{{ false }}"
 		  arg-inAlertsPopup="{{ false }}"
 		  >
-	<xf:css src="svAlertImprovements.less" />
-	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
 	<div class="contentRow">
 		<xf:if is="$showSelectCheckbox">
 			<div class="contentRow-figure contentRow-figure--selector">
