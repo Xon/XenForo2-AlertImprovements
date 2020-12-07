@@ -47,12 +47,27 @@ class UserAlert extends XFCP_UserAlert
             ', $user->user_id);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
+        $userId = $user->user_id;
         // do summerization outside the above transaction
-        $this->checkSummarizeAlertsForUser($user->user_id, true, true, \XF::$time);
+        $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
 
         // update alert counters last and not in a large transaction
-        $this->updateUnviewedCountForUser($user);
-        $this->updateUnreadCountForUser($user);
+        $hasChange1 = $this->updateUnreadCountForUserId($userId);
+        $hasChange2 = $this->updateUnviewedCountForUserId($userId);
+        if ($hasChange1 || $hasChange2)
+        {
+            $this->refreshUserAlertCounters($user);
+        }
+    }
+
+    public function refreshUserAlertCounters(User $user)
+    {
+        $row = $this->db()->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $user->user_id);
+        if ($row)
+        {
+            $user->setAsSaved('alerts_unviewed', $row['alerts_unviewed']);
+            $user->setAsSaved('alerts_unread', $row['alerts_unread']);
+        }
     }
 
     /**
@@ -142,6 +157,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int  $summaryAlertViewDate
      * @return array|null
      * @throws \Exception
+     * @noinspection PhpMissingReturnTypeInspection
      */
     protected function checkSummarizeAlertsForUser(int $userId, bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
     {
@@ -168,6 +184,7 @@ class UserAlert extends XFCP_UserAlert
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
      * @return null|array
+     * @noinspection PhpMissingReturnTypeInspection
      */
     protected function checkSummarizeAlerts(bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
     {
@@ -271,6 +288,7 @@ class UserAlert extends XFCP_UserAlert
                 ['view_date', '=', 0]
             ]);
         }
+        /** @noinspection PhpRedundantOptionalArgumentInspection */
         $finder->where('summerize_id', null);
 
         if (!empty($xfOptions->svAlertsSummerizeLimit) && $xfOptions->svAlertsSummerizeLimit > 0)
@@ -278,7 +296,6 @@ class UserAlert extends XFCP_UserAlert
             $finder->limit($xfOptions->svAlertsSummerizeLimit);
         }
 
-        /** @var array $alerts */
         $alerts = $finder->fetchRaw();
 
         $outputAlerts = [];
@@ -409,8 +426,12 @@ class UserAlert extends XFCP_UserAlert
         // update alert totals
         if ($groupedAlerts)
         {
-            $this->updateUnreadCountForUser($visitor);
-            $this->updateUnviewedCountForUser($visitor);
+            $hasChange1 = $this->updateUnreadCountForUserId($userId);
+            $hasChange2 = $this->updateUnviewedCountForUserId($userId);
+            if ($hasChange1 || $hasChange2)
+            {
+                $this->refreshUserAlertCounters($visitor);
+            }
         }
 
         uasort(
@@ -584,7 +605,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @return \XF\Alert\AbstractHandler[]|ISummarizeAlert[]
      */
-    public function getAlertHandlersForConsolidation()
+    public function getAlertHandlersForConsolidation(): array
     {
         $optOuts = \XF::visitor()->Option->alert_optout;
         $handlers = $this->getAlertHandlers();
@@ -694,7 +715,7 @@ class UserAlert extends XFCP_UserAlert
         $this->markAlertIdsAsReadAndViewed($user, $unreadAlertIds, $readDate);
     }
 
-    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $viewDate = null)
+    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
     {
         if (!is_array($contentIds))
         {
@@ -705,7 +726,7 @@ class UserAlert extends XFCP_UserAlert
             $onlyActions = [$onlyActions];
         }
 
-        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user ?: \XF::visitor(), $viewDate);
+        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user ?: \XF::visitor(), $readDate);
     }
 
     /**
@@ -762,13 +783,13 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = max(0, $user->alerts_unviewed - $viewRowsAffected);
-            $alerts_unread = max(0, $user->alerts_unread - $readRowsAffected);
+            $user->setAsSaved('alerts_unviewed', max(0, $user->alerts_unviewed - $viewRowsAffected));
+            $user->setAsSaved('alerts_unread', max(0, $user->alerts_unread - $readRowsAffected));
         }
             /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
         {
-            $db->query('
+            $statement = $db->query('
                 UPDATE xf_user
                 SET alerts_unviewed = GREATEST(0, cast(alerts_unviewed AS SIGNED) - ?),
                     alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
@@ -776,13 +797,10 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $row = $db->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $userId);
-            if (!$row)
+            if ($statement->rowsAffected() > 0)
             {
-                return;
+                $this->refreshUserAlertCounters($user);
             }
-            $alerts_unviewed = $row['alerts_unviewed'];
-            $alerts_unread = $row['alerts_unread'];
         }
 
         if ($updateAlertEntities)
@@ -799,9 +817,6 @@ class UserAlert extends XFCP_UserAlert
                 }
             }
         }
-
-        $user->setAsSaved('alerts_unviewed', $alerts_unviewed);
-        $user->setAsSaved('alerts_unread', $alerts_unread);
     }
 
     /**
@@ -1007,10 +1022,52 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User $user
      * @return bool
+     * @noinspection PhpMissingReturnTypeInspection
      */
     public function updateUnviewedCountForUser(User $user)
     {
         $userId = $user->user_id;
+        $result = $this->updateUnviewedCountForUserId($userId);
+
+        if ($result)
+        {
+            // this doesn't need to be in a transaction as it is an advisory read
+            $count = \XF::db()->fetchOne('
+                SELECT alerts_unviewed 
+                FROM xf_user 
+                WHERE user_id = ?
+            ', $userId);
+            $user->setAsSaved('alerts_unviewed', $count);
+        }
+        return $result;
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    public function updateUnreadCountForUser(User $user)
+    {
+        $userId = $user->user_id;
+        $result = $this->updateUnreadCountForUserId($userId);
+
+        if ($result)
+        {
+            // this doesn't need to be in a transaction as it is an advisory read
+            $count = $this->db()->fetchOne('
+                SELECT alerts_unread 
+                FROM xf_user 
+                WHERE user_id = ?
+            ', $userId);
+            $user->setAsSaved('alerts_unread', $count);
+        }
+
+        return $result;
+    }
+
+    public function updateUnviewedCountForUserId(int $userId): bool
+    {
         if (!$userId)
         {
             return false;
@@ -1023,7 +1080,16 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        $userId = $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        if (!$userId)
+        {
+            if (!$inTransaction)
+            {
+                $db->commit();
+            }
+
+            return false;
+        }
 
         $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
@@ -1042,29 +1108,13 @@ class UserAlert extends XFCP_UserAlert
             $db->commit();
         }
 
-        if (!$statement->rowsAffected())
-        {
-            return false;
-        }
-
-        // this doesn't need to be in a transaction as it is an advisory read
-        $count = $db->fetchOne('
-            SELECT alerts_unviewed 
-            FROM xf_user 
-            WHERE user_id = ?
-        ', $userId);
-        $user->setAsSaved('alerts_unviewed', $count);
-
         return $statement->rowsAffected() > 0;
     }
 
-    /**
-     * @param User $user
-     * @return bool
-     */
-    public function updateUnreadCountForUser(User $user)
+
+
+    public function updateUnreadCountForUserId(int $userId): bool
     {
-        $userId = $user->user_id;
         if (!$userId)
         {
             return false;
@@ -1077,7 +1127,16 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        $userId = $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        if (!$userId)
+        {
+            if (!$inTransaction)
+            {
+                $db->commit();
+            }
+
+            return false;
+        }
 
         $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
@@ -1096,19 +1155,28 @@ class UserAlert extends XFCP_UserAlert
             $db->commit();
         }
 
-        if (!$statement->rowsAffected())
+        $this->cleanupPendingAlertRebuild($userId);
+
+        return $statement->rowsAffected() > 0;
+    }
+
+    public function insertPendingAlertRebuild(int $userId)
+    {
+        if (!$userId)
         {
-            return false;
+            return;
         }
 
-        // this doesn't need to be in a transaction as it is an advisory read
-        $count = $db->fetchOne('
-            SELECT alerts_unread 
-            FROM xf_user 
-            WHERE user_id = ?
-        ', $userId);
-        $user->setAsSaved('alerts_unread', $count);
+        $this->db()->query('INSERT IGNORE xf_sv_user_alert_rebuild (user_id, rebuild_date) values (?, unix_timestamp())', [$userId]);
+    }
 
-        return true;
+    public function cleanupPendingAlertRebuild(int $userId)
+    {
+        if (!$userId)
+        {
+            return;
+        }
+
+        $this->db()->query('DELETE FROM xf_sv_user_alert_rebuild WHERE user_id = ?', [$userId]);
     }
 }

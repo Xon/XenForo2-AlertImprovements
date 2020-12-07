@@ -8,14 +8,14 @@ class ViewedAlertCleanup extends AbstractJob
 {
     protected $defaultData = [
         'cutOff' => 0,
-        'userIds' => [],
+        'recordedUsers' => null,
         'pruned' => false,
     ];
 
     /**
      * @inheritDoc
      */
-    public function run($maxRunTime)
+    public function run($maxRunTime): \XF\Job\JobResult
     {
         $cutOff = $this->data['cutOff'] ?? 0;
         $cutOff = (int)$cutOff;
@@ -27,21 +27,22 @@ class ViewedAlertCleanup extends AbstractJob
         $startTime = \microtime(true);
         $db = \XF::db();
 
-        if (empty($this->data['userIds']))
+        if ($this->data['recordedUsers'] === null)
         {
-            $userIds = $db->fetchAllColumn('
-                SELECT DISTINCT alerted_user_id 
+            $statement = $db->query('
+                INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
+                SELECT DISTINCT alerted_user_id, ?
                 FROM xf_user_alert 
                 WHERE view_date > 0 AND view_date < ? AND alerted_user_id <> 0
-            ', $cutOff);
+            ', [\XF::$time, $cutOff]);
 
-            if (empty($userIds))
-            {
-                return $this->complete();
-            }
-
-            $this->data['userIds'] = $userIds;
+            $this->data['recordedUsers'] = $statement->rowsAffected() > 0;
             $this->saveIncrementalData();
+        }
+
+        if (!$this->data['recordedUsers'])
+        {
+            return $this->complete();
         }
 
         if (microtime(true) - $startTime >= $maxRunTime)
@@ -67,45 +68,27 @@ class ViewedAlertCleanup extends AbstractJob
             $this->saveIncrementalData();
         }
 
-        if ($this->data['userIds'])
+        if ($this->data['recordedUsers'])
         {
-            foreach($this->data['userIds'] as $userId)
-            {
-                $db->beginTransaction();
-
-                /** @var \XF\Entity\User $user */
-                $user = \XF::app()->find('XF:User', $userId);
-                if ($user)
-                {
-                    $alertRepo->updateUnreadCountForUser($user);
-                    $alertRepo->updateUnviewedCountForUser($user);
-                }
-                unset($this->data['userIds'][$userId]);
-                $this->saveIncrementalData();
-
-                $db->commit();
-
-                if (microtime(true) - $startTime >= $maxRunTime)
-                {
-                    return $this->resume();
-                }
-            }
+            \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', 'SV\AlertImprovements:AlertTotalRebuild', [
+                'pendingRebuilds' => true,
+            ], false);
         }
 
         return $this->complete();
     }
 
-    public function getStatusMessage()
+    public function getStatusMessage(): string
     {
         return '';
     }
 
-    public function canCancel()
+    public function canCancel(): bool
     {
         return false;
     }
 
-    public function canTriggerByChoice()
+    public function canTriggerByChoice(): bool
     {
         return false;
     }

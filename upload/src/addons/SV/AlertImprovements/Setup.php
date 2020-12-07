@@ -8,6 +8,7 @@ use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
+use XF\Db\Schema\Create;
 
 /**
  * Class Setup
@@ -24,6 +25,12 @@ class Setup extends AbstractSetup
     public function installStep1()
     {
         $sm = $this->schemaManager();
+
+        foreach ($this->getTables() as $tableName => $callback)
+        {
+            $sm->createTable($tableName, $callback);
+            $sm->alterTable($tableName, $callback);
+        }
 
         foreach ($this->getAlterTables() as $tableName => $callback)
         {
@@ -154,6 +161,11 @@ class Setup extends AbstractSetup
 //        ], '');
 //    }
 
+    /**
+     * @param array $stepParams
+     * @return array|null
+     * @noinspection PhpMissingReturnTypeInspection
+     */
     public function upgrade2081101Step1(array $stepParams)
     {
         $templateRenames = [
@@ -232,7 +244,28 @@ class Setup extends AbstractSetup
         ]);
     }
 
+    public function upgrade2081500Step1()
+    {
+        $this->installStep1();
+    }
+
+    public function upgrade2081500Step2()
+    {
+        // purge broken jobs
+        $this->db()->query('DELETE FROM xf_job WHERE unique_key IN (?,?)', ['sViewedAlertCleanup', 'svUnviewedAlertCleanup']);
+    }
+
     public function uninstallStep1()
+    {
+        $sm = $this->schemaManager();
+
+        foreach ($this->getTables() as $tableName => $callback)
+        {
+            $sm->dropTable($tableName);
+        }
+    }
+
+    public function uninstallStep2()
     {
         $sm = $this->schemaManager();
 
@@ -248,7 +281,7 @@ class Setup extends AbstractSetup
     /**
      * @throws \XF\Db\Exception
      */
-    public function uninstallStep2()
+    public function uninstallStep3()
     {
         $this->db()->query("
             DELETE 
@@ -265,10 +298,21 @@ class Setup extends AbstractSetup
         }
     }
 
-    /**
-     * @return array
-     */
-    public function getAlterTables()
+    public function getTables(): array
+    {
+        $tables = [];
+
+        $tables['xf_sv_user_alert_rebuild'] = function ($table) {
+            /** @var Alter|Create $table */
+            $this->addOrChangeColumn($table, 'user_id', 'int')->primaryKey();
+            $this->addOrChangeColumn($table, 'rebuild_date', 'int');
+            $table->addKey('rebuild_date');
+        };
+
+        return $tables;
+    }
+
+    public function getAlterTables(): array
     {
         $tables = [];
 
@@ -314,10 +358,7 @@ class Setup extends AbstractSetup
         return $tables;
     }
 
-    /**
-     * @return array
-     */
-    protected function getRemoveAlterTables()
+    protected function getRemoveAlterTables(): array
     {
         $tables = [];
 
