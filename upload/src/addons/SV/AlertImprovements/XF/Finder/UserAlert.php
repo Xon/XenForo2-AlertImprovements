@@ -44,11 +44,11 @@ class UserAlert extends XFCP_UserAlert
 
     public function forceUnreadFirst(): self
     {
-        //if ($this->order && $this->order[0] === '`xf_user_alert`.`event_date` DESC')
-        //{
+        if ($this->order && $this->order[0] === '`xf_user_alert`.`event_date` DESC')
+        {
             //$this->indexHint('FORCE', 'event_date');
-            //$this->indexHint('FORCE', 'viewDate_eventDate');
-        //}
+            $this->indexHint('FORCE', 'viewDate_eventDate');
+        }
         $viewColumn = $this->columnSqlName('view_date');
         \array_unshift($this->order, "if ({$viewColumn} = 0, 0, 1)");
 
