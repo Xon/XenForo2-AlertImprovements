@@ -153,7 +153,6 @@ class Account extends XFCP_Account
         }
         finally
         {
-            Globals::$skipSummarize = false;
             Globals::$skipSummarizeFilter = false;
         }
         $alertsFinder->where('summerize_id', '=', $alert->alert_id);
@@ -352,7 +351,7 @@ class Account extends XFCP_Account
         finally
         {
             Globals::$skipMarkAlertsRead = false;
-            Globals::$skipSummarize = false;
+            Globals::$skipSummarize = true;
             Globals::$showUnreadOnly = false;
         }
         if ($response instanceof View)
@@ -389,6 +388,7 @@ class Account extends XFCP_Account
         return $response;
     }
 
+    /** @noinspection PhpMissingReturnTypeInspection */
     public function actionAlertsPopup()
     {
         /** @var ExtendedUserEntity $visitor */
@@ -404,7 +404,7 @@ class Account extends XFCP_Account
         finally
         {
             Globals::$skipMarkAlertsRead = false;
-            Globals::$skipSummarize = false;
+            Globals::$skipSummarize = true;
         }
 
         if ($reply instanceof ViewReply)
