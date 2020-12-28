@@ -127,7 +127,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $finder->shimSource(
-            function ($limit, $offset) use ($userId, $finder) {
+            function ($limit, $offset) use ($userId, $finder, $cutOff) {
                 if ($offset !== 0)
                 {
                     return null;
@@ -137,6 +137,21 @@ class UserAlert extends XFCP_UserAlert
                 if ($alerts === null)
                 {
                     return null;
+                }
+                if ($limit === 0)
+                {
+                    return [];
+                }
+                if ($cutOff)
+                {
+                    foreach ($alerts as $key => $alert)
+                    {
+                        $viewDate = $alert['view_date'];
+                        if ($viewDate && $viewDate < $cutOff)
+                        {
+                            unset($alerts[$key]);
+                        }
+                    }
                 }
                 if ($limit > 0)
                 {
