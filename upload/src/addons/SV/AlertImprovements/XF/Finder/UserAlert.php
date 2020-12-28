@@ -4,6 +4,7 @@
 namespace SV\AlertImprovements\XF\Finder;
 
 use XF\Mvc\Entity\AbstractCollection;
+use XF\Mvc\Entity\Entity;
 
 /**
  * Class UserAlert
@@ -49,6 +50,8 @@ class UserAlert extends XFCP_UserAlert
     public function fetch($limit = null, $offset = null)
     {
         $shimSource = $this->shimSource;
+        // allow shimSource to call fetch() without re-entry issues
+        $this->shimSource = null;
 
         if ($shimSource)
         {
@@ -61,12 +64,23 @@ class UserAlert extends XFCP_UserAlert
                 $offset = $this->offset;
             }
 
+            /** @var AbstractCollection|Entity[]|null $output */
             $output = $shimSource($limit, $offset);
             if ($output !== null)
             {
                 if ($this->shimCollectionViewable)
                 {
+                    if ($output instanceof AbstractCollection)
+                    {
+                        $output = $output->toArray();
+                    }
+
                     return $this->getShimmedCollection($output);
+                }
+
+                if ($output instanceof AbstractCollection)
+                {
+                    return $output;
                 }
 
                 return $this->em->getBasicCollection($output);
