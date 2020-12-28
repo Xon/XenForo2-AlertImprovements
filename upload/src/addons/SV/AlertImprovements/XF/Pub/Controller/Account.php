@@ -397,12 +397,14 @@ class Account extends XFCP_Account
         $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_skips_mark_read);
         Globals::$skipMarkAlertsRead = true;
         Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts();
+        Globals::$alertPopupExtraFetch = true;
         try
         {
             $reply = parent::actionAlertsPopup();
         }
         finally
         {
+            Globals::$alertPopupExtraFetch = false;
             Globals::$skipMarkAlertsRead = false;
             Globals::$skipSummarize = true;
         }

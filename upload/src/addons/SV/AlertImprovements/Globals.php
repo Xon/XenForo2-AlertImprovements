@@ -18,6 +18,8 @@ class Globals
     public static $skipSummarizeFilter = false;
     /** @var bool */
     public static $skipMarkAlertsRead = false;
+    /** @var bool */
+    public static $alertPopupExtraFetch = false;
 
     /**
      * @var bool
