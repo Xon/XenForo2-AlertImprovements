@@ -206,7 +206,7 @@ class UserAlert extends XFCP_UserAlert
                 $alerts = array_slice($alerts, 0, $limit, true);
             }
 
-            return $finderQuery ? $finder->materializeAlerts($alerts) : $alerts;
+            return $finderQuery ? $alerts : $finder->materializeAlerts($alerts);
         });
 
         return $finder;
