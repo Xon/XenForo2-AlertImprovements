@@ -126,41 +126,39 @@ class UserAlert extends XFCP_UserAlert
             return $finder;
         }
 
-        $finder->shimSource(
-            function ($limit, $offset) use ($userId, $finder, $cutOff) {
-                if ($offset !== 0)
-                {
-                    return null;
-                }
-                $alerts = $this->checkSummarizeAlertsForUser($userId, false, !Globals::$showUnreadOnly, \XF::$time);
+        $finder->shimSource(function ($limit, $offset) use ($userId, $finder, $cutOff) {
+            if ($offset !== 0)
+            {
+                return null;
+            }
+            $alerts = $this->checkSummarizeAlertsForUser($userId, false, !Globals::$showUnreadOnly, \XF::$time);
 
-                if ($alerts === null)
+            if ($alerts === null)
+            {
+                return null;
+            }
+            if ($limit === 0)
+            {
+                return [];
+            }
+            if ($cutOff)
+            {
+                foreach ($alerts as $key => $alert)
                 {
-                    return null;
-                }
-                if ($limit === 0)
-                {
-                    return [];
-                }
-                if ($cutOff)
-                {
-                    foreach ($alerts as $key => $alert)
+                    $viewDate = $alert['view_date'];
+                    if ($viewDate && $viewDate < $cutOff)
                     {
-                        $viewDate = $alert['view_date'];
-                        if ($viewDate && $viewDate < $cutOff)
-                        {
-                            unset($alerts[$key]);
-                        }
+                        unset($alerts[$key]);
                     }
                 }
-                if ($limit > 0)
-                {
-                    $alerts = array_slice($alerts, 0, $limit, true);
-                }
-
-                return $finder->materializeAlerts($alerts);
             }
-        );
+            if ($limit > 0)
+            {
+                $alerts = array_slice($alerts, 0, $limit, true);
+            }
+
+            return $finder->materializeAlerts($alerts);
+        });
 
         return $finder;
     }
