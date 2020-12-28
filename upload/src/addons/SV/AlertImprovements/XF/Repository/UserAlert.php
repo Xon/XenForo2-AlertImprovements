@@ -154,7 +154,18 @@ class UserAlert extends XFCP_UserAlert
 
             if ($alerts === null)
             {
-                return null;
+                if ($alertPopupExtraFetch)
+                {
+                    $finderQuery = true;
+                    // make pop-up query over-fetch
+                    $alerts = $finder->forceUnreadFirst()
+                                     ->fetch($limit + 5)
+                                     ->toArray();
+                }
+                else
+                {
+                    return null;
+                }
             }
             if ($limit === 0)
             {
