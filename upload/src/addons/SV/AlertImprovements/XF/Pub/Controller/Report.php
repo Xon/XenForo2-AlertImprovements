@@ -33,7 +33,7 @@ class Report extends XFCP_Report
             {
                 /** @var UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds('report_comment', $comments->keys());
+                $alertRepo->markAlertsReadForContentIds('report_comment', $alertRepo->getContentIdKeys($comments));
             }
         }
 

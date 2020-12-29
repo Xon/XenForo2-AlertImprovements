@@ -997,6 +997,24 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', $alerts_unread);
     }
 
+    /**
+     * @param array|AbstractCollection|null $contents
+     * @return int[]
+     */
+    public function getContentIdKeys($contents): array
+    {
+        if (is_array($contents))
+        {
+            return \array_keys($contents);
+        }
+
+        if ($contents instanceof AbstractCollection)
+        {
+            return $contents->keys();
+        }
+
+        return [];
+    }
 
     /**
      * @param string        $contentType

@@ -123,7 +123,7 @@ class Conversation extends XFCP_Conversation
 
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->markAlertsReadForContentIds('conversation_message', $contents->keys());
+        $alertRepo->markAlertsReadForContentIds('conversation_message', $alertRepo->getContentIdKeys($contents));
 
         return [$contents, $lastDate];
     }

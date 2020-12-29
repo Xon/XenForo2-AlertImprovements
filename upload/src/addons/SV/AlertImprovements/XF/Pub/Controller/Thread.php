@@ -31,7 +31,7 @@ class Thread extends XFCP_Thread
 
         /** @var UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->markAlertsReadForContentIds('post', $contents->keys());
+        $alertRepo->markAlertsReadForContentIds('post', $alertRepo->getContentIdKeys($contents));
 
         return [$contents, $lastDate];
     }
