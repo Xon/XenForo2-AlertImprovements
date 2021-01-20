@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\Job;
 
+use XF\Db\AbstractAdapter;
 use XF\Job\AbstractJob;
 
 class ViewedAlertCleanup extends AbstractJob
@@ -29,14 +30,17 @@ class ViewedAlertCleanup extends AbstractJob
 
         if ($this->data['recordedUsers'] === null)
         {
-            $statement = $db->query('
+            $db->executeTransaction(function() use ($db, $cutOff){
+                $statement = $db->query('
                 INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
                 SELECT DISTINCT alerted_user_id, ?
                 FROM xf_user_alert 
                 WHERE view_date > 0 AND view_date < ? AND alerted_user_id <> 0
             ', [\XF::$time, $cutOff]);
 
-            $this->data['recordedUsers'] = $statement->rowsAffected() > 0;
+                $this->data['recordedUsers'] = $statement->rowsAffected() > 0;
+            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+
             $this->saveIncrementalData();
         }
 

@@ -3,6 +3,7 @@
 namespace SV\AlertImprovements\Job;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use XF\Db\AbstractAdapter;
 use XF\Job\AbstractRebuildJob;
 
 /**
@@ -51,12 +52,14 @@ class AlertTotalRebuild extends AbstractRebuildJob
 
         if (empty($this->data['pruneRebuildTable']))
         {
-            $db->query("
-                DELETE pendingRebuild 
-                FROM xf_sv_user_alert_rebuild AS pendingRebuild
-                LEFT JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
-                WHERE xf_user.user_id IS NULL OR user_state IN ('rejected', 'disabled')
-            ");
+            $db->executeTransaction(function() use ($db){
+                $db->query("
+                    DELETE pendingRebuild 
+                    FROM xf_sv_user_alert_rebuild AS pendingRebuild
+                    LEFT JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
+                    WHERE xf_user.user_id IS NULL OR user_state IN ('rejected', 'disabled')
+                ");
+            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
             $this->data['pruneRebuildTable'] = true;
         }
 
