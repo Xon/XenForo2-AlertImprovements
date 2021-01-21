@@ -1111,7 +1111,6 @@ class UserAlert extends XFCP_UserAlert
         $actionFilter = $actions ? ' AND action in (' . $db->quote($actions) . ') ' : '';
         $autoMarkReadFilter = $respectAutoMarkRead ? ' AND auto_read = 1 ' : '';
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
         list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
@@ -1126,7 +1125,7 @@ class UserAlert extends XFCP_UserAlert
             AND content_id IN (' . $db->quote($contentIds) . ")
             AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
             {$actionFilter}
-        ", [$userId, $viewDate]
+        ", [$userId, $viewDate, $viewedCutOff, $unviewedCutOff]
         );
 
         if (empty($alertIds))
