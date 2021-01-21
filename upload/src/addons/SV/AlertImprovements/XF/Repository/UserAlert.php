@@ -323,7 +323,8 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        if (empty(\XF::options()->svAlertsSummarize))
+        $alertsSummarize = \XF::options()->svAlertsSummarize ?? false;
+        if (!$alertsSummarize)
         {
             return false;
         }

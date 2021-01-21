@@ -417,7 +417,8 @@ class Account extends XFCP_Account
             {
                 $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
 
-                if (\XF::options()->svUnreadAlertsAfterReadAlerts)
+                $unreadAlertsAfterReadAlerts = \XF::options()->svUnreadAlertsAfterReadAlerts ?? false;
+                if ($unreadAlertsAfterReadAlerts)
                 {
                     $unreadAlerts = [];
                     /** @var ExtendedUserAlertEntity $alert */
