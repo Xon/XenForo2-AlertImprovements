@@ -19,6 +19,8 @@ class Globals
     /** @var bool */
     public static $skipMarkAlertsRead = false;
     /** @var bool */
+    public static $skipExpiredAlerts = true;
+    /** @var bool */
     public static $alertPopupExtraFetch = false;
 
     /**
