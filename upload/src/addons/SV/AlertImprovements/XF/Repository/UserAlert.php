@@ -1263,8 +1263,6 @@ class UserAlert extends XFCP_UserAlert
         return $statement->rowsAffected() > 0;
     }
 
-
-
     public function updateUnreadCountForUserId(int $userId): bool
     {
         if (!$userId)
@@ -1286,6 +1284,8 @@ class UserAlert extends XFCP_UserAlert
             {
                 $db->commit();
             }
+
+            $this->cleanupPendingAlertRebuild($userId);
 
             return false;
         }
