@@ -166,7 +166,7 @@ class Account extends XFCP_Account
         $groupedAlerts = !empty($options->svAlertsGroupByDate) ? $this->groupAlertsByDay($alerts) : null;
 
         $viewParams = [
-            'navParams'     => ['alert_id' => $alert->alert_id],
+            'navParams'     => [],
             'alert'         => $alert,
             'alerts'        => $alerts,
             'groupedAlerts' => $groupedAlerts,

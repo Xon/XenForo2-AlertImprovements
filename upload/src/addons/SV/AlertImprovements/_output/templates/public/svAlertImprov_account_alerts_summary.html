@@ -3,6 +3,7 @@
 
 <xf:breadcrumb href="{{ link('account/alerts') }}">{{ phrase('alerts') }}</xf:breadcrumb>
 
+<xf:set var="$summaryAlert" value="{$alert}" />
 <div class="block-container">
 	<div class="block-body">
 		<ol class="listPlain">
@@ -11,7 +12,7 @@
 				<xf:macro template="svAlertImprov_macros" name="alert_row" arg-alert="{$alert}" />
 			</li>
 		</ol>
-		<xf:if is="$alert.is_summary">
+		<xf:if is="$summaryAlert.is_summary">
 		<xf:if is="$alerts is not empty">
 			<ol class="listPlain">
 				<xf:if is="$groupedAlerts is not empty">
@@ -42,5 +43,7 @@
 		</xf:if>
 		</xf:if>
 	</div>
-	<xf:pagenav params="{$navParams}" link="account/alert" page="{$page}" perpage="{$perPage}" total="{$totalAlerts}" wrapperclass="block-outer block-outer--after" />
+	<xf:if is="$summaryAlert.is_summary">
+	<xf:pagenav params="{$navParams}" data="{$summaryAlert}" link="account/alert" page="{$page}" perpage="{$perPage}" total="{$totalAlerts}" wrapperclass="block-outer block-outer--after" />
+	</xf:if>
 </div>
