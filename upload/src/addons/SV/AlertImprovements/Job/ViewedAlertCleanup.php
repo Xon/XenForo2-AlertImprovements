@@ -66,7 +66,7 @@ class ViewedAlertCleanup extends AbstractJob
             if ($continue)
             {
                 $resume = $this->resume();
-                $resume->continueDate = \XF::$time = 1;
+                $resume->continueDate = \XF::$time + 1;
 
                 return $resume;
             }
