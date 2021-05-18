@@ -11,6 +11,7 @@ class ViewedAlertCleanup extends AbstractJob
         'cutOff' => 0,
         'recordedUsers' => null,
         'pruned' => false,
+        'batch' => 50000,
     ];
 
     /**
@@ -59,7 +60,9 @@ class ViewedAlertCleanup extends AbstractJob
 
         if (empty($this->data['pruned']))
         {
-            $continue = $alertRepo->pruneViewedAlertsBatch($cutOff, $startTime, $maxRunTime);
+            $batchSize = max(100, (int)($this->data['batch'] ?? 50000));
+            $continue = $alertRepo->pruneViewedAlertsBatch($cutOff, $startTime, $maxRunTime, $batchSize);
+            $this->data['batch'] = $batchSize;
             if ($continue)
             {
                 $resume = $this->resume();

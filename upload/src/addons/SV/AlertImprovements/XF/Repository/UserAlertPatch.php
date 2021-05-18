@@ -12,51 +12,75 @@ use XF\Db\AbstractStatement;
  */
 class UserAlertPatch extends XFCP_UserAlertPatch
 {
-    protected $svBatchLimit = 50000;
-
-    public function pruneViewedAlertsBatch(int $cutOff, float $startTime, float $maxRunTime): bool
+    public function pruneViewedAlertsBatch(int $cutOff, float $startTime, float $maxRunTime, int &$batchSize): bool
     {
         if (!$cutOff)
         {
             return false;
         }
-        $db = $this->db();
-        do
-        {
-            /** @var AbstractStatement $statement */
-            $statement = $db->executeTransaction(function (AbstractAdapter $db) use ($cutOff) {
-                return $db->query("DELETE FROM xf_user_alert WHERE view_date > 0 AND view_date < ? LIMIT {$this->svBatchLimit}", $cutOff);
-            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-            if (microtime(true) - $startTime >= $maxRunTime)
+        $db = $this->db();
+        try
+        {
+            do
             {
-                return true;
+
+                /** @var AbstractStatement $statement */
+                $statement = $db->executeTransaction(function (AbstractAdapter $db) use ($cutOff, $batchSize) {
+                    return $db->query("DELETE FROM xf_user_alert WHERE view_date > 0 AND view_date < ? LIMIT {$batchSize}", $cutOff);
+                }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+
+
+                if (microtime(true) - $startTime >= $maxRunTime)
+                {
+                    return true;
+                }
             }
+            while ($statement && $statement->rowsAffected() >= $batchSize);
         }
-        while ($statement && $statement->rowsAffected() >= $this->svBatchLimit);
+        catch (\XF\Db\DeadlockException $e)
+        {
+            $db->rollback();
+            // reduce batch size, and signal to try again
+            $batchSize = max((int)($batchSize / 2), 100);
+            return true;
+        }
 
         return false;
     }
 
-    public function pruneUnviewedAlertsBatch(int $cutOff, float $startTime, float $maxRunTime): bool
+    public function pruneUnviewedAlertsBatch(int $cutOff, float $startTime, float $maxRunTime, int &$batchSize): bool
     {
         if (!$cutOff)
         {
             return false;
         }
-        do
-        {
-            /** @var AbstractStatement $statement */
-            $statement = $this->db()->executeTransaction(function (AbstractAdapter $db) use ($cutOff) {
-                return $db->query("DELETE FROM xf_user_alert WHERE view_date = 0 AND event_date < ? LIMIT {$this->svBatchLimit}", $cutOff);
-            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-            if (microtime(true) - $startTime >= $maxRunTime)
+        $db = $this->db();
+        retry_with_smaller_batch:
+        try
+        {
+            do
             {
-                return true;
+                /** @var AbstractStatement $statement */
+                $statement = $db->executeTransaction(function (AbstractAdapter $db) use ($cutOff, $batchSize) {
+                    return $db->query("DELETE FROM xf_user_alert WHERE view_date = 0 AND event_date < ? LIMIT {$batchSize}", $cutOff);
+                }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+
+                if (microtime(true) - $startTime >= $maxRunTime)
+                {
+                    return true;
+                }
             }
+            while ($statement && $statement->rowsAffected() >= $batchSize);
         }
-        while ($statement && $statement->rowsAffected() >= $this->svBatchLimit);
+        catch (\XF\Db\DeadlockException $e)
+        {
+            $db->rollback();
+            // reduce batch size, and signal to try again
+            $batchSize = max((int)($batchSize / 2), 100);
+            return true;
+        }
 
         return false;
     }
