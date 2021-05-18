@@ -26,10 +26,9 @@ class Conversation extends XFCP_Conversation
         $reply = parent::actionView($params);
 
         if ($reply instanceof View &&
-            ($messages = $reply->getParam('messages')) &&
+            ($reply->getParam('messages')) &&
             ($conversation = $reply->getParam('conversation')))
         {
-            /** @var AbstractCollection $messages */
             /** @var \XF\Entity\ConversationMaster $conversation */
             /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();

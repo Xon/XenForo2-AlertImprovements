@@ -23,7 +23,7 @@ class Report extends XFCP_Report
         $reply = parent::actionView($params);
 
         if ($reply instanceof View &&
-            ($report = $reply->getParam('report')) &&
+            ($reply->getParam('report')) &&
             ($comments = $reply->getParam('comments')))
         {
             /** @var ExtendedUserEntity $visitor */

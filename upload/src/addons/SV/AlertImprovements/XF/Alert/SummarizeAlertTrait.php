@@ -36,7 +36,6 @@ trait SummarizeAlertTrait
      * @param Alerts[] $alerts
      * @param string   $groupingStyle
      * @return array|null
-     * @noinspection PhpUnusedParameterInspection
      */
     public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)
     {

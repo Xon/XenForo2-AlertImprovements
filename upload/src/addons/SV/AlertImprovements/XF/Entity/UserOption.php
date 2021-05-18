@@ -22,10 +22,10 @@ class UserOption extends XFCP_UserOption
         $options = \XF::options();
 
         $defaults = $options->registrationDefaults;
-        $this->sv_alerts_popup_skips_mark_read = isset($defaults['sv_alerts_popup_skips_mark_read']) ? $defaults['sv_alerts_popup_skips_mark_read'] : false;
-        $this->sv_alerts_page_skips_mark_read = isset($defaults['sv_alerts_page_skips_mark_read']) ? $defaults['sv_alerts_page_skips_mark_read'] : false;
-        $this->sv_alerts_page_skips_summarize = isset($defaults['sv_alerts_page_skips_summarize']) ? $defaults['sv_alerts_page_skips_summarize'] : false;
-        $this->sv_alerts_summarize_threshold = isset($defaults['sv_alerts_summarize_threshold']) ? $defaults['sv_alerts_summarize_threshold'] : 4;
+        $this->sv_alerts_popup_skips_mark_read = $defaults['sv_alerts_popup_skips_mark_read'] ?? false;
+        $this->sv_alerts_page_skips_mark_read = $defaults['sv_alerts_page_skips_mark_read'] ?? false;
+        $this->sv_alerts_page_skips_summarize = $defaults['sv_alerts_page_skips_summarize'] ?? false;
+        $this->sv_alerts_summarize_threshold = $defaults['sv_alerts_summarize_threshold'] ?? 4;
     }
 
     /**

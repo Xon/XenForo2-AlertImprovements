@@ -2,7 +2,6 @@
 
 namespace SV\AlertImprovements\Job;
 
-use XF\Db\AbstractAdapter;
 use XF\Job\AbstractJob;
 
 class UnviewedAlertCleanup extends AbstractJob

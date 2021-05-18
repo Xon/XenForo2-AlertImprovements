@@ -126,7 +126,6 @@ class UserAlert extends XFCP_UserAlert
      * @param int      $userId
      * @param null|int $cutOff
      * @return Finder
-     * @noinspection PhpMissingParamTypeInspection
      */
     public function findAlertsForUser($userId, $cutOff = null)
     {
@@ -267,7 +266,6 @@ class UserAlert extends XFCP_UserAlert
      * @param int  $summaryAlertViewDate
      * @return array|null
      * @throws \Exception
-     * @noinspection PhpMissingReturnTypeInspection
      */
     protected function checkSummarizeAlertsForUser(int $userId, bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
     {
@@ -294,7 +292,6 @@ class UserAlert extends XFCP_UserAlert
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
      * @return null|array
-     * @noinspection PhpMissingReturnTypeInspection
      */
     protected function checkSummarizeAlerts(bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
     {
@@ -442,7 +439,7 @@ class UserAlert extends XFCP_UserAlert
         {
             if ((!$ignoreReadState && $item['view_date']) ||
                 empty($handlers[$item['content_type']]) ||
-                (bool)preg_match('/^.*_summary$/', $item['action']))
+                preg_match('/^.*_summary$/', $item['action']))
             {
                 $outputAlerts[$id] = $item;
                 continue;
@@ -708,7 +705,7 @@ class UserAlert extends XFCP_UserAlert
             ', [$summerizeId, \XF::$time, \XF::$time]);
             $rowsAffected = $stmt->rowsAffected();
 
-            return $rowsAffected;
+            return $stmt->rowsAffected();
         };
 
         if ($db->inTransaction())
@@ -764,6 +761,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User|ExtendedUserEntity $user
      * @param null|int                $readDate
+     * @noinspection PhpParameterNameChangedDuringInheritanceInspection
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
@@ -841,6 +839,15 @@ class UserAlert extends XFCP_UserAlert
         $this->markAlertIdsAsReadAndViewed($user, $unreadAlertIds, $readDate);
     }
 
+    /**
+     * @param string      $contentType
+     * @param int|int[]   $contentIds
+     * @param string|null $onlyActions
+     * @param User|null   $user
+     * @param int|null    $readDate
+     *
+     * @noinspection PhpParameterNameChangedDuringInheritanceInspection
+     */
     public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
     {
         if (!is_array($contentIds))
@@ -912,7 +919,6 @@ class UserAlert extends XFCP_UserAlert
             $user->setAsSaved('alerts_unviewed', max(0, $user->alerts_unviewed - $viewRowsAffected));
             $user->setAsSaved('alerts_unread', max(0, $user->alerts_unread - $readRowsAffected));
         }
-            /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
         {
             $statement = $db->query('
@@ -1008,7 +1014,6 @@ class UserAlert extends XFCP_UserAlert
             $alerts_unviewed = min($this->svUserMaxAlertCount, $user->alerts_unviewed + $viewRowsAffected);
             $alerts_unread = min($this->svUserMaxAlertCount, $user->alerts_unread + $readRowsAffected);
         }
-            /** @noinspection PhpRedundantCatchClauseInspection */
         catch (DeadlockException $e)
         {
             $db->query('

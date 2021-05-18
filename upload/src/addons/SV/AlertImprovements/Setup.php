@@ -164,7 +164,6 @@ class Setup extends AbstractSetup
     /**
      * @param array $stepParams
      * @return array|null
-     * @noinspection PhpMissingReturnTypeInspection
      */
     public function upgrade2081101Step1(array $stepParams)
     {
@@ -188,7 +187,7 @@ class Setup extends AbstractSetup
 
         $finder = \XF::finder('XF:Template')
                      ->where('title', '=', \array_keys($templateRenames));
-        $stepData = isset($stepParams[2]) ? $stepParams[2] : [];
+        $stepData = $stepParams[2] ?? [];
         if (!isset($stepData['max']))
         {
             $stepData['max'] = $finder->total();
@@ -199,7 +198,7 @@ class Setup extends AbstractSetup
             return null;
         }
 
-        $next = isset($stepParams[0]) ? $stepParams[0] : 0;
+        $next = $stepParams[0] ?? 0;
         $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
         $startTime = \microtime(true);
         foreach($templates as $template)
