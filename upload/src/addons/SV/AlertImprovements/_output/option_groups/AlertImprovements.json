@@ -1,5 +1,6 @@
 {
     "icon": "fa-bell",
     "display_order": 132,
+    "advanced": false,
     "debug_only": false
 }
