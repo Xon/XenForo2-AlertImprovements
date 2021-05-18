@@ -31,17 +31,26 @@ class ViewedAlertCleanup extends AbstractJob
 
         if ($this->data['recordedUsers'] === null)
         {
-            $db->executeTransaction(function() use ($db, $cutOff){
-                $statement = $db->query('
-                INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
-                SELECT DISTINCT alerted_user_id, ?
-                FROM xf_user_alert 
-                WHERE view_date > 0 AND view_date < ? AND alerted_user_id <> 0
-            ', [\XF::$time, $cutOff]);
+            try
+            {
+                $db->query('
+                    INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
+                    SELECT DISTINCT alerted_user_id, ?
+                    FROM xf_user_alert 
+                    WHERE view_date > 0 AND view_date < ? AND alerted_user_id <> 0
+                ', [\XF::$time, $cutOff]);
+            }
+            catch (\XF\Db\DeadlockException $e)
+            {
+                $db->rollback();
+                // on deadlock resume later
+                $resume = $this->resume();
+                $resume->continueDate = \XF::$time + rand(1, 5);
 
-                $this->data['recordedUsers'] = $statement->rowsAffected() > 0;
-            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+                return $resume;
+            }
 
+            $this->data['recordedUsers'] = (bool)$db->fetchOne('SELECT 1 FROM xf_sv_user_alert_rebuild LIMIT 1');
             $this->saveIncrementalData();
         }
 
