@@ -104,7 +104,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             $unviewedAlertExpiryDays = (int)(\XF::options()->svUnviewedAlertExpiryDays ?? 30);
             $cutOff = \XF::$time - $unviewedAlertExpiryDays * 86400;
         }
-        \XF::app()->jobManager()->enqueueLater('svUnviewedAlertCleanup', \XF::$time + 5, 'SV\AlertImprovements:UnviewedAlertCleanup', [
+        \XF::app()->jobManager()->enqueueLater('svUnviewedAlertCleanup', \XF::$time + 2*60, 'SV\AlertImprovements:UnviewedAlertCleanup', [
             'cutOff' => $cutOff,
         ], false);
     }
