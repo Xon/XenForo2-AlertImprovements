@@ -38,6 +38,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller
 {
 	class XFCP_Account extends \XF\Pub\Controller\Account {}
 	class XFCP_Conversation extends \XF\Pub\Controller\Conversation {}
+	class XFCP_Post extends \XF\Pub\Controller\Post {}
 	class XFCP_Report extends \XF\Pub\Controller\Report {}
 	class XFCP_Thread extends \XF\Pub\Controller\Thread {}
 }
