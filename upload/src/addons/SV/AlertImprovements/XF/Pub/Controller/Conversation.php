@@ -120,9 +120,15 @@ class Conversation extends XFCP_Conversation
         /** @noinspection PhpUndefinedMethodInspection */
         list ($contents, $lastDate) = parent::_getNextLivePosts($convUser, $lastDate, $limit);
 
-        /** @var UserAlert $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->markAlertsReadForContentIds('conversation_message', $alertRepo->getContentIdKeys($contents));
+        /** @var ExtendedUserEntity $visitor */
+        $visitor = \XF::visitor();
+
+        if ($visitor->user_id && $visitor->alerts_unread)
+        {
+            /** @var UserAlert $alertRepo */
+            $alertRepo = $this->repository('XF:UserAlert');
+            $alertRepo->markAlertsReadForContentIds('conversation_message', $alertRepo->getContentIdKeys($contents));
+        }
 
         return [$contents, $lastDate];
     }
