@@ -14,20 +14,12 @@ class User extends XFCP_User implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
 
-    /**
-     * @param array $optOuts
-     * @return bool
-     */
-    public function canSummarizeForUser(array $optOuts)
+    public function canSummarizeForUser(array $optOuts): bool
     {
         return true;
     }
 
-    /**
-     * @param array $alert
-     * @return bool
-     */
-    public function canSummarizeItem(array $alert)
+    public function canSummarizeItem(array $alert): bool
     {
         switch ($alert['content_type'])
         {
@@ -55,7 +47,7 @@ class User extends XFCP_User implements ISummarizeAlert
      * @param string   $groupingStyle
      * @return array
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle): array
     {
         $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
 

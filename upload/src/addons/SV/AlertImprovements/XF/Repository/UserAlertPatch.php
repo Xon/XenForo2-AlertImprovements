@@ -114,6 +114,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      * XF2.1 shim
      *
      * @param int|null $cutOff
+     * @noinspection PhpMissingParamTypeInspection
      */
     public function pruneReadAlerts($cutOff = null)
     {
@@ -124,6 +125,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      * XF2.1 shim
      *
      * @param int|null $cutOff
+     * @noinspection PhpMissingParamTypeInspection
      */
     public function pruneUnreadAlerts($cutOff = null)
     {

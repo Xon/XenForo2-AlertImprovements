@@ -1,6 +1,5 @@
 <?php
 
-
 namespace SV\AlertImprovements;
 
 use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
@@ -12,17 +11,9 @@ use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
  */
 interface ISummarizeAlert
 {
-    /**
-     * @param array $optOuts
-     * @return bool
-     */
-    public function canSummarizeForUser(array $optOuts);
+    public function canSummarizeForUser(array $optOuts): bool;
 
-    /**
-     * @param array $alert
-     * @return mixed
-     */
-    public function canSummarizeItem(array $alert);
+    public function canSummarizeItem(array $alert): bool;
 
     /**
      * @param string $contentType
@@ -37,7 +28,7 @@ interface ISummarizeAlert
      * @param array    $summaryAlert
      * @param Alerts[] $alerts
      * @param string   $groupingStyle
-     * @return array
+     * @return array|null
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle);
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle); //: ?array;
 }

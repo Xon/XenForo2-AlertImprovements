@@ -115,7 +115,7 @@ class UserAlert extends XFCP_UserAlert
      * @returns \SV\AlertImprovements\XF\Entity\UserAlert[]
      * @return array
      */
-    public function materializeAlerts(array $rawEntities)
+    public function materializeAlerts(array $rawEntities): array
     {
         $output = [];
         $em = $this->em;

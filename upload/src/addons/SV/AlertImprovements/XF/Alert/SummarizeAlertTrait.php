@@ -11,22 +11,14 @@ use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
  */
 trait SummarizeAlertTrait
 {
-    /**
-     * @param array $alert
-     * @return bool
-     */
-    public function canSummarizeItem(array $alert)
+    public function canSummarizeItem(array $alert): bool
     {
         $validActions = ['reaction'];
 
         return in_array($alert['action'], $validActions, true);
     }
 
-    /**
-     * @param array $summaryAlert
-     * @return string
-     */
-    protected function getSummaryAction(array $summaryAlert)
+    protected function getSummaryAction(array $summaryAlert): string
     {
         return $summaryAlert['action'];
     }
@@ -37,7 +29,7 @@ trait SummarizeAlertTrait
      * @param string   $groupingStyle
      * @return array|null
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)//: ?array
     {
         if ($groupingStyle !== 'content')
         {

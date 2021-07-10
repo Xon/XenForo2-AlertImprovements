@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @noinspection PhpMissingReturnTypeInspection
+ */
 
 namespace SV\AlertImprovements\XF\Entity;
 
@@ -86,11 +88,7 @@ class UserAlert extends XFCP_UserAlert
         return false;
     }
 
-    /**
-     * @param string $glue
-     * @return string
-     */
-    public function getReactedContentSummary($glue = ' ')
+    public function getReactedContentSummary(string $glue = ' '): string
     {
         $extra = $this->extra_data;
         if (isset($extra['ct']) && is_array($extra['ct']))

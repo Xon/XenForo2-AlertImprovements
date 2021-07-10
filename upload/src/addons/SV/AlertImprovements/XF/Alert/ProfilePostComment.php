@@ -13,11 +13,7 @@ class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAl
 {
     use SummarizeAlertTrait;
 
-    /**
-     * @param array $optOuts
-     * @return bool
-     */
-    public function canSummarizeForUser(array $optOuts)
+    public function canSummarizeForUser(array $optOuts): bool
     {
         return empty($optOuts['profile_post_react']);
     }

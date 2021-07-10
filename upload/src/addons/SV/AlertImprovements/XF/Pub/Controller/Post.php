@@ -2,11 +2,10 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
-
-
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 
 /**
@@ -14,6 +13,10 @@ use XF\Mvc\Reply\View;
  */
 class Post extends XFCP_Post
 {
+    /**
+     * @param ParameterBag $params
+     * @return AbstractReply
+     */
     public function actionEdit(ParameterBag $params)
     {
         $reply = parent::actionEdit($params);

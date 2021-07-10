@@ -13,11 +13,7 @@ class Post extends XFCP_Post implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
 
-    /**
-     * @param array $optOuts
-     * @return bool
-     */
-    public function canSummarizeForUser(array $optOuts)
+    public function canSummarizeForUser(array $optOuts): bool
     {
         return empty($optOuts['report_comment_react']);
     }

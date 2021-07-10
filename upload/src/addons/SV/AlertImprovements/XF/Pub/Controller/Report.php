@@ -5,6 +5,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 
 /**
@@ -16,7 +17,7 @@ class Report extends XFCP_Report
 {
     /**
      * @param ParameterBag $params
-     * @return View
+     * @return AbstractReply
      */
     public function actionView(ParameterBag $params)
     {

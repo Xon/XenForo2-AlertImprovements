@@ -8,7 +8,7 @@ use XF\Mvc\Entity\ArrayCollection;
 
 class MarkReadAlertArrayCollection extends ArrayCollection
 {
-    public function filterViewable()
+    public function filterViewable(): ArrayCollection
     {
         $unviewableAlerts = [];
         try

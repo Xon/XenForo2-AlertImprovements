@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection PhpMissingReturnTypeInspection
+ */
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
@@ -9,6 +12,7 @@ use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\ParameterBag;
+use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
@@ -98,7 +102,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\AbstractReply
+     * @return AbstractReply
      * @throws ExceptionReply
      * @noinspection PhpUnusedParameterInspection
      */
@@ -122,7 +126,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\AbstractReply
+     * @return AbstractReply
      */
     public function actionAlert(ParameterBag $params)
     {
@@ -182,7 +186,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\AbstractReply
+     * @return AbstractReply
      */
     public function actionAlertRead(ParameterBag $params)
     {
@@ -222,7 +226,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\AbstractReply
+     * @return AbstractReply
      */
     public function actionAlertUnread(ParameterBag $params)
     {
@@ -260,7 +264,7 @@ class Account extends XFCP_Account
 
     /**
      * @param ParameterBag $params
-     * @return \XF\Mvc\Reply\AbstractReply
+     * @return AbstractReply
      */
     public function actionAlertUnsummarize(ParameterBag $params)
     {
@@ -308,7 +312,7 @@ class Account extends XFCP_Account
     }
 
     /**
-     * @return \XF\Mvc\Reply\AbstractReply
+     * @return AbstractReply
      */
     public function actionAlerts()
     {
@@ -388,6 +392,9 @@ class Account extends XFCP_Account
         return $response;
     }
 
+    /**
+     * @return AbstractReply
+     */
     public function actionAlertsPopup()
     {
         /** @var ExtendedUserEntity $visitor */

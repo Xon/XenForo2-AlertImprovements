@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection PhpMissingReturnTypeInspection
+ */
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
@@ -19,7 +22,7 @@ class Conversation extends XFCP_Conversation
 {
     /**
      * @param ParameterBag $params
-     * @return View
+     * @return AbstractReply
      */
     public function actionView(ParameterBag $params)
     {
@@ -46,7 +49,7 @@ class Conversation extends XFCP_Conversation
 
     /**
      * @param ParameterBag $params
-     * @return AbstractReply|\XF\Mvc\Reply\Reroute|View
+     * @return AbstractReply
      */
     public function actionIndex(ParameterBag $params)
     {

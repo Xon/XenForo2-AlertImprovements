@@ -13,11 +13,7 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
 {
     use SummarizeAlertTrait;
 
-    /**
-     * @param array $optOuts
-     * @return bool
-     */
-    public function canSummarizeForUser(array $optOuts)
+    public function canSummarizeForUser(array $optOuts): bool
     {
         return empty($optOuts['conversation_message_react']);
     }
