@@ -594,8 +594,6 @@ class Account extends XFCP_Account
      * @param null $with
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
-     * @noinspection PhpMissingParamTypeInspection
-     * @noinspection PhpUnusedParameterInspection
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {
