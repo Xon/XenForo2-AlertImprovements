@@ -762,7 +762,6 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User|ExtendedUserEntity $user
      * @param null|int                $readDate
-     * @noinspection PhpParameterNameChangedDuringInheritanceInspection
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
@@ -846,8 +845,6 @@ class UserAlert extends XFCP_UserAlert
      * @param string|null $onlyActions
      * @param User|null   $user
      * @param int|null    $readDate
-     *
-     * @noinspection PhpParameterNameChangedDuringInheritanceInspection
      */
     public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
     {
