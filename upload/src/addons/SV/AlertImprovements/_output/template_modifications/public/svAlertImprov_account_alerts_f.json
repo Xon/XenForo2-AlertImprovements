@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "{{ $alert.isUnreadInUi() ? 'is-unread' : '' }}",
-    "replace": "{{ $alert.isUnreadInUi() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}"
+    "replace": "{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}"
 }
