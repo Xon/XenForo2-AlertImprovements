@@ -47,14 +47,14 @@ class UserAlert extends XFCP_UserAlert
      */
     public function isUnread()
     {
-        return !$this->view_date;
+        return $this->view_date === 0;
     }
 
     protected function getIsNew()
     {
         $viewDate = $this->view_date;
 
-        return $viewDate === 0 || $viewDate > \XF::$time - 600;
+        return $viewDate === 0 || $viewDate > \XF::$time - 600 || $this->getOption('force_unread_in_ui');
     }
 
     /**
@@ -67,12 +67,12 @@ class UserAlert extends XFCP_UserAlert
             return true;
         }
 
-        return !$this->view_date;
+        return $this->view_date === 0;
     }
 
     public function isRecentlyRead()
     {
-        return ($this->view_date && $this->view_date >= \XF::$time - 900);
+        return ($this->view_date !== 0 && $this->view_date >= \XF::$time - 900);
     }
 
     /**
