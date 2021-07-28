@@ -109,13 +109,13 @@
 						<li><xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('svAlertImprov_new_or_unread_alert')|for_attr}}" /></li>
 					</xf:if>
 					<li><xf:date time="$alert.event_date" /></li>
-					<xf:if is="$alert.read_date">
-						<li>{{ phrase('svAlertImprov_read_on:') }} <xf:date time="$alert.read_date" /></li>
+					<xf:if is="$alert.view_date">
+						<li>{{ phrase('svAlertImprov_read_on:') }} <xf:date time="$alert.view_date" /></li>
 					</xf:if>
 					<xf:if is="$alert.is_summary">
 						<li><a class="alert--unsummarize" data-xf-click="unsummarize-alert" href="{{ link('account/alert/unsummarize', $alert) }}">{{phrase('svAlertImprov_unsummarize_alert')}}</a></li>
 					</xf:if>
-					<xf:if is="$alert.read_date">
+					<xf:if is="$alert.view_date">
 						<li class="mark-read"><a class="alert--mark-unread" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', $alert) }}">{{ phrase('svAlertImprov_mark_unread') }}</a></li>
 					<xf:else />
 						<li class="mark-read"><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/read', $alert) }}">{{ phrase('svAlertImprov_mark_read') }}</a></li>
