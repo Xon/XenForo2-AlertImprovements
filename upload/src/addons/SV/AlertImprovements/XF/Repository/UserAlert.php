@@ -219,7 +219,7 @@ class UserAlert extends XFCP_UserAlert
                 }
             }
 
-            if (Globals::$alertPopupExtraFetch)
+            if ($alertPopupExtraFetch)
             {
                 // in alert pop-up, ensure unread alerts are preferred over read alerts
                 // since alert summarization dramatically over-fetches alerts, this should be ok
@@ -227,7 +227,14 @@ class UserAlert extends XFCP_UserAlert
                 $viewedAlerts = [];
                 foreach ($alerts as $key => $alert)
                 {
-                    if (!$alert['view_date'])
+                    $viewDate = $alert['view_date'];
+                    // enforce cut-off date
+                    if ($cutOff && $viewDate && $viewDate < $cutOff)
+                    {
+                        continue;
+                    }
+                    // now sort into viewed vs unviewed
+                    if (!$viewDate)
                     {
                         $unviewedAlerts[$key] = $alert;
                     }
