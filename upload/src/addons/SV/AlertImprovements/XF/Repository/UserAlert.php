@@ -785,11 +785,16 @@ class UserAlert extends XFCP_UserAlert
 
         $db = $this->db();
         $db->executeTransaction(function () use ($db, $readDate, $userId) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
             list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
-            // table lock ordering required is xf_user, xf_user_alert to avoid deadlocks
+            // table lock ordering required is [xf_user, xf_user_alert] to avoid deadlocks
+            // update both view_date/read_date together to ensure they stay consistent
             $db->query('UPDATE xf_user SET alerts_unviewed = 0, alerts_unread = 0 WHERE user_id = ?', [$userId]);
-            $db->query('UPDATE xf_user_alert SET view_date = ? WHERE alerted_user_id = ? AND view_date = 0 AND event_date >= ?', [$readDate, $userId, $viewedCutOff]);
-            $db->query('UPDATE xf_user_alert SET read_date = ? WHERE alerted_user_id = ? AND read_date = 0 AND (view_date >= ? OR (view_date = 0 and event_date >= ?))', [$readDate, $userId, $viewedCutOff, $unviewedCutOff]);
+            $db->query('UPDATE xf_user_alert 
+                SET view_date = ?, read_date = ? 
+                WHERE alerted_user_id = ? 
+                AND (read_date = 0 or view_date = 0) and event_date >= ?
+            ', [$readDate, $readDate, $userId, $unviewedCutOff]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         $user->setAsSaved('alerts_unviewed', 0);
