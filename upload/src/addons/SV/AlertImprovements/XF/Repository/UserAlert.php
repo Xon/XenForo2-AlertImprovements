@@ -140,7 +140,9 @@ class UserAlert extends XFCP_UserAlert
         if (Globals::$showUnreadOnly)
         {
             $finder->whereOr([
-                ['read_date', '=', 0],
+                // The addon essentially ignores read_date, so don't bother selecting on it.
+                // This also improves index selectivity
+                //['read_date', '=', 0],
                 ['view_date', '=', 0]
             ]);
         }
@@ -392,7 +394,9 @@ class UserAlert extends XFCP_UserAlert
         if (!$ignoreReadState)
         {
             $finder->whereOr([
-                ['read_date', '=', 0],
+                // The addon essentially ignores read_date, so don't bother selecting on it.
+                // This also improves index selectivity
+                //['read_date', '=', 0],
                 ['view_date', '=', 0]
             ]);
         }
