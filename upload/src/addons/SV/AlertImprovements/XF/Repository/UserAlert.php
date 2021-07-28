@@ -130,7 +130,7 @@ class UserAlert extends XFCP_UserAlert
     public function findAlertsForUser($userId, $cutOff = null)
     {
         /** @var ExtendedUserAlertFinder $finder */
-        $finder = parent::findAlertsForUser($userId, $cutOff);
+        $finder = parent::findAlertsForUser($userId, null);
         $finder->markUnviewableAsUnread();
         if (!Globals::$skipSummarizeFilter)
         {
@@ -157,6 +157,18 @@ class UserAlert extends XFCP_UserAlert
                 ['view_date', '=', 0],
                 ['event_date', '>=', $unviewedCutOff],
             ]);
+        }
+        else if ($cutOff)
+        {
+            $finder->whereOr(
+                [
+                    // The addon essentially ignores read_date, so don't bother selecting on it.
+                    // This also improves index selectivity
+                    //['read_date', '=', 0],
+                    ['view_date', '=', 0],
+                    ['view_date', '>=', $cutOff]
+                ]
+            );
         }
 
         if (Globals::$skipSummarize && !Globals::$alertPopupExtraFetch)
@@ -1126,14 +1138,14 @@ class UserAlert extends XFCP_UserAlert
             SELECT alert_id
             FROM xf_user_alert
             WHERE alerted_user_id = ?
-            AND (read_date = 0 OR view_date = 0) ' . $autoMarkReadFilter . '
+            AND (view_date = 0) ' . $autoMarkReadFilter . '
             AND event_date < ?
             AND content_type IN (' . $db->quote($contentType) . ')
             AND content_id IN (' . $db->quote($contentIds) . ")
             AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
             {$actionFilter}
         ", [$userId, $viewDate, $viewedCutOff, $unviewedCutOff]
-        );
+        ); // do not bother selecting `read_date = 0 OR`
 
         if (empty($alertIds))
         {
