@@ -8,7 +8,7 @@
 	<div class="block-body">
 		<ol class="listPlain">
 			<li data-alert-id="{$alert.alert_id}"
-				class="alert js-alert block-row block-row--separated{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
+				class="alert js-alert block-row block-row--separated{{ $alert.getOption('force_unread_in_ui') ? ' is-just-read' : '' }}{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
 				<xf:macro template="svAlertImprov_macros" name="alert_row" arg-alert="{$alert}" />
 			</li>
 		</ol>
@@ -22,7 +22,7 @@
 							<ol class="listPlain">
 								<xf:foreach loop="$dateAlerts" value="$alert">
 									<li data-alert-id="{$alert.alert_id}"
-										class="alert js-alert block-row block-row--separated{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
+										class="alert js-alert block-row block-row--separated{{ $alert.getOption('force_unread_in_ui') ? ' is-just-read' : '' }}{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
 										<xf:macro template="svAlertImprov_macros" name="alert_row" arg-alert="{$alert}" />
 									</li>
 								</xf:foreach>

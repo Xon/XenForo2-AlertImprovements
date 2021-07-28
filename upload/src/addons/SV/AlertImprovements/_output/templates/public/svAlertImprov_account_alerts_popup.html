@@ -1,8 +1,8 @@
 <xf:if is="$unreadAlerts is not empty or $alerts is not empty">
 	<div class="menu-scroller">
-		<ol class="listPlain">
+		<ol class="listPlain" data-xf-init="fade-read-alerts">
 			<xf:foreach loop="$unreadAlerts" value="$alert">
-				<li data-alert-id="{$alert.alert_id}" class="alert js-alert menu-row menu-row--separated menu-row--clickable{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
+				<li data-alert-id="{$alert.alert_id}" class="alert js-alert menu-row menu-row--separated menu-row--clickable{{ $alert.getOption('force_unread_in_ui') ? ' is-just-read' : '' }}{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
 					<xf:macro template="svAlertImprov_macros"
 							  name="alert_row"
 							  arg-alert="{$alert}"
@@ -17,7 +17,7 @@
 			</xf:if>
 
 			<xf:foreach loop="$alerts" value="$alert">
-				<li data-alert-id="{$alert.alert_id}" class="alert js-alert menu-row menu-row--separated menu-row--clickable{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
+				<li data-alert-id="{$alert.alert_id}" class="alert js-alert menu-row menu-row--separated menu-row--clickable{{ $alert.getOption('force_unread_in_ui') ? ' is-just-read' : '' }}{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}">
 					<xf:macro template="svAlertImprov_macros"
 							  name="alert_row"
 							  arg-alert="{$alert}"

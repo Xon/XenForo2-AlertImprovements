@@ -279,7 +279,22 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         }
     });
 
+    SV.AlertImprovements.FadeReadAlerts = 	XF.Element.newHandler({
+        options: {
+            classSelector: 'li.is-just-read',
+            classToRemove: 'is-just-read',
+        },
+
+        init: function () {
+            this.$target
+                .find(this.options.classSelector)
+                .css({'transition-duration': '1.2s'})
+                .removeClassTransitioned(this.options.classToRemove);
+        }
+    });
+
     XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.BulkMarkRead');
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
     XF.Click.register('unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
+    XF.Element.register('fade-read-alerts', 'SV.AlertImprovements.FadeReadAlerts');
 } (jQuery, window, document));
