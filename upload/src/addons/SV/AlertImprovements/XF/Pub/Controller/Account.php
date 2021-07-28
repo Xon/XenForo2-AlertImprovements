@@ -421,6 +421,8 @@ class Account extends XFCP_Account
             $alerts = $reply->getParam('alerts');
             if ($alerts)
             {
+                $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
+
                 $unreadAlertsAfterReadAlerts = \XF::options()->svUnreadAlertsAfterReadAlerts ?? false;
                 if ($unreadAlertsAfterReadAlerts)
                 {
@@ -440,8 +442,6 @@ class Account extends XFCP_Account
                         $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
                     }
                 }
-
-                $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
             }
 
             // just use svAlertImprov_account_alerts_popup
