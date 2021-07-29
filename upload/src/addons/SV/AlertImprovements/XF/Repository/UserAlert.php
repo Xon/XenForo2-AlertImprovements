@@ -109,6 +109,7 @@ class UserAlert extends XFCP_UserAlert
         if ($skipExpiredAlerts)
         {
             list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
             ], [
@@ -151,6 +152,7 @@ class UserAlert extends XFCP_UserAlert
         if ($skipExpiredAlerts)
         {
             list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
             ], [
@@ -426,6 +428,7 @@ class UserAlert extends XFCP_UserAlert
         if ($skipExpiredAlerts)
         {
             list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
             ], [
