@@ -232,6 +232,13 @@ class Setup extends AbstractSetup
         $this->db()->query('DELETE FROM xf_job WHERE unique_key IN (?,?)', ['sViewedAlertCleanup', 'svUnviewedAlertCleanup']);
     }
 
+    public function upgrade2090005Step1()
+    {
+        $this->schemaManager()->alterTable('xf_user_option', function(Alter $table) {
+            $table->dropColumns('sv_alerts_page_skips_mark_read');
+        });
+    }
+
     public function uninstallStep1()
     {
         $sm = $this->schemaManager();
