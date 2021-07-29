@@ -87,7 +87,6 @@ class Account extends XFCP_Account
             [
                 'option' => [
                     'sv_alerts_popup_skips_mark_read' => 'bool',
-                    'sv_alerts_page_skips_mark_read'  => 'bool',
                     'sv_alerts_page_skips_summarize'  => 'bool',
                     'sv_alerts_summarize_threshold'   => 'uint',
                 ],
@@ -320,18 +319,9 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         $option = $visitor->Option;
         $showOnlyFilter = $this->filter('show_only', '?str');
-        $skipMarkAsRead = $this->filter('skip_mark_read', '?bool');
         $skipSummarize = $this->filter('skip_summarize', '?bool');
         $page = $this->filterPage();
         $options = $this->options();
-        if (Globals::isPrefetchRequest())
-        {
-            $skipMarkAsRead = $skipSummarize = true;
-        }
-        if (!empty($option->sv_alerts_page_skips_mark_read))
-        {
-            $skipMarkAsRead = true;
-        }
         if ($page > 1 || !empty($option->sv_alerts_page_skips_summarize))
         {
             $skipSummarize = true;
@@ -339,7 +329,7 @@ class Account extends XFCP_Account
 
         $hasUnreadAlerts = ($visitor->alerts_unread || $visitor->alerts_unviewed);
         // defaults
-        $skipMarkAsRead = $skipMarkAsRead ?? false;
+        $skipMarkAsRead = true;
         $skipSummarize = $skipSummarize ?? false;
         $showOnlyFilter = $showOnlyFilter ?? ($hasUnreadAlerts ? 'unread' : 'all');
 
