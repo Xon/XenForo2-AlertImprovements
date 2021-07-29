@@ -45,7 +45,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function isUnread()
     {
-        return !$this->view_date;
+        return $this->view_date === 0;
     }
 
     protected function getIsNew()
@@ -65,12 +65,12 @@ class UserAlert extends XFCP_UserAlert
             return true;
         }
 
-        return !$this->view_date;
+        return $this->view_date === 0;
     }
 
     public function isRecentlyRead()
     {
-        return ($this->view_date && $this->view_date >= \XF::$time - 900);
+        return ($this->view_date !== 0 && $this->view_date >= \XF::$time - 900);
     }
 
     /**

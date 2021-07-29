@@ -436,7 +436,7 @@ class UserAlert extends XFCP_UserAlert
         $handlers = $this->getAlertHandlersForConsolidation();
         // nothing to be done
         $userHandler = empty($handlers['user']) ? null : $handlers['user'];
-        if (empty($handlers) || ($userHandler && \count($handlers) == 1))
+        if (empty($handlers) || ($userHandler && \count($handlers) === 1))
         {
             return $alerts;
         }
@@ -570,7 +570,7 @@ class UserAlert extends XFCP_UserAlert
         \uasort(
             $outputAlerts,
             function ($a, $b) {
-                if ($a['event_date'] == $b['event_date'])
+                if ($a['event_date'] === $b['event_date'])
                 {
                     return ($a['alert_id'] < $b['alert_id']) ? 1 : -1;
                 }
