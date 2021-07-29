@@ -1,0 +1,1 @@
+Remove the 'is-just-read' class name to allow styling to transition from unread to read

@@ -1,0 +1,22 @@
+{
+    "group_name": "svAlertImprovements",
+    "title": "Unread seperator",
+    "description": "",
+    "property_type": "css",
+    "css_components": [
+        "text",
+        "background",
+        "border",
+        "border_radius",
+        "padding",
+        "extra"
+    ],
+    "value_type": "",
+    "value_parameters": "",
+    "depends_on": "",
+    "value_group": "",
+    "property_value": {
+        "border-top-width": "3px"
+    },
+    "display_order": 2000
+}

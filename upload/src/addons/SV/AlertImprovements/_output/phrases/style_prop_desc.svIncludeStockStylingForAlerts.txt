@@ -1,0 +1,1 @@
+The "extra" section support only pure LESS, which prevents use of <i>.xf-contentHighlightBase();</i>/<i>.xf-contentAltBase();</i> in the style property. As such, these are included in the template and this option controls if they are used.

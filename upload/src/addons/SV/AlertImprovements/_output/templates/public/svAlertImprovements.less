@@ -3,20 +3,41 @@
 .js-alertsMenuBody .alert,
 .alert-list .alert 
 {
+	<xf:if is="property('svIncludeStockStylingForAlerts')">
+	<xf:if is="property('svStyleJustReadAsUnread')">
+		&.is-recently-read.is-just-read,
+	</xf:if>
+		&.is-unread
+		{
+			.xf-contentHighlightBase();
+		}
+
+		&.is-read
+		{
+			.xf-contentAltBase();
+		}
+
+		&.is-recently-read
+		{
+			.xf-contentAltBase();
+		}
+	</xf:if>
+	<xf:if is="property('svStyleJustReadAsUnread')">
 	&.is-recently-read.is-just-read,
+	</xf:if>
 	&.is-unread
 	{
-		.xf-contentHighlightBase();
+		.xf-svUnreadAlerts();
 	}
 
 	&.is-read
 	{
-		.xf-contentAltBase();
+		.xf-svReadAlerts();
 	}
 
 	&.is-recently-read
 	{
-		.xf-contentAltBase();
+		.xf-svRecentlyReadAlerts();
 	}
 }
 
@@ -73,5 +94,5 @@
 
 .js-alertsMenuBody .menu-row.alert--read-unread-seperator
 {
-	border-top-width: 3px;
+	.xf-svUnreadAlertsSeperator();
 }

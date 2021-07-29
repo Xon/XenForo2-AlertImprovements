@@ -1,0 +1,1 @@
+Style just-read alerts as unread alerts

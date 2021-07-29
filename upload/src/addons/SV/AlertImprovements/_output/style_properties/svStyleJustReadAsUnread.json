@@ -1,13 +1,13 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Recent alert icon color",
+    "title": "Style just-read alerts as unread alerts",
     "description": "",
     "property_type": "value",
     "css_components": [],
-    "value_type": "color",
+    "value_type": "boolean",
     "value_parameters": "",
     "depends_on": "",
-    "value_group": "Colors",
-    "property_value": "DarkGoldenRod",
-    "display_order": 400
+    "value_group": "JustReadAlerts",
+    "property_value": 1,
+    "display_order": 100
 }

@@ -283,13 +283,23 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         options: {
             classSelector: 'li.is-just-read',
             classToRemove: 'is-just-read',
+            classToAdd: 'was-just-read',
+            transitionDuration: 0,
         },
 
         init: function () {
-            this.$target
-                .find(this.options.classSelector)
-                .css({'transition-duration': '1.2s'})
-                .removeClassTransitioned(this.options.classToRemove);
+            var options = this.options,
+                alerts = this.$target.find(options.classSelector);
+            if (options.transitionDuration) {
+                alerts
+                    .css({'transition-duration': options.transitionDuration + 's'})
+                    .removeClassTransitioned(options.classToRemove)
+                    .addClassTransitioned(options.classToAdd);
+            } else {
+                alerts
+                    .addRemove(options.classToRemove)
+                    .addClass(options.classToAdd)
+            }
         }
     });
 

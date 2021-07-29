@@ -1,0 +1,13 @@
+{
+    "group_name": "svAlertImprovements",
+    "title": "Fade 'just read alerts' in alert popup into 'read alerts'",
+    "description": "Remove the 'is-just-read' class name to allow styling to transition from unread to read",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "boolean",
+    "value_parameters": "",
+    "depends_on": "svStyleJustReadAsUnread",
+    "value_group": "JustReadAlerts",
+    "property_value": 1,
+    "display_order": 110
+}

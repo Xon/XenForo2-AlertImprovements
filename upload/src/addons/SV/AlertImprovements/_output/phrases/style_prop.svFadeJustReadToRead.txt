@@ -1,0 +1,1 @@
+Fade 'just read alerts' in alert popup into 'read alerts'

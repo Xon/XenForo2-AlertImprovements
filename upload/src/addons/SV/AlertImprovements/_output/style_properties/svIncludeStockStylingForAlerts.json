@@ -1,0 +1,13 @@
+{
+    "group_name": "svAlertImprovements",
+    "title": "Include stock styling for read/unread/recently-read alerts",
+    "description": "The \"extra\" section support only pure LESS, which prevents use of <i>.xf-contentHighlightBase();</i>/<i>.xf-contentAltBase();</i> in the style property. As such, these are included in the template and this option controls if they are used.",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "boolean",
+    "value_parameters": "",
+    "depends_on": "",
+    "value_group": "",
+    "property_value": 1,
+    "display_order": 10
+}
