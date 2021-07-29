@@ -361,8 +361,8 @@ class Setup extends AbstractSetup
     {
         $tables = [];
 
-        $tables['addOrChangeColumn'] = function (Alter $table) {
-            $table->dropIndexes(['sv_alerts_popup_skips_mark_read', 'sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
+        $tables['xf_user_option'] = function (Alter $table) {
+            $table->dropColumns(['sv_alerts_popup_skips_mark_read', 'sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
