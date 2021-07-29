@@ -35,7 +35,7 @@ class Account extends XFCP_Account
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
 
-        $redirect = $this->getDynamicRedirect($this->buildLink('account/alerts',null, ['skip_mark_read' => 1]));
+        $redirect = $this->getDynamicRedirect($this->buildLink('account/alerts'));
 
         if ($this->isPost())
         {
@@ -556,7 +556,6 @@ class Account extends XFCP_Account
 
         $redirectParams = $this->filter([
             'show_only'      => '?str',
-            'skip_mark_read' => '?bool',
             'skip_summarize' => '?bool',
             'page'           => 'int',
         ]);
