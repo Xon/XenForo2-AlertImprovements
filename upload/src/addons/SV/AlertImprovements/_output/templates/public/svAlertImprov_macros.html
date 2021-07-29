@@ -96,7 +96,17 @@
 		<div class="contentRow-figure contentRow-figure--user{{ $showSelectCheckbox ? '' : ' flex'}}">
 			<xf:avatar user="$alert.User" size="xxs" defaultname="{$alert.username}" />
 			<xf:if is="$inAlertsPopup && $alert.is_new">
-				<xf:fa icon="fa fa-star" class="unread-indicator-icon" aria-hidden="true" title="{{ phrase('svAlertImprov_new_or_unread_alert')|for_attr}}" />
+				<xf:if is="$alert.view_date === 0 and $alert.auto_read">
+					<xf:fa icon="fa fa-star-exclamation"
+						   class="unread-indicator-icon"
+						   aria-hidden="true"
+						   title="{{ phrase('svAlertImprov_unread_alert')|for_attr}}" />
+				<xf:else />
+					<xf:fa icon="fa fa-star"
+						   class="unread-indicator-icon"
+						   aria-hidden="true"
+						   title="{{ phrase('svAlertImprov_recent_alert')|for_attr}}" />
+				</xf:if>
 			</xf:if>
 		</div>
 		<div class="contentRow-main contentRow-main--close">
