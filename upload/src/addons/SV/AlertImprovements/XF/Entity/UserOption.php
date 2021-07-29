@@ -14,9 +14,16 @@ use XF\Mvc\Entity\Structure;
  * @property bool $sv_alerts_popup_skips_mark_read
  * @property bool $sv_alerts_page_skips_summarize
  * @property int  $sv_alerts_summarize_threshold
+ * @property array|null $sv_autoread_optout
  */
 class UserOption extends XFCP_UserOption
 {
+    public function doesAutoReadAlert($contentType, $action): bool
+    {
+        $optOuts = $this->sv_autoread_optout ?? [];
+        return !\in_array("{$contentType}_{$action}", $optOuts, true);
+    }
+
     protected function _setupDefaults()
     {
         parent::_setupDefaults();
@@ -40,6 +47,14 @@ class UserOption extends XFCP_UserOption
         $structure->columns['sv_alerts_popup_skips_mark_read'] = ['type' => Entity::BOOL, 'default' => 0];
         $structure->columns['sv_alerts_page_skips_summarize'] = ['type' => Entity::BOOL, 'default' => 0];
         $structure->columns['sv_alerts_summarize_threshold'] = ['type' => Entity::UINT, 'default' => 4];
+
+        $structure->columns['sv_autoread_optout'] = [
+            'type' => self::LIST_COMMA,
+            'default' => [],
+            'nullable' => true,
+            'list' => ['type' => 'str', 'unique' => true, 'sort' => true],
+            'changeLog' => false,
+        ];
 
         return $structure;
     }

@@ -304,6 +304,7 @@ class Setup extends AbstractSetup
             $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
+            $this->addOrChangeColumn($table, 'sv_autoread_optout', 'text')->nullable()->setDefault(null);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
@@ -351,7 +352,13 @@ class Setup extends AbstractSetup
         $tables = [];
 
         $tables['xf_user_option'] = function (Alter $table) {
-            $table->dropColumns(['sv_alerts_popup_skips_mark_read', 'sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
+            $table->dropColumns([
+                'sv_autoread_optout',
+                'sv_alerts_popup_skips_mark_read',
+                'sv_alerts_page_skips_mark_read',
+                'sv_alerts_page_skips_summarize',
+                'sv_alerts_summarize_threshold',
+            ]);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {

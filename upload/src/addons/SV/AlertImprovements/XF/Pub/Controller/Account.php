@@ -23,6 +23,7 @@ use XF\Mvc\Reply\View as ViewReply;
 use XF\Mvc\Reply\Redirect as RedirectReply;
 use XF\Mvc\Reply\Exception as ExceptionReply;
 use XF\Service\FloodCheck;
+use function array_keys;
 use function array_slice, count, max, array_merge;
 use function assert;
 
@@ -108,7 +109,39 @@ class Account extends XFCP_Account
         $userOptions = $visitor->getRelationOrDefault('Option');
         $form->setupEntityInput($userOptions, $input['option']);
 
+        $patchedOptOuts = $this->svGetAlertOptOutFromInputs();
+        if (count($patchedOptOuts) !== 0)
+        {
+            $form->setupEntityInput($visitor->Option, $patchedOptOuts);
+        }
+
         return $form;
+    }
+
+    protected function svGetAlertOptOutFromInputs(): array
+    {
+        /** @var \XF\Repository\UserAlert $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        $optOutActions = array_keys($alertRepo->getAlertOptOutActions());
+
+        // todo this should compare against global defaults!
+        $entityInputs = [];
+        if (true)
+        {
+            $autoReads = $this->filter('autoread', 'array-bool');
+            $autoReadOptOuts = [];
+            foreach ($optOutActions as $optOut)
+            {
+                if (empty($autoReads[$optOut]))
+                {
+                    $autoReadOptOuts[$optOut] = $optOut;
+                }
+            }
+            $entityInputs['sv_autoread_optout'] = $autoReadOptOuts;
+        }
+
+
+        return $entityInputs;
     }
 
     /**
