@@ -1,2 +1,2 @@
-Duration the transmission to fade the is-just-read before removing it.<br/>
+Duration the transition to fade the is-just-read before removing it.<br/>
 0 to fade immediately

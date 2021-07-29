@@ -1,7 +1,7 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Just-read alert transmission duration",
-    "description": "Duration the transmission to fade the is-just-read before removing it.<br/>\n0 to fade immediately",
+    "title": "Just-read alert transition duration",
+    "description": "Duration the transition to fade the is-just-read before removing it.<br/>\n0 to fade immediately",
     "property_type": "value",
     "css_components": [],
     "value_type": "number",
