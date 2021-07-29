@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements;
 
+use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
@@ -195,11 +196,6 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    public function upgrade2081500Step1(): void
-    {
-        $this->installStep1();
-    }
-
     public function upgrade2081500Step2(): void
     {
         // purge broken jobs
@@ -226,6 +222,62 @@ class Setup extends AbstractSetup
             FROM xf_user_alert
             WHERE summerize_id IS NULL AND `action` LIKE \'%_summary\';
         ');
+    }
+
+    public function upgrade2090007Step1(): void
+    {
+        $this->installStep1();
+    }
+
+    public function upgrade2090007Step2(): void
+    {
+        $this->installStep2();
+    }
+
+    public function upgrade2090007Step3(array $stepData): ?array
+    {
+        if (!$this->columnExists('xf_user_option', 'sv_skip_auto_read_for_op'))
+        {
+            return null;
+        }
+
+        $finder = \XF::finder('XF:UserOption')
+                     ->where('sv_skip_auto_read_for_op', '=', 0);
+
+        $next = $stepData['userId'] ?? 0;
+        if (!isset($stepData['max']))
+        {
+            $stepData['max'] = $finder->total();
+        }
+
+        $userOptions = $finder->where('user_id', '>', $next)
+                              ->limit(100)
+                              ->fetch();
+        if ($userOptions->count() === 0)
+        {
+            return null;
+        }
+
+        $maxRunTime = \max(\min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $startTime = \microtime(true);
+        foreach ($userOptions as $userOption)
+        {
+            /** @var UserOption $userOption */
+            $stepData['userId'] = $userOption->user_id;
+
+            $optOuts = $userOption->sv_autoread_optout ?? [];
+            $optOuts['post_op_insert'] = 'post_op_insert';
+            $userOption->sv_autoread_optout = $optOuts;
+
+            $userOption->saveIfChanged();
+
+            if (\microtime(true) - $startTime >= $maxRunTime)
+            {
+                break;
+            }
+        }
+
+        return $stepData;
     }
 
     public function uninstallStep1(): void
