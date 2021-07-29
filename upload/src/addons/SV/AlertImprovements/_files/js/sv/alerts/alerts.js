@@ -285,16 +285,25 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             classToRemove: 'is-just-read',
             classToAdd: 'was-just-read',
             transitionDuration: 0,
+            transitionDelay: 2,
         },
 
         init: function () {
             var options = this.options,
                 alerts = this.$target.find(options.classSelector);
+            if (alerts.length === 0) {
+                return;
+            }
+            options.transitionDuration = Math.max(0, options.transitionDuration | 0);
+            options.transitionDelay = Math.max(0, options.transitionDelay | 0);
             if (options.transitionDuration) {
-                alerts
-                    .css({'transition-duration': options.transitionDuration + 's'})
-                    .removeClassTransitioned(options.classToRemove)
-                    .addClassTransitioned(options.classToAdd);
+                setTimeout(function()
+                {
+                    alerts
+                        .css({'transition-duration': options.transitionDuration + 's'})
+                        .removeClassTransitioned(options.classToRemove)
+                        .addClassTransitioned(options.classToAdd);
+                }, options.transitionDelay * 1000);
             } else {
                 alerts
                     .addRemove(options.classToRemove)
