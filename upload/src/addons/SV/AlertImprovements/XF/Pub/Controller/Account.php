@@ -110,7 +110,7 @@ class Account extends XFCP_Account
             return $this->notFound();
         }
 
-        $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
+        $floodingLimit = \max(1, $options->svAlertsSummarizeFlood ?? 1);
         $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
         /** @var ExtendedUserAlertRepo $alertRepo */
@@ -291,7 +291,7 @@ class Account extends XFCP_Account
         {
             return true;
         }
-        $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
+        $floodingLimit = \max(1, $options->svAlertsSummarizeFlood ?? 1);
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
@@ -377,7 +377,7 @@ class Account extends XFCP_Account
             }
 
             $navParams = $response->getParam('navParams') ?? [];
-            $navParams = array_merge([
+            $navParams = \array_merge([
                 'skip_mark_read' => $skipMarkAsRead,
                 'skip_summarize' => $skipSummarize,
                 'show_only'      => $showOnlyFilter,

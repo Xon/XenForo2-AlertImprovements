@@ -19,7 +19,7 @@ trait SummarizeAlertTrait
     {
         $validActions = ['reaction'];
 
-        return in_array($alert['action'], $validActions, true);
+        return \in_array($alert['action'], $validActions, true);
     }
 
     /**

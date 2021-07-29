@@ -28,7 +28,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
             $this->repo = \XF::repository('XF:UserAlert');
         }
 
-        $this->defaultData = array_merge($this->jobDefaultData, $this->defaultData);
+        $this->defaultData = \array_merge($this->jobDefaultData, $this->defaultData);
 
         return parent::setupData($data);
     }

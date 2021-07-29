@@ -78,7 +78,7 @@ class UnviewedAlertCleanup extends AbstractJob
             return $this->complete();
         }
 
-        if (microtime(true) - $startTime >= $maxRunTime)
+        if (\microtime(true) - $startTime >= $maxRunTime)
         {
             return $this->resume();
         }
@@ -88,7 +88,7 @@ class UnviewedAlertCleanup extends AbstractJob
 
         if (empty($this->data['pruned']))
         {
-            $batchSize = max(100, (int)($this->data['batch'] ?? 50000));
+            $batchSize = \max(100, (int)($this->data['batch'] ?? 50000));
             $continue = $alertRepo->pruneUnviewedAlertsBatch($cutOff, $startTime, $maxRunTime, $batchSize);
             $this->data['batch'] = $batchSize;
             if ($continue)
