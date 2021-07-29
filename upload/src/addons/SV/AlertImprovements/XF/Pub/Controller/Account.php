@@ -372,7 +372,6 @@ class Account extends XFCP_Account
 
             $navParams = $response->getParam('navParams') ?? [];
             $navParams = array_merge([
-                'skip_mark_read' => $skipMarkAsRead,
                 'skip_summarize' => $skipSummarize,
                 'show_only'      => $showOnlyFilter,
             ], $navParams);
