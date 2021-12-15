@@ -9,6 +9,7 @@ class UnviewedAlertCleanup extends AbstractJob
     protected $defaultData = [
         'cutOff' => 0,
         'recordedUsers' => null,
+        'minEventDate' => 0,
         'pruned' => false,
         'batch' => 50000,
     ];
@@ -30,23 +31,42 @@ class UnviewedAlertCleanup extends AbstractJob
 
         if ($this->data['recordedUsers'] === null)
         {
-            try
-            {
-                $db->query('
-                    INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
-                    SELECT DISTINCT alerted_user_id, ?
-                    FROM xf_user_alert 
-                    WHERE view_date = 0 AND event_date < ? AND alerted_user_id <> 0
-                ', [\XF::$time, $cutOff]);
-            }
-            catch (\XF\Db\DeadlockException $e)
-            {
-                $db->rollback();
-                // on deadlock resume later
-                $resume = $this->resume();
-                $resume->continueDate = \XF::$time + rand(1, 5);
+            // only fetch a day at a time to avoid the query populating xf_sv_user_alert_rebuild from touching way too many rows
+            $cutOffWindow = (int)$db->fetchOne('
+                select min(event_date) 
+                from xf_user_alert 
+                WHERE view_date = 0 AND event_date >= ? AND event_date < ? 
+            ', [$this->data['minEventDate'], $cutOff]);
 
-                return $resume;
+            while ($cutOffWindow <= $cutOff)
+            {
+                $this->data['minEventDate'] = $cutOffWindow;
+                $cutOffWindow = $this->data['minEventDate'] + 86400;
+                $this->saveIncrementalData();
+
+                try
+                {
+                    $db->query('
+                        INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
+                        SELECT DISTINCT alerted_user_id, ?
+                        FROM xf_user_alert 
+                        WHERE view_date = 0 AND event_date <= ?
+                    ', [\XF::$time, $cutOffWindow]);
+                }
+                catch (\XF\Db\DeadlockException $e)
+                {
+                    $db->rollback();
+                    // on deadlock resume later
+                    $resume = $this->resume();
+                    $resume->continueDate = \XF::$time + rand(1, 5);
+
+                    return $resume;
+                }
+
+                if (\microtime(true) - $startTime >= $maxRunTime)
+                {
+                    break;
+                }
             }
 
             $this->data['recordedUsers'] = (bool)$db->fetchOne('SELECT 1 FROM xf_sv_user_alert_rebuild LIMIT 1');
