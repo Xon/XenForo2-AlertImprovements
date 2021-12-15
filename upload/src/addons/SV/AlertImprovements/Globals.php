@@ -29,14 +29,19 @@ class Globals
     public static $showUnreadOnly = false;
 
 
-    public static function isPrefetchRequest()
+    public static function isPrefetchRequest(): bool
     {
-        if (\XF::app()->request()->getServer('HTTP_X_MOZ') == 'prefetch')
+        $request = \XF::app()->request();
+        if (\XF::$versionId >= 2020370)
         {
-            return true;
+            return $request->isPrefetch();
         }
 
-        return  false;
+        return (
+            $request->getServer('HTTP_X_MOZ') === 'prefetch'
+            || $request->getServer('HTTP_X_PURPOSE') === 'prefetch'
+            || $request->getServer('HTTP_PURPOSE') === 'prefetch'
+        );
     }
 
     private function __construct() { }
