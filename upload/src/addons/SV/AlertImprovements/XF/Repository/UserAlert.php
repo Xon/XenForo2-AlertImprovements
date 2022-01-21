@@ -436,9 +436,10 @@ class UserAlert extends XFCP_UserAlert
             ]);
         }
 
-        if (!empty($xfOptions->svAlertsSummerizeLimit) && $xfOptions->svAlertsSummerizeLimit > 0)
+        $svAlertsSummerizeLimit = (int)($xfOptions->svAlertsSummerizeLimit ?? 0);
+        if ($svAlertsSummerizeLimit > 0)
         {
-            $finder->limit($xfOptions->svAlertsSummerizeLimit);
+            $finder->limit($svAlertsSummerizeLimit);
         }
 
         $finder->forceUnreadFirst();
