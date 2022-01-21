@@ -8,6 +8,6 @@
     "value_parameters": "min=0\nstep=any\ndata-step=0.1\nunits={{ phrase('units_seconds') }}",
     "depends_on": "svFadeJustReadToRead",
     "value_group": "JustReadAlerts",
-    "property_value": "2",
+    "property_value": "2.5",
     "display_order": 130
 }
