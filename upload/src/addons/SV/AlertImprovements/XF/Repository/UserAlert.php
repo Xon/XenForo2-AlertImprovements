@@ -264,7 +264,7 @@ class UserAlert extends XFCP_UserAlert
                     }
                 }
 
-                $viewedAlerts = array_slice($viewedAlerts, 0, $limit, true);
+                $viewedAlerts = \array_slice($viewedAlerts, 0, $limit, true);
                 // need to preserve keys, so don't use array_merge
                 $alerts = $unviewedAlerts + $viewedAlerts;
 
@@ -273,7 +273,7 @@ class UserAlert extends XFCP_UserAlert
 
             if ($limit > 0)
             {
-                $alerts = array_slice($alerts, 0, $limit, true);
+                $alerts = \array_slice($alerts, 0, $limit, true);
             }
 
             return $finderQuery ? $alerts : $finder->materializeAlerts($alerts);
@@ -452,7 +452,7 @@ class UserAlert extends XFCP_UserAlert
         $handlers = $this->getAlertHandlersForConsolidation();
         // nothing to be done
         $userHandler = empty($handlers['user']) ? null : $handlers['user'];
-        if (empty($handlers) || ($userHandler && count($handlers) == 1))
+        if (empty($handlers) || ($userHandler && \count($handlers) === 1))
         {
             return $alerts;
         }
@@ -465,7 +465,7 @@ class UserAlert extends XFCP_UserAlert
         {
             if ((!$ignoreReadState && $item['view_date']) ||
                 empty($handlers[$item['content_type']]) ||
-                preg_match('/^.*_summary$/', $item['action']))
+                \preg_match('/^.*_summary$/', $item['action']))
             {
                 $outputAlerts[$id] = $item;
                 continue;
@@ -583,10 +583,10 @@ class UserAlert extends XFCP_UserAlert
             }
         }
 
-        uasort(
+        \uasort(
             $outputAlerts,
             function ($a, $b) {
-                if ($a['event_date'] == $b['event_date'])
+                if ($a['event_date'] === $b['event_date'])
                 {
                     return ($a['alert_id'] < $b['alert_id']) ? 1 : -1;
                 }
@@ -614,11 +614,11 @@ class UserAlert extends XFCP_UserAlert
     protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate): bool
     {
         $grouped = 0;
-        if (!$summarizeThreshold || count($alertGrouping) < $summarizeThreshold)
+        if (!$summarizeThreshold || \count($alertGrouping) < $summarizeThreshold)
         {
             return false;
         }
-        $lastAlert = reset($alertGrouping);
+        $lastAlert = \reset($alertGrouping);
 
         // inject a grouped alert with the same content type/id, but with a different action
         $summaryAlert = [
@@ -650,7 +650,7 @@ class UserAlert extends XFCP_UserAlert
 
                     $extraData = @\json_decode($alert['extra_data'], true);
 
-                    if (is_array($extraData))
+                    if (\is_array($extraData))
                     {
                         foreach ($extraData as $extraDataKey => $extraDataValue)
                         {
@@ -879,11 +879,11 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
     {
-        if (!is_array($contentIds))
+        if (!\is_array($contentIds))
         {
             $contentIds = [$contentIds];
         }
-        if ($onlyActions && !is_array($onlyActions))
+        if ($onlyActions && !\is_array($onlyActions))
         {
             $onlyActions = [$onlyActions];
         }
@@ -945,8 +945,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $user->setAsSaved('alerts_unviewed', max(0, $user->alerts_unviewed - $viewRowsAffected));
-            $user->setAsSaved('alerts_unread', max(0, $user->alerts_unread - $readRowsAffected));
+            $user->setAsSaved('alerts_unviewed', \max(0, $user->alerts_unviewed - $viewRowsAffected));
+            $user->setAsSaved('alerts_unread', \max(0, $user->alerts_unread - $readRowsAffected));
         }
         catch (DeadlockException $e)
         {
@@ -1040,8 +1040,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = min($this->svUserMaxAlertCount, $user->alerts_unviewed + $viewRowsAffected);
-            $alerts_unread = min($this->svUserMaxAlertCount, $user->alerts_unread + $readRowsAffected);
+            $alerts_unviewed = \min($this->svUserMaxAlertCount, $user->alerts_unviewed + $viewRowsAffected);
+            $alerts_unread = \min($this->svUserMaxAlertCount, $user->alerts_unread + $readRowsAffected);
         }
         catch (DeadlockException $e)
         {
@@ -1091,7 +1091,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function getContentIdKeys($contents): array
     {
-        if (is_array($contents))
+        if (\is_array($contents))
         {
             return \array_keys($contents);
         }
@@ -1277,7 +1277,7 @@ class UserAlert extends XFCP_UserAlert
         /** @noinspection PhpUnusedLocalVariableInspection */
         list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
 
-        $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
+        $count = \min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
             WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL AND event_date >= ?
@@ -1326,7 +1326,7 @@ class UserAlert extends XFCP_UserAlert
 
         list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
 
-        $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
+        $count = \min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
             WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL AND (view_date >= ? OR (view_date = 0 and event_date >= ?))

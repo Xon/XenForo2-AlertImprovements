@@ -28,7 +28,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
             $this->repo = \XF::repository('XF:UserAlert');
         }
 
-        $this->defaultData = array_merge($this->jobDefaultData, $this->defaultData);
+        $this->defaultData = \array_merge($this->jobDefaultData, $this->defaultData);
 
         return parent::setupData($data);
     }
@@ -57,7 +57,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
                     DELETE pendingRebuild 
                     FROM xf_sv_user_alert_rebuild AS pendingRebuild
                     LEFT JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
-                    WHERE pendingRebuild.user_id IS NULL
+                    WHERE xf_user.user_id IS NULL
                 ");
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
             $this->data['pruneRebuildTable'] = true;
@@ -70,7 +70,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
                     DELETE pendingRebuild 
                     FROM xf_sv_user_alert_rebuild AS pendingRebuild
                     JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
-                    WHERE user_state IN ('rejected', 'disabled')
+                    WHERE xf_user.user_state IN ('rejected', 'disabled')
                 ");
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
             $this->data['pruneRebuildTable2'] = true;

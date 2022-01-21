@@ -113,7 +113,7 @@ class Account extends XFCP_Account
             return $this->notFound();
         }
 
-        $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
+        $floodingLimit = \max(1, $options->svAlertsSummarizeFlood ?? 1);
         $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
         /** @var ExtendedUserAlertRepo $alertRepo */
@@ -287,14 +287,22 @@ class Account extends XFCP_Account
         );
     }
 
-    protected function hasRecentlySummarizedAlerts(): bool
+    protected function hasRecentlySummarizedAlerts(int $floodCheck = null): bool
     {
         $options = \XF::options();
-        if (empty($options->svAlertsSummarize))
+        if (!($options->svAlertsSummarize ?? false))
         {
             return true;
         }
-        $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
+        $floodingLimit = (int)($options->svAlertsSummarizeFlood ?? 1);
+        if ($floodingLimit <= 0)
+        {
+            return false;
+        }
+        if ($floodCheck !== null)
+        {
+            $floodingLimit = $floodCheck;
+        }
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
@@ -336,7 +344,7 @@ class Account extends XFCP_Account
         // make XF mark-alert handling sane
         $this->request->set('skip_mark_read', 1);
         Globals::$skipMarkAlertsRead = true;
-        Globals::$skipSummarize = $skipSummarize || $this->hasRecentlySummarizedAlerts();
+        Globals::$skipSummarize = $skipSummarize || $this->hasRecentlySummarizedAlerts(1);
         Globals::$showUnreadOnly = $showOnlyFilter === 'unread';
         try
         {
@@ -371,7 +379,7 @@ class Account extends XFCP_Account
             }
 
             $navParams = $response->getParam('navParams') ?? [];
-            $navParams = array_merge([
+            $navParams = \array_merge([
                 'skip_summarize' => $skipSummarize,
                 'show_only'      => $showOnlyFilter,
             ], $navParams);
@@ -391,7 +399,7 @@ class Account extends XFCP_Account
         $option = $visitor->Option;
         $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_skips_mark_read);
         Globals::$skipMarkAlertsRead = true;
-        Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts();
+        Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts(1);
         Globals::$alertPopupExtraFetch = true;
         try
         {

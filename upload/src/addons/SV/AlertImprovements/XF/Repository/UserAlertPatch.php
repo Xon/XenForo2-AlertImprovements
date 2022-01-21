@@ -31,7 +31,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
                 }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
 
-                if (microtime(true) - $startTime >= $maxRunTime)
+                if (\microtime(true) - $startTime >= $maxRunTime)
                 {
                     return true;
                 }
@@ -42,7 +42,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             $db->rollback();
             // reduce batch size, and signal to try again
-            $batchSize = max((int)($batchSize / 2), 100);
+            $batchSize = \max((int)($batchSize / 2), 100);
             return true;
         }
 
@@ -67,7 +67,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
                     return $db->query("DELETE FROM xf_user_alert WHERE view_date = 0 AND event_date < ? LIMIT {$batchSize}", $cutOff);
                 }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-                if (microtime(true) - $startTime >= $maxRunTime)
+                if (\microtime(true) - $startTime >= $maxRunTime)
                 {
                     return true;
                 }
@@ -78,7 +78,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             $db->rollback();
             // reduce batch size, and signal to try again
-            $batchSize = max((int)($batchSize / 2), 100);
+            $batchSize = \max((int)($batchSize / 2), 100);
             return true;
         }
 

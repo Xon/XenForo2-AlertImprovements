@@ -138,7 +138,7 @@ class UserAlert extends XFCP_UserAlert
         }
         if ($userIds)
         {
-            $userIds = array_keys($userIds);
+            $userIds = \array_keys($userIds);
             $em->getFinder('XF:User')->whereIds($userIds)->fetch();
         }
 

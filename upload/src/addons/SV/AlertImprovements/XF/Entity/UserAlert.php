@@ -82,7 +82,7 @@ class UserAlert extends XFCP_UserAlert
     {
         if ($this->summerize_id === null)
         {
-            return (bool)preg_match('/^.*_summary$/', $this->action);
+            return (bool)\preg_match('/^.*_summary$/', $this->action);
         }
 
         return false;
@@ -91,7 +91,7 @@ class UserAlert extends XFCP_UserAlert
     public function getReactedContentSummary(string $glue = ' '): string
     {
         $extra = $this->extra_data;
-        if (isset($extra['ct']) && is_array($extra['ct']))
+        if (isset($extra['ct']) && \is_array($extra['ct']))
         {
             $phrases = [];
             foreach ($extra['ct'] as $contentType => $count)
@@ -108,7 +108,7 @@ class UserAlert extends XFCP_UserAlert
 
             if ($phrases)
             {
-                return \utf8_trim(implode($glue, $phrases));
+                return \utf8_trim(\implode($glue, $phrases));
             }
         }
 

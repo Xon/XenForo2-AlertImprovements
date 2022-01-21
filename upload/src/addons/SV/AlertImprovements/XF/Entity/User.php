@@ -33,7 +33,7 @@ class User extends XFCP_User
             // error because we are still deploying files/updates.
             $alertRepo = null;
         }
-        $userMaxAlertCount = $alertRepo && is_callable([$alertRepo, 'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
+        $userMaxAlertCount = $alertRepo && \is_callable([$alertRepo, 'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
 
         if (\XF::$versionId < 2020000)
         {

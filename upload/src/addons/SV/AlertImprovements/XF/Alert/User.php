@@ -30,7 +30,7 @@ class User extends XFCP_User implements ISummarizeAlert
             case 'post':
                 $validActions = ['reaction'];
 
-                return in_array($alert['action'], $validActions, true);
+                return \in_array($alert['action'], $validActions, true);
             default:
                 return false;
         }

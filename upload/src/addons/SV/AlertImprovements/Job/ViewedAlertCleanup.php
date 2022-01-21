@@ -36,7 +36,7 @@ class ViewedAlertCleanup extends AbstractJob
                     INSERT IGNORE INTO xf_sv_user_alert_rebuild (user_id, rebuild_date)
                     SELECT DISTINCT alerted_user_id, ?
                     FROM xf_user_alert 
-                    WHERE view_date > 0 AND view_date < ? AND alerted_user_id <> 0
+                    WHERE view_date > 0 AND view_date < ?
                 ', [\XF::$time, $cutOff]);
             }
             catch (\XF\Db\DeadlockException $e)
@@ -58,7 +58,7 @@ class ViewedAlertCleanup extends AbstractJob
             return $this->complete();
         }
 
-        if (microtime(true) - $startTime >= $maxRunTime)
+        if (\microtime(true) - $startTime >= $maxRunTime)
         {
             return $this->resume();
         }
@@ -68,7 +68,7 @@ class ViewedAlertCleanup extends AbstractJob
 
         if (empty($this->data['pruned']))
         {
-            $batchSize = max(100, (int)($this->data['batch'] ?? 50000));
+            $batchSize = \max(100, (int)($this->data['batch'] ?? 50000));
             $continue = $alertRepo->pruneViewedAlertsBatch($cutOff, $startTime, $maxRunTime, $batchSize);
             $this->data['batch'] = $batchSize;
             if ($continue)

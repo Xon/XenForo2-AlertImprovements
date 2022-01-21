@@ -177,7 +177,7 @@ class Setup extends AbstractSetup
         }
 
         $next = $stepParams[0] ?? 0;
-        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $maxRunTime = \max(\min(\XF::app()->config('jobMaxRunTime'), 4), 1);
         $startTime = \microtime(true);
         foreach($templates as $template)
         {
@@ -194,7 +194,7 @@ class Setup extends AbstractSetup
             $template->version_string = "2.8.11";
             $template->save(false, true);
 
-            if (microtime(true) - $startTime >= $maxRunTime)
+            if (\microtime(true) - $startTime >= $maxRunTime)
             {
                 break;
             }

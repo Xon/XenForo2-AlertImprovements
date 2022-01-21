@@ -1,1 +1,2 @@
-Time in seconds between successive calls to alert re-summarize
+Time in seconds between successive calls to alert re-summarize<br/>
+0 to disable the flood-check

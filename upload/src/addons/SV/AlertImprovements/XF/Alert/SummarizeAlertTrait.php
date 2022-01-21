@@ -15,7 +15,7 @@ trait SummarizeAlertTrait
     {
         $validActions = ['reaction'];
 
-        return in_array($alert['action'], $validActions, true);
+        return \in_array($alert['action'], $validActions, true);
     }
 
     protected function getSummaryAction(array $summaryAlert): string
