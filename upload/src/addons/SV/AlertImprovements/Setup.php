@@ -318,7 +318,9 @@ class Setup extends AbstractSetup
                 $col2->after('read_date');
             }
 
-            $this->addOrChangeColumn($table, 'summerize_id', 'int')->nullable(true)->setDefault(null);
+            // todo migrate this from int => bigint, but for now leave as-is
+            $type = $table->getColumnDefinition(['summerize_id'])['type'] ?? 'int';
+            $this->addOrChangeColumn($table, 'summerize_id', $type)->nullable(true)->setDefault(null);
 
             // index is superseded
             $table->dropIndexes(['contentType_contentId', 'alertedUserId_viewDate']);
