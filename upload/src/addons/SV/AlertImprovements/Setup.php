@@ -9,6 +9,7 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
+use function strpos;
 
 /**
  * Class Setup
@@ -318,9 +319,10 @@ class Setup extends AbstractSetup
                 $col2->after('read_date');
             }
 
-            // todo migrate this from int => bigint, but for now leave as-is
-            $type = $table->getColumnDefinition(['summerize_id'])['type'] ?? 'int';
-            $this->addOrChangeColumn($table, 'summerize_id', $type)->nullable(true)->setDefault(null);
+            // ensure summerize_id type matches the alert_id column
+            $rawType = $table->getColumnDefinition('alert_id')['Type'] ?? 'int(10) unsigned';
+            $idType = strpos($rawType, 'bigint') !== false ? 'bigint' : 'int';
+            $this->addOrChangeColumn($table, 'summerize_id', $idType)->nullable(true)->setDefault(null);
 
             // index is superseded
             $table->dropIndexes(['contentType_contentId', 'alertedUserId_viewDate']);
