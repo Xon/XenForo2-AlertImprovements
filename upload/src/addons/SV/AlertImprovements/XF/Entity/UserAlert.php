@@ -6,6 +6,7 @@
 namespace SV\AlertImprovements\XF\Entity;
 
 use XF\Mvc\Entity\Structure;
+use function array_key_exists, is_array, preg_match, utf8_strtolower, utf8_trim, implode;
 
 /**
  * Class UserAlert
@@ -24,7 +25,7 @@ class UserAlert extends XFCP_UserAlert
 {
     public function getHandler()
     {
-        if (\array_key_exists('Handler', $this->_getterCache))
+        if (array_key_exists('Handler', $this->_getterCache))
         {
             return $this->_getterCache['Handler'];
         }
@@ -82,7 +83,7 @@ class UserAlert extends XFCP_UserAlert
     {
         if ($this->summerize_id === null)
         {
-            return (bool)\preg_match('/^.*_summary$/', $this->action);
+            return (bool)preg_match('/^.*_summary$/', $this->action);
         }
 
         return false;
@@ -91,7 +92,7 @@ class UserAlert extends XFCP_UserAlert
     public function getReactedContentSummary(string $glue = ' '): string
     {
         $extra = $this->extra_data;
-        if (isset($extra['ct']) && \is_array($extra['ct']))
+        if (isset($extra['ct']) && is_array($extra['ct']))
         {
             $phrases = [];
             foreach ($extra['ct'] as $contentType => $count)
@@ -101,14 +102,14 @@ class UserAlert extends XFCP_UserAlert
                     $contentTypePhrase = \XF::app()->getContentTypePhrase($contentType, $count > 1);
                     if ($contentTypePhrase)
                     {
-                        $phrases[] = \XF::phraseDeferred('sv_x_of_y_content_type', ['count' => $count, 'contentType' => \utf8_strtolower($contentTypePhrase)]);
+                        $phrases[] = \XF::phraseDeferred('sv_x_of_y_content_type', ['count' => $count, 'contentType' => utf8_strtolower($contentTypePhrase)]);
                     }
                 }
             }
 
             if ($phrases)
             {
-                return \utf8_trim(\implode($glue, $phrases));
+                return utf8_trim(implode($glue, $phrases));
             }
         }
 

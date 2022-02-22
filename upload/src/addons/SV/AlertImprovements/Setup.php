@@ -9,7 +9,7 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
-use function strpos;
+use function min, max, microtime, array_keys, strpos;
 
 /**
  * Class Setup
@@ -165,7 +165,7 @@ class Setup extends AbstractSetup
         ];
 
         $finder = \XF::finder('XF:Template')
-                     ->where('title', '=', \array_keys($templateRenames));
+                     ->where('title', '=', array_keys($templateRenames));
         $stepData = $stepParams[2] ?? [];
         if (!isset($stepData['max']))
         {
@@ -178,8 +178,8 @@ class Setup extends AbstractSetup
         }
 
         $next = $stepParams[0] ?? 0;
-        $maxRunTime = \max(\min(\XF::app()->config('jobMaxRunTime'), 4), 1);
-        $startTime = \microtime(true);
+        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $startTime = microtime(true);
         foreach($templates as $template)
         {
             /** @var \XF\Entity\Template $template*/
@@ -195,7 +195,7 @@ class Setup extends AbstractSetup
             $template->version_string = "2.8.11";
             $template->save(false, true);
 
-            if (\microtime(true) - $startTime >= $maxRunTime)
+            if (microtime(true) - $startTime >= $maxRunTime)
             {
                 break;
             }

@@ -19,6 +19,7 @@ use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Mvc\Reply\View as ViewReply;
 use XF\Mvc\Reply\Redirect as RedirectReply;
 use XF\Mvc\Reply\Exception as ExceptionReply;
+use function array_slice, count, max, array_merge;
 
 /**
  * Class Account
@@ -113,7 +114,7 @@ class Account extends XFCP_Account
             return $this->notFound();
         }
 
-        $floodingLimit = \max(1, $options->svAlertsSummarizeFlood ?? 1);
+        $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
         $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
         /** @var ExtendedUserAlertRepo $alertRepo */
@@ -379,7 +380,7 @@ class Account extends XFCP_Account
             }
 
             $navParams = $response->getParam('navParams') ?? [];
-            $navParams = \array_merge([
+            $navParams = array_merge([
                 'skip_summarize' => $skipSummarize,
                 'show_only'      => $showOnlyFilter,
             ], $navParams);
@@ -556,8 +557,8 @@ class Account extends XFCP_Account
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $alertIds = $this->filter('alert_ids', 'array-uint');
-        $alertIds = \array_slice($alertIds, 0, $this->options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
-        if (!\count($alertIds))
+        $alertIds = array_slice($alertIds, 0, $this->options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
+        if (!count($alertIds))
         {
             throw $this->exception($this->error(\XF::phrase('svAlertImprov_please_select_at_least_one_alert_to_update')));
         }

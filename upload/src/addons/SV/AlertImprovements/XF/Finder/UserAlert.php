@@ -1,10 +1,10 @@
 <?php
 
-
 namespace SV\AlertImprovements\XF\Finder;
 
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
+use function array_unshift;
 
 /**
  * Class UserAlert
@@ -50,7 +50,7 @@ class UserAlert extends XFCP_UserAlert
             $this->indexHint('USE', 'alertedUserId_eventDate');
         }
         $viewColumn = $this->columnSqlName('view_date');
-        \array_unshift($this->order, "if ({$viewColumn} = 0, 0, 1)");
+        array_unshift($this->order, "if ({$viewColumn} = 0, 0, 1)");
 
         return $this;
     }

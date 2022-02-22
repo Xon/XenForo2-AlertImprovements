@@ -5,6 +5,7 @@ namespace SV\AlertImprovements\Job;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Db\AbstractAdapter;
 use XF\Job\AbstractRebuildJob;
+use function array_merge;
 
 /**
  * Class Cache
@@ -28,7 +29,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
             $this->repo = \XF::repository('XF:UserAlert');
         }
 
-        $this->defaultData = \array_merge($this->jobDefaultData, $this->defaultData);
+        $this->defaultData = array_merge($this->jobDefaultData, $this->defaultData);
 
         return parent::setupData($data);
     }

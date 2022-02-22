@@ -5,6 +5,8 @@ namespace SV\AlertImprovements\XF\Alert;
 use SV\AlertImprovements\ISummarizeAlert;
 use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
+use function in_array;
+
 /**
  * Class User
  *
@@ -30,7 +32,7 @@ class User extends XFCP_User implements ISummarizeAlert
             case 'post':
                 $validActions = ['reaction'];
 
-                return \in_array($alert['action'], $validActions, true);
+                return in_array($alert['action'], $validActions, true);
             default:
                 return false;
         }

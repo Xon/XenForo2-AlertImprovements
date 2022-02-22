@@ -4,6 +4,8 @@ namespace SV\AlertImprovements\XF\Alert;
 
 use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
 
+use function in_array;
+
 /**
  * Trait SummarizeAlertTrait
  *
@@ -15,7 +17,7 @@ trait SummarizeAlertTrait
     {
         $validActions = ['reaction'];
 
-        return \in_array($alert['action'], $validActions, true);
+        return in_array($alert['action'], $validActions, true);
     }
 
     protected function getSummaryAction(array $summaryAlert): string

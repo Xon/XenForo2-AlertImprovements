@@ -15,6 +15,8 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Finder;
 
+use function array_slice, count, is_array;
+
 /**
  * Class UserAlert
  *
@@ -258,13 +260,13 @@ class UserAlert extends XFCP_UserAlert
                     {
                         $viewedAlerts[$key] = $alert;
                     }
-                    if (\count($unviewedAlerts) > $limit)
+                    if (count($unviewedAlerts) > $limit)
                     {
                         break;
                     }
                 }
 
-                $viewedAlerts = \array_slice($viewedAlerts, 0, $limit, true);
+                $viewedAlerts = array_slice($viewedAlerts, 0, $limit, true);
                 // need to preserve keys, so don't use array_merge
                 $alerts = $unviewedAlerts + $viewedAlerts;
 
@@ -273,7 +275,7 @@ class UserAlert extends XFCP_UserAlert
 
             if ($limit > 0)
             {
-                $alerts = \array_slice($alerts, 0, $limit, true);
+                $alerts = array_slice($alerts, 0, $limit, true);
             }
 
             return $finderQuery ? $alerts : $finder->materializeAlerts($alerts);
@@ -452,7 +454,7 @@ class UserAlert extends XFCP_UserAlert
         $handlers = $this->getAlertHandlersForConsolidation();
         // nothing to be done
         $userHandler = empty($handlers['user']) ? null : $handlers['user'];
-        if (empty($handlers) || ($userHandler && \count($handlers) === 1))
+        if (empty($handlers) || ($userHandler && count($handlers) === 1))
         {
             return $alerts;
         }
@@ -614,7 +616,7 @@ class UserAlert extends XFCP_UserAlert
     protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate): bool
     {
         $grouped = 0;
-        if (!$summarizeThreshold || \count($alertGrouping) < $summarizeThreshold)
+        if (!$summarizeThreshold || count($alertGrouping) < $summarizeThreshold)
         {
             return false;
         }
@@ -650,7 +652,7 @@ class UserAlert extends XFCP_UserAlert
 
                     $extraData = @\json_decode($alert['extra_data'], true);
 
-                    if (\is_array($extraData))
+                    if (is_array($extraData))
                     {
                         foreach ($extraData as $extraDataKey => $extraDataValue)
                         {
@@ -879,11 +881,11 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
     {
-        if (!\is_array($contentIds))
+        if (!is_array($contentIds))
         {
             $contentIds = [$contentIds];
         }
-        if ($onlyActions && !\is_array($onlyActions))
+        if ($onlyActions && !is_array($onlyActions))
         {
             $onlyActions = [$onlyActions];
         }
@@ -899,7 +901,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
     {
-        if (!\count($alertIds))
+        if (!count($alertIds))
         {
             return;
         }
@@ -988,7 +990,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
     {
-        if (!\count($alertIds))
+        if (!count($alertIds))
         {
             return;
         }
@@ -1091,7 +1093,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function getContentIdKeys($contents): array
     {
-        if (\is_array($contents))
+        if (is_array($contents))
         {
             return \array_keys($contents);
         }
