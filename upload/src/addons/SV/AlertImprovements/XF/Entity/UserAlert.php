@@ -163,7 +163,7 @@ class UserAlert extends XFCP_UserAlert
             $structure->options['force_unread_in_ui'] = false;
         }
 
-        $structure->columns['summerize_id'] = ['type' => self::UINT, 'nullable' => true, 'default' => null];
+        $structure->columns['summerize_id'] = ['type' => self::UINT, 'max' => \PHP_INT_MAX, 'nullable' => true, 'default' => null];
 
         $structure->getters['read_date'] = ['getter' => 'getReadDate', 'cache' => false];
         $structure->getters['is_new'] = ['getter' => 'getIsNew', 'cache' => true];
