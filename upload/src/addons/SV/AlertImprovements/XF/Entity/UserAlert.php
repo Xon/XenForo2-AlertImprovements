@@ -118,7 +118,7 @@ class UserAlert extends XFCP_UserAlert
 
     protected function forceSetAutoRead(): void
     {
-        if (!$this->auto_read && $this->depends_on_addon_id !== '')
+        if (!$this->auto_read && $this->depends_on_addon_id === '')
         {
             // stock XF injects autoRead flags in most alert types even if it doesn't make any sense
             $this->auto_read = true;
