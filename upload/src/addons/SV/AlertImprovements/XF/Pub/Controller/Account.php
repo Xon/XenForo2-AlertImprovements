@@ -370,7 +370,7 @@ class Account extends XFCP_Account
 
                 // This condition is likely because of an unviewable alerts.
                 // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
-                if ($page === 1 && $showOnlyFilter === 'unread' && !$alerts->count() && $hasUnreadAlerts)
+                if ($page === 1 && $showOnlyFilter === 'unread' && $alerts->count() === 0 && $hasUnreadAlerts)
                 {
                     /** @var ExtendedUserAlertRepo $alertRepo */
                     $alertRepo = $this->repository('XF:UserAlert');

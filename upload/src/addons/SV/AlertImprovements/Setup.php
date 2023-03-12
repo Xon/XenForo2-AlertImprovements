@@ -171,7 +171,7 @@ class Setup extends AbstractSetup
             $stepData['max'] = $finder->total();
         }
         $templates = $finder->fetch();
-        if (!$templates->count())
+        if ($templates->count() === 0)
         {
             return null;
         }

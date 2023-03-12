@@ -6,6 +6,7 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
 use function array_keys;
 use function array_unshift;
+use function count;
 
 /**
  * Class UserAlert
@@ -137,7 +138,7 @@ class UserAlert extends XFCP_UserAlert
                 $userIds[$rawEntity['alerted_user_id']] = true;
             }
         }
-        if ($userIds)
+        if (count($userIds) !== 0)
         {
             $userIds = array_keys($userIds);
             $em->getFinder('XF:User')->whereIds($userIds)->fetch();

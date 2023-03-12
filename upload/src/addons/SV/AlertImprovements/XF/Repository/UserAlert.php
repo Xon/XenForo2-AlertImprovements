@@ -51,24 +51,25 @@ class UserAlert extends XFCP_UserAlert
 
     public function summarizeAlertsForUser(User $user)
     {
+        $userId = (int)$user->user_id;
+
         // reaction summary alerts really can't me merged, so wipe all summary alerts, and then try again
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user) {
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
 
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
 
             $db->query("
                 DELETE FROM xf_user_alert
                 WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary' AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
-            ", [$user->user_id, $viewedCutOff, $unviewedCutOff]);
+            ", [$userId, $viewedCutOff, $unviewedCutOff]);
 
             $db->query('
                 UPDATE xf_user_alert
                 SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id IS NOT NULL AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
-            ', [$user->user_id, $viewedCutOff, $unviewedCutOff]);
+            ', [$userId, $viewedCutOff, $unviewedCutOff]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-        $userId = $user->user_id;
         // do summerization outside the above transaction
         $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
 
@@ -104,7 +105,7 @@ class UserAlert extends XFCP_UserAlert
                        ->whereAddOnActive([
                            'column' => 'depends_on_addon_id'
                        ]);
-        if ($userId)
+        if ($userId !== 0)
         {
             $finder->where(['alerted_user_id', $userId]);
         }
@@ -408,7 +409,7 @@ class UserAlert extends XFCP_UserAlert
         $xfOptions = \XF::options();
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        $userId = $visitor->user_id;
+        $userId = (int)$visitor->user_id;
         $option = $visitor->Option;
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
@@ -799,8 +800,8 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
-        $userId = $user->user_id;
-        if (Globals::$skipMarkAlertsRead || !$userId)
+        $userId = (int)$user->user_id;
+        if ($userId === 0 || Globals::$skipMarkAlertsRead)
         {
             return;
         }
@@ -844,8 +845,8 @@ class UserAlert extends XFCP_UserAlert
 
     protected function markSpecificUserAlertsRead(AbstractCollection $alerts, User $user, int $readDate = null)
     {
-        $userId = $user->user_id;
-        if (!$userId || !$alerts->count())
+        $userId = (int)$user->user_id;
+        if ($userId === 0 || $alerts->count() === 0)
         {
             return;
         }
@@ -896,7 +897,7 @@ class UserAlert extends XFCP_UserAlert
             $onlyActions = [$onlyActions];
         }
 
-        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user ?: \XF::visitor(), $readDate);
+        $this->markAlertsReadForContentIds($contentType, $contentIds, $onlyActions, 0, $user ?? \XF::visitor(), $readDate);
     }
 
     /**
@@ -907,12 +908,12 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
     {
-        if (!count($alertIds))
+        if (count($alertIds) === 0)
         {
             return;
         }
 
-        $userId = $user->user_id;
+        $userId = (int)$user->user_id;
         $db = $this->db();
         if ($db->inTransaction())
         {
@@ -996,13 +997,13 @@ class UserAlert extends XFCP_UserAlert
      */
     public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
     {
-        if (!count($alertIds))
+        if (count($alertIds) === 0)
         {
             return;
         }
 
         $disableAutoReadSql = $disableAutoRead ? ', auto_read = 0 ' : '';
-        $userId = $user->user_id;
+        $userId = (int)$user->user_id;
         $db = $this->db();
         if ($db->inTransaction())
         {
@@ -1139,9 +1140,9 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $user = $user ?: \XF::visitor();
-        $userId = $user->user_id;
-        if (!$userId || !$user->alerts_unread)
+        $user = $user ?? \XF::visitor();
+        $userId = (int)$user->user_id;
+        if ($userId === 0 || $user->alerts_unread === 0)
         {
             return;
         }
@@ -1240,7 +1241,7 @@ class UserAlert extends XFCP_UserAlert
      */
     public function updateUnreadCountForUser(User $user)
     {
-        $userId = $user->user_id;
+        $userId = (int)$user->user_id;
         $result = $this->updateUnreadCountForUserId($userId);
 
         if ($result)
@@ -1259,7 +1260,7 @@ class UserAlert extends XFCP_UserAlert
 
     public function updateUnviewedCountForUserId(int $userId): bool
     {
-        if (!$userId)
+        if ($userId === 0)
         {
             return false;
         }
@@ -1271,8 +1272,8 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $userId = $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
-        if (!$userId)
+        $userId = (int)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        if ($userId === 0)
         {
             if (!$inTransaction)
             {
