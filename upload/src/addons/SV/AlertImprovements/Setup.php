@@ -99,34 +99,6 @@ class Setup extends AbstractSetup
         $this->installStep1();
     }
 
-    public function upgrade2080002Step2(): void
-    {
-        if (\XF::$versionId >= 2020000)
-        {
-            return;
-        }
-
-        /** @noinspection SqlWithoutWhere */
-        $this->executeUpgradeQuery("
-			UPDATE xf_user_alert
-			SET read_date = view_date
-		");
-    }
-
-    public function upgrade2080002Step3(): void
-    {
-        if (\XF::$versionId >= 2020000)
-        {
-            return;
-        }
-
-        /** @noinspection SqlWithoutWhere */
-        $this->executeUpgradeQuery("
-			UPDATE xf_user
-			SET alerts_unviewed = alerts_unread
-		");
-    }
-
     public function upgrade2080100Step1(): void
     {
         $this->renameOption('sv_alerts_summerize', 'svAlertsSummarize');

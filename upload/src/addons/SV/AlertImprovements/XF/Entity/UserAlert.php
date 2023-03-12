@@ -169,13 +169,6 @@ class UserAlert extends XFCP_UserAlert
     {
         $structure = parent::getStructure($structure);
 
-        if (\XF::$versionId < 2020000)
-        {
-            $structure->columns['read_date'] = ['type' => self::UINT, 'default' => 0];
-            $structure->columns['auto_read'] = ['type' => self::BOOL, 'default' => true];
-            $structure->options['force_unread_in_ui'] = false;
-        }
-
         // Pre-XF2.2.9 bug, where UINT assumes 32bit value, so explicitly set 'max'
         $structure->columns['summerize_id'] = ['type' => self::UINT, 'max' => \PHP_INT_MAX, 'nullable' => true, 'default' => null];
 

@@ -1,9 +1,0 @@
-{
-    "template": "account_alerts",
-    "description": "Patch XF2.1 row highlighting",
-    "execution_order": 6396,
-    "enabled": true,
-    "action": "str_replace",
-    "find": "{{ $alert.isUnviewed() ? ' block-row--highlighted' : ($alert.isRecentlyViewed() ? '' : ' block-row--alt') }}",
-    "replace": "{{ $alert.getOption('force_unread_in_ui') ? ' is-just-read' : '' }}{{ $alert.isUnread() ? ' is-unread' : ($alert.isRecentlyRead() ? ' is-recently-read' : ' is-read') }}"
-}

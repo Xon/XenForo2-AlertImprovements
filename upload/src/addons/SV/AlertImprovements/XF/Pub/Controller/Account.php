@@ -594,12 +594,11 @@ class Account extends XFCP_Account
     }
 
     /**
-     * XF2.2 compatible function
-     *
      * @param int  $id
      * @param null $with
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
+     * @throws ExceptionReply
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {

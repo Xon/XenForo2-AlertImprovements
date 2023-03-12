@@ -109,28 +109,4 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             'cutOff' => $cutOff,
         ], false);
     }
-
-
-    /**
-     * XF2.1 shim
-     *
-     * @param int|null $cutOff
-     * @noinspection PhpMissingParamTypeInspection
-     */
-    public function pruneReadAlerts($cutOff = null)
-    {
-        $this->pruneViewedAlerts($cutOff);
-    }
-
-    /**
-     * XF2.1 shim
-     *
-     * @param int|null $cutOff
-     * @noinspection PhpMissingParamTypeInspection
-     */
-    public function pruneUnreadAlerts($cutOff = null)
-    {
-        $this->pruneUnviewedAlerts($cutOff);
-    }
-
 }

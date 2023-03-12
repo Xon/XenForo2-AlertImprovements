@@ -24,17 +24,15 @@ class UserAlert extends XFCP_UserAlert
      */
     protected $shimCollectionViewable = false;
 
-    public function shimSource(\Closure $shimSource = null)
+    public function shimSource(\Closure $shimSource = null): void
     {
         $this->shimSource = $shimSource;
     }
 
     /**
-     * XF2.1 function, XF2.2 technically has markInaccessibleAlertsReadIfNeeded but it's usage in some cases is broken
-     *
      * @param bool $shimCollectionViewable
      */
-    public function markUnviewableAsUnread(bool $shimCollectionViewable = true)
+    public function markUnviewableAsUnread(bool $shimCollectionViewable = true): void
     {
         $this->shimCollectionViewable = $shimCollectionViewable;
     }

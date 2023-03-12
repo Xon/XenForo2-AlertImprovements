@@ -1130,12 +1130,12 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        if ($maxXFVersion && \XF::$versionId > $maxXFVersion)
+        if ($maxXFVersion !== 0&& \XF::$versionId > $maxXFVersion)
         {
             return;
         }
 
-        if (empty($contentIds))
+        if (count($contentIds) === 0)
         {
             return;
         }
@@ -1171,7 +1171,7 @@ class UserAlert extends XFCP_UserAlert
         ", [$userId, $viewDate, $viewedCutOff, $unviewedCutOff]
         ); // do not bother selecting `read_date = 0 OR`
 
-        if (empty($alertIds))
+        if (count($alertIds) === 0)
         {
             return;
         }
