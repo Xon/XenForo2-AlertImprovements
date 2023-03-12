@@ -2,7 +2,7 @@
     "legacy_addon_id": "SV_AlertImprovements",
     "title": "Alert Improvements",
     "description": "A collection of improvements to the XenForo 2 Alerts system.",
-    "version_string": "2.9.0 Alpha 6",
+    "version_string": "2.9.0 Alpha 7",
     "version_id": 2090006,
     "dev" : "Xon",
     "dev_url": "https://atelieraphelion.com/",
@@ -10,8 +10,8 @@
     "support_url": "https://xenforo.com/community/resources/alert-improvements-by-xon.6398/",
     "extra_urls": [],
     "require" : {
-        "XF": [2010070, "XenForo 2.1.0+"],
-        "php": ["7.0.0", "PHP 7.0.0+"],
+        "XF": [2020070, "XenForo 2.2.0+"],
+        "php": ["7.2.0", "PHP 7.2.0+"],
         "SV/StandardLib": [1000000,"Standard Library by Xon v1.0.0+"]
     },
     "require-soft": {
