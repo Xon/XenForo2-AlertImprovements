@@ -23,7 +23,7 @@ class RebuildAlertTotals extends AbstractRebuildCommand
         return 'SV\AlertImprovements:AlertTotalRebuild';
     }
 
-    protected function configureOptions()
+    protected function configureOptions(): void
     {
         $this->addOption(
             'pendingRebuilds',

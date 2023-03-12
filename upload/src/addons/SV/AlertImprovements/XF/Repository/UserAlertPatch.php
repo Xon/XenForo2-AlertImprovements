@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
+use function max;
 
 /**
  * Class UserAlert
@@ -42,7 +43,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             $db->rollback();
             // reduce batch size, and signal to try again
-            $batchSize = \max((int)($batchSize / 2), 100);
+            $batchSize = max((int)($batchSize / 2), 100);
             return true;
         }
 
@@ -78,7 +79,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             $db->rollback();
             // reduce batch size, and signal to try again
-            $batchSize = \max((int)($batchSize / 2), 100);
+            $batchSize = max((int)($batchSize / 2), 100);
             return true;
         }
 

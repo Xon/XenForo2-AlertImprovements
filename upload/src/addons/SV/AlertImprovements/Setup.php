@@ -23,7 +23,7 @@ class Setup extends AbstractSetup
     use StepRunnerUpgradeTrait;
     use StepRunnerUninstallTrait;
 
-    public function installStep1()
+    public function installStep1(): void
     {
         $sm = $this->schemaManager();
 
@@ -42,7 +42,7 @@ class Setup extends AbstractSetup
         }
     }
 
-    public function installStep2()
+    public function installStep2(): void
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_popup_skips_mark_read' => '',
@@ -51,24 +51,24 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    public function upgrade2050001Step1()
+    public function upgrade2050001Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade2050001Step2()
+    public function upgrade2050001Step2(): void
     {
         $this->installStep2();
     }
 
-    public function upgrade2050001Step3()
+    public function upgrade2050001Step3(): void
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_popup_skips_mark_read' => 0,
         ]);
     }
 
-    public function upgrade2050201Step1()
+    public function upgrade2050201Step1(): void
     {
         $db = $this->db();
 
@@ -85,7 +85,7 @@ class Setup extends AbstractSetup
         ');
     }
 
-    public function upgrade2050201Step2()
+    public function upgrade2050201Step2(): void
     {
         $this->db()->query("
             UPDATE xf_user_alert
@@ -94,13 +94,12 @@ class Setup extends AbstractSetup
         ");
     }
 
-
-    public function upgrade2080002Step1()
+    public function upgrade2080002Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade2080002Step2()
+    public function upgrade2080002Step2(): void
     {
         if (\XF::$versionId >= 2020000)
         {
@@ -114,7 +113,7 @@ class Setup extends AbstractSetup
 		");
     }
 
-    public function upgrade2080002Step3()
+    public function upgrade2080002Step3(): void
     {
         if (\XF::$versionId >= 2020000)
         {
@@ -128,14 +127,14 @@ class Setup extends AbstractSetup
 		");
     }
 
-    public function upgrade2080100Step1()
+    public function upgrade2080100Step1(): void
     {
         $this->renameOption('sv_alerts_summerize', 'svAlertsSummarize');
         $this->renameOption('sv_alerts_summerize_flood', 'svAlertsSummarizeFlood');
         $this->renameOption('sv_alerts_groupByDate', 'svAlertsGroupByDate');
     }
 
-    public function upgrade2080606Step1()
+    public function upgrade2080606Step1(): void
     {
         $this->installStep1();
     }
@@ -144,7 +143,7 @@ class Setup extends AbstractSetup
      * @param array $stepParams
      * @return array|null
      */
-    public function upgrade2081101Step1(array $stepParams)
+    public function upgrade2081101Step1(array $stepParams): ?array
     {
         $templateRenames = [
             // admin - pre-2.7
@@ -222,25 +221,25 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    public function upgrade2081500Step1()
+    public function upgrade2081500Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade2081500Step2()
+    public function upgrade2081500Step2(): void
     {
         // purge broken jobs
         $this->db()->query('DELETE FROM xf_job WHERE unique_key IN (?,?)', ['sViewedAlertCleanup', 'svUnviewedAlertCleanup']);
     }
 
-    public function upgrade2090005Step1()
+    public function upgrade2090005Step1(): void
     {
         $this->schemaManager()->alterTable('xf_user_option', function(Alter $table) {
             $table->dropColumns('sv_alerts_page_skips_mark_read');
         });
     }
 
-    public function uninstallStep1()
+    public function uninstallStep1(): void
     {
         $sm = $this->schemaManager();
 
@@ -250,7 +249,7 @@ class Setup extends AbstractSetup
         }
     }
 
-    public function uninstallStep2()
+    public function uninstallStep2(): void
     {
         $sm = $this->schemaManager();
 
@@ -266,7 +265,7 @@ class Setup extends AbstractSetup
     /**
      * @throws \XF\Db\Exception
      */
-    public function uninstallStep3()
+    public function uninstallStep3(): void
     {
         $this->db()->query("
             DELETE 
@@ -275,7 +274,7 @@ class Setup extends AbstractSetup
         ");
     }
 
-    public function postUpgrade($previousVersion, array &$stateChanges)
+    public function postUpgrade($previousVersion, array &$stateChanges): void
     {
         if ($previousVersion >= 2080000 && $previousVersion < 2080400)
         {

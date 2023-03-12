@@ -2,7 +2,6 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
-use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
@@ -25,8 +24,7 @@ class Post extends XFCP_Post
             $reply instanceof View &&
             ($post = $reply->getParam('post')))
         {
-            /** @var \XF\Entity\Post @post */
-            /** @var ExtendedUserEntity $visitor */
+            /** @var \XF\Entity\Post $post */
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)

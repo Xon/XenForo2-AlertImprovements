@@ -66,7 +66,7 @@ class Account extends XFCP_Account
         }
 
         $viewParams = [
-            'redirect' => $redirect
+            'redirect' => $redirect,
         ];
         $view = $this->view(
             'SV\AlertImprovements\XF:Account\AlertsMarkRead',
@@ -338,7 +338,6 @@ class Account extends XFCP_Account
 
         $hasUnreadAlerts = ($visitor->alerts_unread || $visitor->alerts_unviewed);
         // defaults
-        $skipMarkAsRead = true;
         $skipSummarize = $skipSummarize ?? false;
         $showOnlyFilter = $showOnlyFilter ?? ($hasUnreadAlerts ? 'unread' : 'all');
 
@@ -363,7 +362,7 @@ class Account extends XFCP_Account
             $alerts = $response->getParam('alerts');
             if ($alerts)
             {
-                $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
+                $this->markViewedAlertsRead($alerts, true);
 
                 $groupedAlerts = empty($options->svAlertsGroupByDate) ? null : $this->groupAlertsByDay($alerts);
 
@@ -425,7 +424,10 @@ class Account extends XFCP_Account
                 if ($unreadAlertsAfterReadAlerts)
                 {
                     $unreadAlerts = [];
-                    /** @var ExtendedUserAlertEntity $alert */
+                    /**
+                     * @var int $key
+                     * @var ExtendedUserAlertEntity $alert
+                     */
                     foreach ($alerts as $key => $alert)
                     {
                         if ($alert->isUnreadInUi())
@@ -489,24 +491,24 @@ class Account extends XFCP_Account
      */
     protected function groupAlertsByDay(AbstractCollection $alerts): array
     {
-        $dowTranslation = [
-            0 => 'sunday',
-            1 => 'monday',
-            2 => 'tuesday',
-            3 => 'wednesday',
-            4 => 'thursday',
-            5 => 'friday',
-            6 => 'saturday',
-        ];
-
         $language = \XF::language();
         $dayStartTimestamps = $language->getDayStartTimestamps();
 
-        return $alerts->groupBy(function (ExtendedUserAlertEntity $alert) use($language, $dayStartTimestamps, $dowTranslation)
+        return $alerts->groupBy(function (ExtendedUserAlertEntity $alert) use($language, $dayStartTimestamps)
         {
+            $dowTranslation = [
+                0 => 'sunday',
+                1 => 'monday',
+                2 => 'tuesday',
+                3 => 'wednesday',
+                4 => 'thursday',
+                5 => 'friday',
+                6 => 'saturday',
+            ];
+
             $timestamp = $alert->event_date;
             /** @noinspection PhpUnusedLocalVariableInspection */
-            list($date, $time) = $language->getDateTimeParts($timestamp);
+            [$date, $time] = $language->getDateTimeParts($timestamp);
 
             if ($timestamp >= $dayStartTimestamps['today'])
             {

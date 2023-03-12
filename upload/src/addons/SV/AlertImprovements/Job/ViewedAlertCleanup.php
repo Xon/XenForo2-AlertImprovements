@@ -3,6 +3,8 @@
 namespace SV\AlertImprovements\Job;
 
 use XF\Job\AbstractJob;
+use function max;
+use function microtime;
 
 class ViewedAlertCleanup extends AbstractJob
 {
@@ -14,7 +16,9 @@ class ViewedAlertCleanup extends AbstractJob
     ];
 
     /**
-     * @inheritDoc
+     * @param float $maxRunTime
+     * @return \XF\Job\JobResult
+     * @throws \XF\Db\Exception
      */
     public function run($maxRunTime): \XF\Job\JobResult
     {
@@ -25,7 +29,7 @@ class ViewedAlertCleanup extends AbstractJob
             return $this->complete();
         }
 
-        $startTime = \microtime(true);
+        $startTime = microtime(true);
         $db = \XF::db();
 
         if ($this->data['recordedUsers'] === null)
@@ -58,7 +62,7 @@ class ViewedAlertCleanup extends AbstractJob
             return $this->complete();
         }
 
-        if (\microtime(true) - $startTime >= $maxRunTime)
+        if (microtime(true) - $startTime >= $maxRunTime)
         {
             return $this->resume();
         }
@@ -68,7 +72,7 @@ class ViewedAlertCleanup extends AbstractJob
 
         if (empty($this->data['pruned']))
         {
-            $batchSize = \max(100, (int)($this->data['batch'] ?? 50000));
+            $batchSize = max(100, (int)($this->data['batch'] ?? 50000));
             $continue = $alertRepo->pruneViewedAlertsBatch($cutOff, $startTime, $maxRunTime, $batchSize);
             $this->data['batch'] = $batchSize;
             if ($continue)

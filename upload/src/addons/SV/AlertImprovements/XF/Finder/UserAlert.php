@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Finder;
 
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
+use function array_keys;
 use function array_unshift;
 
 /**
@@ -138,7 +139,7 @@ class UserAlert extends XFCP_UserAlert
         }
         if ($userIds)
         {
-            $userIds = \array_keys($userIds);
+            $userIds = array_keys($userIds);
             $em->getFinder('XF:User')->whereIds($userIds)->fetch();
         }
 

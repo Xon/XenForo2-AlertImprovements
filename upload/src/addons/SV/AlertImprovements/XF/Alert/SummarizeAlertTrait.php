@@ -31,7 +31,7 @@ trait SummarizeAlertTrait
      * @param string   $groupingStyle
      * @return array|null
      */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle)//: ?array
+    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle): ?array
     {
         if ($groupingStyle !== 'content')
         {

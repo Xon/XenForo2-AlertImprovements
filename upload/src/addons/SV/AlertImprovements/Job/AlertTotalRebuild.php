@@ -21,8 +21,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
         'pendingRebuilds' => false,
     ];
 
-    /** @noinspection PhpMissingReturnTypeInspection */
-    protected function setupData(array $data)
+    protected function setupData(array $data): array
     {
         if ($this->repo === null)
         {
@@ -34,8 +33,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
         return parent::setupData($data);
     }
 
-    /** @noinspection PhpMissingReturnTypeInspection */
-    protected function getNextIds($start, $batch)
+    protected function getNextIds($start, $batch): array
     {
         $db = $this->app->db();
 
@@ -87,7 +85,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
         ));
     }
 
-    protected function rebuildById($id)
+    protected function rebuildById($id): void
     {
         $this->repo->updateUnviewedCountForUserId($id);
         $this->repo->updateUnreadCountForUserId($id);

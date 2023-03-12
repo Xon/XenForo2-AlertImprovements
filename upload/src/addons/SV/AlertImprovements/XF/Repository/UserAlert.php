@@ -15,7 +15,13 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Finder;
 
+use function array_column;
+use function array_keys;
 use function array_slice, count, is_array;
+use function max;
+use function min;
+use function preg_match;
+use function uasort;
 
 /**
  * Class UserAlert
@@ -48,7 +54,7 @@ class UserAlert extends XFCP_UserAlert
         // reaction summary alerts really can't me merged, so wipe all summary alerts, and then try again
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user) {
 
-            list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
 
             $db->query("
                 DELETE FROM xf_user_alert
@@ -110,7 +116,7 @@ class UserAlert extends XFCP_UserAlert
         $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
         if ($skipExpiredAlerts)
         {
-            list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
@@ -153,7 +159,7 @@ class UserAlert extends XFCP_UserAlert
         $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
         if ($skipExpiredAlerts)
         {
-            list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
@@ -292,7 +298,7 @@ class UserAlert extends XFCP_UserAlert
      * @return array|null
      * @throws \Exception
      */
-    protected function checkSummarizeAlertsForUser(int $userId, bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
+    protected function checkSummarizeAlertsForUser(int $userId, bool $force, bool $ignoreReadState, int $summaryAlertViewDate): ?array
     {
         if ($userId !== \XF::visitor()->user_id)
         {
@@ -318,7 +324,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int  $summaryAlertViewDate
      * @return null|array
      */
-    protected function checkSummarizeAlerts(bool $force, bool $ignoreReadState, int $summaryAlertViewDate)
+    protected function checkSummarizeAlerts(bool $force, bool $ignoreReadState, int $summaryAlertViewDate): ?array
     {
         if ($force || $this->canSummarizeAlerts())
         {
@@ -391,7 +397,7 @@ class UserAlert extends XFCP_UserAlert
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $summarizeThreshold = $visitor->Option->sv_alerts_summarize_threshold;
-        $summarizeUnreadThreshold = \max(\min($summarizeThreshold, 2), 25);
+        $summarizeUnreadThreshold = max(min($summarizeThreshold, 2), 25);
 
         return ($visitor->alerts_unviewed >= $summarizeUnreadThreshold) || ($visitor->alerts_unread >= $summarizeUnreadThreshold);
     }
@@ -428,7 +434,7 @@ class UserAlert extends XFCP_UserAlert
         $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
         if ($skipExpiredAlerts)
         {
-            list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
@@ -467,7 +473,7 @@ class UserAlert extends XFCP_UserAlert
         {
             if ((!$ignoreReadState && $item['view_date']) ||
                 empty($handlers[$item['content_type']]) ||
-                \preg_match('/^.*_summary$/', $item['action']))
+                preg_match('/^.*_summary$/', $item['action']))
             {
                 $outputAlerts[$id] = $item;
                 continue;
@@ -532,7 +538,7 @@ class UserAlert extends XFCP_UserAlert
                 }
 
                 $userAlertGrouping = [];
-                foreach ($perUserAlerts['d'] as $contentType => &$contentIds)
+                foreach ($perUserAlerts['d'] as $contentType => $contentIds)
                 {
                     foreach ($contentIds as $contentId => $alertGrouping)
                     {
@@ -585,7 +591,7 @@ class UserAlert extends XFCP_UserAlert
             }
         }
 
-        \uasort(
+        uasort(
             $outputAlerts,
             function ($a, $b) {
                 if ($a['event_date'] === $b['event_date'])
@@ -698,7 +704,7 @@ class UserAlert extends XFCP_UserAlert
                 $reactions = $this->app()->get('reactions');
                 $reactionIds = ($reactions instanceof AbstractCollection)
                     ? $reactions->keys()
-                    : \array_keys($reactions);
+                    : array_keys($reactions);
             }
             $reactionCounts = $reactionCounts->sortByList($reactionIds);
 
@@ -713,7 +719,7 @@ class UserAlert extends XFCP_UserAlert
 
         $summerizeId = $rowsAffected = null;
         $db = $this->db();
-        $batchIds = \array_column($alertGrouping, 'alert_id');
+        $batchIds = array_column($alertGrouping, 'alert_id');
 
         // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
         $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected, &$summerizeId) {
@@ -807,7 +813,7 @@ class UserAlert extends XFCP_UserAlert
         $db = $this->db();
         $db->executeTransaction(function () use ($db, $readDate, $userId) {
             /** @noinspection PhpUnusedLocalVariableInspection */
-            list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             // table lock ordering required is [xf_user, xf_user_alert] to avoid deadlocks
             // update both view_date/read_date together to ensure they stay consistent
             $db->query('UPDATE xf_user SET alerts_unviewed = 0, alerts_unread = 0 WHERE user_id = ?', [$userId]);
@@ -947,8 +953,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $user->setAsSaved('alerts_unviewed', \max(0, $user->alerts_unviewed - $viewRowsAffected));
-            $user->setAsSaved('alerts_unread', \max(0, $user->alerts_unread - $readRowsAffected));
+            $user->setAsSaved('alerts_unviewed', max(0, $user->alerts_unviewed - $viewRowsAffected));
+            $user->setAsSaved('alerts_unread', max(0, $user->alerts_unread - $readRowsAffected));
         }
         catch (DeadlockException $e)
         {
@@ -1006,7 +1012,7 @@ class UserAlert extends XFCP_UserAlert
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
         }
 
-        list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
 
         $ids = $db->quote($alertIds);
         /** @noinspection SqlWithoutWhere */
@@ -1042,8 +1048,8 @@ class UserAlert extends XFCP_UserAlert
             ', [$viewRowsAffected, $readRowsAffected, $userId]
             );
 
-            $alerts_unviewed = \min($this->svUserMaxAlertCount, $user->alerts_unviewed + $viewRowsAffected);
-            $alerts_unread = \min($this->svUserMaxAlertCount, $user->alerts_unread + $readRowsAffected);
+            $alerts_unviewed = min($this->svUserMaxAlertCount, $user->alerts_unviewed + $viewRowsAffected);
+            $alerts_unread = min($this->svUserMaxAlertCount, $user->alerts_unread + $readRowsAffected);
         }
         catch (DeadlockException $e)
         {
@@ -1095,7 +1101,7 @@ class UserAlert extends XFCP_UserAlert
     {
         if (is_array($contents))
         {
-            return \array_keys($contents);
+            return array_keys($contents);
         }
 
         if ($contents instanceof AbstractCollection)
@@ -1147,7 +1153,7 @@ class UserAlert extends XFCP_UserAlert
         $actionFilter = $actions ? ' AND action in (' . $db->quote($actions) . ') ' : '';
         $autoMarkReadFilter = $respectAutoMarkRead ? ' AND auto_read = 1 ' : '';
 
-        list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
         $alertIds = $db->fetchAllColumn(
@@ -1277,9 +1283,9 @@ class UserAlert extends XFCP_UserAlert
         }
 
         /** @noinspection PhpUnusedLocalVariableInspection */
-        list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
 
-        $count = \min($this->svUserMaxAlertCount, (int)$db->fetchOne('
+        $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
             WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL AND event_date >= ?
@@ -1326,9 +1332,9 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        list($viewedCutOff, $unviewedCutOff) = $this->getIgnoreAlertCutOffs();
+        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
 
-        $count = \min($this->svUserMaxAlertCount, (int)$db->fetchOne('
+        $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
             WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
