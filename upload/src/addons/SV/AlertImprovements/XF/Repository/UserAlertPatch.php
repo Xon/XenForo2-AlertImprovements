@@ -58,7 +58,6 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         }
 
         $db = $this->db();
-        retry_with_smaller_batch:
         try
         {
             do
