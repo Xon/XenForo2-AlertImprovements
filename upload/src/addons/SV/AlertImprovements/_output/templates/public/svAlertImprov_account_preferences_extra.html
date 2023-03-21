@@ -7,13 +7,17 @@
 				   hint="{{ phrase('sv_alerts_popup_skips_mark_read_hint') }}"
 				   checked="{$xf.visitor.Option.sv_alerts_popup_skips_mark_read}"
 				   />
+		<xf:if is="$xf.options.svAlertsSummarize">
 		<xf:option name="option[sv_alerts_page_skips_summarize]"
 				   label="{{ phrase('sv_alerts_page_skips_summarize') }}"
 				   hint="{{ phrase('sv_alerts_page_skips_summarize_hint') }}"
 				   checked="{$xf.visitor.Option.sv_alerts_page_skips_summarize}"
 				   />
+		</xf:if>
 	</xf:checkboxrow>
+	<xf:if is="$xf.options.svAlertsSummarize">
 	<xf:textboxrow name="option[sv_alerts_summarize_threshold]" value="{{$xf.visitor.Option.sv_alerts_summarize_threshold}}" 
 				   type="number" min="0"
 				   explain="{{ phrase('sv_alerts_summarize_threshold_hint') }}" />
+	</xf:if>
 </div>
