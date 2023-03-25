@@ -1,1 +1,1 @@
-The maximum number of alerts to check for summarization<br/>0 to disable
+The maximum number of alerts to check for summarization<br/>0 to have no limit
