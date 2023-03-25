@@ -162,12 +162,19 @@ class UserAlert extends XFCP_UserAlert
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
-            $finder->whereOr([
-                ['view_date', '>=', $viewedCutOff],
-            ], [
-                ['view_date', '=', 0],
-                ['event_date', '>=', $unviewedCutOff],
-            ]);
+            if (Globals::$showUnreadOnly)
+            {
+                $finder->where('event_date', '>=', $unviewedCutOff);
+            }
+            else
+            {
+                $finder->whereOr([
+                    ['view_date', '>=', $viewedCutOff],
+                ], [
+                    ['view_date', '=', 0],
+                    ['event_date', '>=', $unviewedCutOff],
+                ]);
+            }
         }
         else if ($cutOff)
         {
@@ -200,6 +207,7 @@ class UserAlert extends XFCP_UserAlert
                 return null;
             }
 
+            $alerts = null;
             $finderQuery = $skipSummarize && $alertPopupExtraFetch;
             if ($finderQuery)
             {
@@ -211,7 +219,35 @@ class UserAlert extends XFCP_UserAlert
             else
             {
                 // summarize & do not mark as read, this will be done at a later step and allow the just-read logic to work
-                $alerts = $this->checkSummarizeAlertsForUser($userId, false, !Globals::$showUnreadOnly, 0);
+                $unalerts = $this->checkSummarizeAlertsForUser($userId, false, false, 0);
+                if (Globals::$showUnreadOnly)
+                {
+                    $alerts = $unalerts;
+                }
+                else if ($unalerts !== null)
+                {
+                    // summarization has happened, and there are unread alerts
+                    $alerts = $finder->where('view_date', '>', 0)
+                                     ->fetch($limit)
+                                     ->toArray();
+                    $finderQuery = true;
+                    $unalerts = $finder->materializeAlerts($unalerts);
+                    // need to preserve keys, so don't use array_merge
+                    $alerts = $unalerts + $alerts;
+                    if (!$alertPopupExtraFetch)
+                    {
+                        uasort($alerts,
+                            function ($a, $b) {
+                                if ($a['event_date'] === $b['event_date'])
+                                {
+                                    return ($a['alert_id'] < $b['alert_id']) ? 1 : -1;
+                                }
+
+                                return ($a['event_date'] < $b['event_date']) ? 1 : -1;
+                            }
+                        );
+                    }
+                }
             }
 
             if ($alerts === null)
@@ -429,6 +465,11 @@ class UserAlert extends XFCP_UserAlert
                 ['view_date', '=', 0]
             ]);
         }
+        else
+        {
+            $finder->forceUnreadFirst();
+        }
+
         /** @noinspection PhpRedundantOptionalArgumentInspection */
         $finder->where('summerize_id', null);
 
@@ -437,12 +478,19 @@ class UserAlert extends XFCP_UserAlert
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
-            $finder->whereOr([
-                ['view_date', '>=', $viewedCutOff],
-            ], [
-                ['view_date', '=', 0],
-                ['event_date', '>=', $unviewedCutOff],
-            ]);
+            if ($ignoreReadState)
+            {
+                $finder->whereOr([
+                    ['view_date', '>=', $viewedCutOff],
+                ], [
+                    ['view_date', '=', 0],
+                    ['event_date', '>=', $unviewedCutOff],
+                ]);
+            }
+            else
+            {
+                $finder->where('event_date', '>=', $unviewedCutOff);
+            }
         }
 
         $svAlertsSummerizeLimit = (int)($xfOptions->svAlertsSummerizeLimit ?? 0);
@@ -450,8 +498,6 @@ class UserAlert extends XFCP_UserAlert
         {
             $finder->limit($svAlertsSummerizeLimit);
         }
-
-        $finder->forceUnreadFirst();
 
         $alerts = $finder->fetchRaw();
 
