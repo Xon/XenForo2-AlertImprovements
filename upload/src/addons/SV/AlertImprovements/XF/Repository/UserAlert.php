@@ -397,10 +397,9 @@ class UserAlert extends XFCP_UserAlert
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        $summarizeThreshold = $visitor->Option->sv_alerts_summarize_threshold;
-        $summarizeUnreadThreshold = max(min($summarizeThreshold, 2), 25);
+        $summarizeThreshold = (int)max(2, $visitor->Option->sv_alerts_summarize_threshold);
 
-        return ($visitor->alerts_unviewed >= $summarizeUnreadThreshold) || ($visitor->alerts_unread >= $summarizeUnreadThreshold);
+        return ($visitor->alerts_unviewed >= $summarizeThreshold) || ($visitor->alerts_unread >= $summarizeThreshold);
     }
 
     public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
