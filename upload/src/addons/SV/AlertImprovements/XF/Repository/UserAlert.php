@@ -49,7 +49,7 @@ class UserAlert extends XFCP_UserAlert
         return [$viewedCutOff, $unviewedCutOff];
     }
 
-    public function summarizeAlertsForUser(User $user)
+    public function summarizeAlertsForUser(User $user, int $summaryAlertViewDate)
     {
         $userId = (int)$user->user_id;
 
@@ -71,7 +71,7 @@ class UserAlert extends XFCP_UserAlert
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // do summerization outside the above transaction
-        $this->checkSummarizeAlertsForUser($userId, true, true, \XF::$time);
+        $this->checkSummarizeAlertsForUser($userId, true, true, $summaryAlertViewDate);
 
         // update alert counters last and not in a large transaction
         $hasChange1 = $this->updateUnreadCountForUserId($userId);
@@ -210,7 +210,8 @@ class UserAlert extends XFCP_UserAlert
             }
             else
             {
-                $alerts = $this->checkSummarizeAlertsForUser($userId, false, !Globals::$showUnreadOnly, \XF::$time);
+                // summarize & do not mark as read, this will be done at a later step and allow the just-read logic to work
+                $alerts = $this->checkSummarizeAlertsForUser($userId, false, !Globals::$showUnreadOnly, 0);
             }
 
             if ($alerts === null)

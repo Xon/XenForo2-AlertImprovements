@@ -119,7 +119,8 @@ class Account extends XFCP_Account
 
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
-        $alertRepo->summarizeAlertsForUser(\XF::visitor());
+        // summarize & mark as read as of now
+        $alertRepo->summarizeAlertsForUser(\XF::visitor(), \XF::$time);
 
         return $this->redirect($this->buildLink('account/alerts', null, ['show_only' => 'all']));
     }
