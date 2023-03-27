@@ -21,7 +21,7 @@ class Globals
     /** @var bool */
     public static $skipExpiredAlerts = true;
     /** @var bool */
-    public static $alertPopupExtraFetch = false;
+    public static $doAlertPopupRewrite = false;
 
     /**
      * @var bool
