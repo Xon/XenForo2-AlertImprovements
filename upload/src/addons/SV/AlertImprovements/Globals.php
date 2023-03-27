@@ -15,7 +15,7 @@ class Globals
     /** @var bool */
     public static $skipSummarize = true;
     /** @var bool */
-    public static $skipSummarizeFilter = false;
+    public static $forSummarizedAlertView = false;
     /** @var bool */
     public static $skipMarkAlertsRead = false;
     /** @var bool */

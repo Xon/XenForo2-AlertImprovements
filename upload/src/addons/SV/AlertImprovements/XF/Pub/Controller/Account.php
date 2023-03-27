@@ -150,15 +150,14 @@ class Account extends XFCP_Account
         /** @var ExtendedUserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
 
-        Globals::$skipSummarize = true;
-        Globals::$skipSummarizeFilter = true;
+        Globals::$forSummarizedAlertView = true;
         try
         {
             $alertsFinder = $alertRepo->findAlertsForUser($visitor->user_id);
         }
         finally
         {
-            Globals::$skipSummarizeFilter = false;
+            Globals::$forSummarizedAlertView = false;
         }
         $alertsFinder->where('summerize_id', '=', $alert->alert_id);
         /** @var ExtendedUserAlertEntity[]|AbstractCollection $alerts */

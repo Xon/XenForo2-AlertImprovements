@@ -142,10 +142,6 @@ class UserAlert extends XFCP_UserAlert
         /** @var ExtendedUserAlertFinder $finder */
         $finder = parent::findAlertsForUser($userId, null);
         $finder->markUnviewableAsUnread();
-        if (!Globals::$skipSummarizeFilter)
-        {
-            $finder->where(['summerize_id', null]);
-        }
 
         if (Globals::$showUnreadOnly)
         {
@@ -187,6 +183,12 @@ class UserAlert extends XFCP_UserAlert
                     ['view_date', '>=', $cutOff]
                 ]
             );
+        }
+
+        if (!(Globals::$forSummarizedAlertView ?? false))
+        {
+            $finder->where(['summerize_id', null]);
+            return $finder;
         }
 
         if (Globals::$skipSummarize && !Globals::$alertPopupExtraFetch)
