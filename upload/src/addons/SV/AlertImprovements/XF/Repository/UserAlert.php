@@ -71,7 +71,7 @@ class UserAlert extends XFCP_UserAlert
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // do summerization outside the above transaction
-        $this->checkSummarizeAlertsForUser($userId, true, true, $summaryAlertViewDate);
+        $this->summarizeAlertsForUserInternal($userId,  true, $summaryAlertViewDate);
 
         // update alert counters last and not in a large transaction
         $hasChange1 = $this->updateUnreadCountForUserId($userId);
@@ -189,7 +189,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $doAlertPopupRewrite = Globals::$doAlertPopupRewrite ?? false;
-        $skipSummarize = (Globals::$skipSummarize ?? false);
+        $skipSummarize = (Globals::$skipSummarize ?? false) || !$this->canSummarizeAlerts();
 
         if ($skipSummarize && !$doAlertPopupRewrite)
         {
@@ -210,7 +210,7 @@ class UserAlert extends XFCP_UserAlert
             if (!$skipSummarize)
             {
                 // summarize & do not mark as read, this will be done at a later step and allow the just-read logic to work
-                $unviewedAlerts = $this->checkSummarizeAlertsForUser($userId, false, false, 0);
+                $unviewedAlerts = $this->summarizeAlertsForUserInternal($userId,  false, 0);
                 // no alerts where summarized
                 if ($unviewedAlerts === null)
                 {
@@ -265,13 +265,12 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param int  $userId
-     * @param bool $force
      * @param bool $ignoreReadState
      * @param int  $summaryAlertViewDate
      * @return array|null
      * @throws \Exception
      */
-    protected function checkSummarizeAlertsForUser(int $userId, bool $force, bool $ignoreReadState, int $summaryAlertViewDate): ?array
+    protected function summarizeAlertsForUserInternal(int $userId, bool $ignoreReadState, int $summaryAlertViewDate): ?array
     {
         if ($userId !== \XF::visitor()->user_id)
         {
@@ -282,29 +281,13 @@ class UserAlert extends XFCP_UserAlert
 
             return \XF::asVisitor(
                 $user,
-                function () use ($force, $ignoreReadState, $summaryAlertViewDate) {
-                    return $this->checkSummarizeAlerts($force, $ignoreReadState, $summaryAlertViewDate);
+                function () use ($ignoreReadState, $summaryAlertViewDate) {
+                    return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
                 }
             );
         }
 
-        return $this->checkSummarizeAlerts($force, $ignoreReadState, $summaryAlertViewDate);
-    }
-
-    /**
-     * @param bool $force
-     * @param bool $ignoreReadState
-     * @param int  $summaryAlertViewDate
-     * @return null|array
-     */
-    protected function checkSummarizeAlerts(bool $force, bool $ignoreReadState, int $summaryAlertViewDate): ?array
-    {
-        if ($force || $this->canSummarizeAlerts())
-        {
-            return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
-        }
-
-        return null;
+        return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
     }
 
     public function insertUnsummarizedAlerts(ExtendedUserAlertEntity $summaryAlert)
