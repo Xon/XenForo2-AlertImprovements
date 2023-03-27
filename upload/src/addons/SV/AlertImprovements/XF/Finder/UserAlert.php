@@ -134,22 +134,22 @@ class UserAlert extends XFCP_UserAlert
         $output = [];
         $em = $this->em;
 
-        $id = $this->structure->primaryKey;
-        $shortname = $this->structure->shortName;
-
         // bulk load users, really should track all joins/Withs.
         $userIds = [];
         foreach ($rawEntities as $rawEntity)
         {
-            if (!$em->findCached('XF:User', $rawEntity['user_id']))
+            $userId = (int)($rawEntity['user_id'] ?? 0);
+            if ($userId !== 0 && !$em->findCached('XF:User', $userId))
             {
-                $userIds[$rawEntity['user_id']] = true;
+                $userIds[$userId] = true;
             }
-            if (!$em->findCached('XF:User', $rawEntity['alerted_user_id']))
+            $alertedUserId = (int)($rawEntity['user_id'] ?? 0);
+            if ($alertedUserId !== 0 && !$em->findCached('XF:User', $alertedUserId))
             {
-                $userIds[$rawEntity['alerted_user_id']] = true;
+                $userIds[$alertedUserId] = true;
             }
         }
+
         if (count($userIds) !== 0)
         {
             $userIds = array_keys($userIds);
@@ -157,11 +157,13 @@ class UserAlert extends XFCP_UserAlert
         }
 
         // materialize raw entities into Entities
+        $id = $this->structure->primaryKey;
+        $shortname = $this->structure->shortName;
         foreach ($rawEntities as $rawEntity)
         {
             $relations = [
-                'User'     => $em->findCached('XF:User', $rawEntity['user_id']),
-                'Receiver' => $em->findCached('XF:User', $rawEntity['alerted_user_id']),
+                'User'     => $em->findCached('XF:User', $rawEntity['user_id']) ?: null,
+                'Receiver' => $em->findCached('XF:User', $rawEntity['alerted_user_id']) ?: null,
             ];
             $output[$rawEntity[$id]] = $em->instantiateEntity($shortname, $rawEntity, $relations);
         }
