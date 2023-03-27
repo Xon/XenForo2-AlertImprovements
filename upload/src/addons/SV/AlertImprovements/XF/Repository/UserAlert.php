@@ -439,6 +439,17 @@ class UserAlert extends XFCP_UserAlert
         return ($visitor->alerts_unviewed >= $summarizeThreshold) || ($visitor->alerts_unread >= $summarizeThreshold);
     }
 
+    protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->finder('XF:UserAlert')
+                    ->where('alerted_user_id', $userId)
+                    ->whereAddOnActive([
+                        'column' => 'depends_on_addon_id'
+                    ])
+                    ->order('event_date', 'desc');
+    }
+
     public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
     {
         // TODO : finish summarizing alerts
@@ -449,13 +460,7 @@ class UserAlert extends XFCP_UserAlert
         $option = $visitor->Option;
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
-        /** @var ExtendedUserAlertFinder $finder */
-        $finder = $this->finder('XF:UserAlert')
-                       ->where('alerted_user_id', $userId)
-                       ->whereAddOnActive([
-                           'column' => 'depends_on_addon_id'
-                       ])
-                       ->order('event_date', 'desc');
+        $finder = $this->getFinderForSummarizeAlerts($userId);
         if (!$ignoreReadState)
         {
             $finder->whereOr([
@@ -469,7 +474,6 @@ class UserAlert extends XFCP_UserAlert
         {
             $finder->forceUnreadFirst();
         }
-
         /** @noinspection PhpRedundantOptionalArgumentInspection */
         $finder->where('summerize_id', null);
 
