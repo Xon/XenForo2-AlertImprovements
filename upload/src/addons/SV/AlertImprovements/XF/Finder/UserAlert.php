@@ -55,6 +55,18 @@ class UserAlert extends XFCP_UserAlert
         return $this;
     }
 
+    public function showUnreadOnly():self
+    {
+        $this->whereOr([
+            // The addon essentially ignores read_date, so don't bother selecting on it.
+            // This also improves index selectivity
+            //['read_date', '=', 0],
+            ['view_date', '=', 0]
+        ]);
+
+        return $this;
+    }
+
     /**
      * @param int|null $limit
      * @param int|null $offset

@@ -143,14 +143,10 @@ class UserAlert extends XFCP_UserAlert
         $finder = parent::findAlertsForUser($userId, null);
         $finder->markUnviewableAsUnread();
 
-        if (Globals::$showUnreadOnly)
+        $showUnreadOnly = Globals::$showUnreadOnly ?? false;
+        if ($showUnreadOnly)
         {
-            $finder->whereOr([
-                // The addon essentially ignores read_date, so don't bother selecting on it.
-                // This also improves index selectivity
-                //['read_date', '=', 0],
-                ['view_date', '=', 0]
-            ]);
+            $finder->showUnreadOnly();
         }
 
         $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
@@ -158,7 +154,7 @@ class UserAlert extends XFCP_UserAlert
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
-            if (Globals::$showUnreadOnly)
+            if ($showUnreadOnly)
             {
                 $finder->where('event_date', '>=', $unviewedCutOff);
             }
@@ -196,7 +192,7 @@ class UserAlert extends XFCP_UserAlert
             return $finder;
         }
 
-        $finder->shimSource(function ($limit, $offset) use ($userId, $finder, $cutOff) {
+        $finder->shimSource(function ($limit, $offset) use ($showUnreadOnly, $userId, $finder, $cutOff) {
             if ($offset !== 0)
             {
                 return null;
@@ -222,7 +218,7 @@ class UserAlert extends XFCP_UserAlert
             {
                 // summarize & do not mark as read, this will be done at a later step and allow the just-read logic to work
                 $unalerts = $this->checkSummarizeAlertsForUser($userId, false, false, 0);
-                if (Globals::$showUnreadOnly)
+                if ($showUnreadOnly)
                 {
                     $alerts = $unalerts;
                 }
@@ -460,12 +456,7 @@ class UserAlert extends XFCP_UserAlert
                        ->order('event_date', 'desc');
         if (!$ignoreReadState)
         {
-            $finder->whereOr([
-                // The addon essentially ignores read_date, so don't bother selecting on it.
-                // This also improves index selectivity
-                //['read_date', '=', 0],
-                ['view_date', '=', 0]
-            ]);
+            $finder->showUnreadOnly();
         }
         else
         {
