@@ -142,6 +142,7 @@ class UserAlert extends XFCP_UserAlert
         /** @var ExtendedUserAlertFinder $finder */
         $finder = parent::findAlertsForUser($userId, null);
         $finder->markUnviewableAsUnread();
+        $finder->undoUserJoin();
 
         $showUnreadOnly = Globals::$showUnreadOnly ?? false;
         if ($showUnreadOnly)

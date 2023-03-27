@@ -170,5 +170,18 @@ class UserAlert extends XFCP_UserAlert
 
         return $output;
     }
+
+    public function undoUserJoin(): self
+    {
+        foreach ($this->joins as &$join)
+        {
+            if ($join['entity'] === 'XF:User' && !$join['fundamental'] && !$join['exists'])
+            {
+                $join['fetch'] = false;
+            }
+        }
+
+        return $this;
+    }
 }
 

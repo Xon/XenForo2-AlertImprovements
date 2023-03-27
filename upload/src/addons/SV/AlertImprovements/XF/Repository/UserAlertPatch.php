@@ -118,16 +118,45 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      */
     public function addContentToAlerts($alerts)
     {
+        $app = $this->app();
+        $em = $app->em();
+
         /** @var array<int, UserAlertEntity> $alerts */
         /** @var array<int, array<int,int[]>> $contentMap */
         $contentMap = [];
+        $userIds  = [];
         foreach ($alerts AS $alertId => $alert)
         {
+            $userId = $alert->user_id;
+            if ($userId !== 0 && !$em->findCached('XF:User', $userId))
+            {
+                $userIds[$userId] = $userId;
+            }
+
             $contentMap[$alert->content_type][$alert->content_id][] = $alertId;
         }
 
-        $app = $this->app();
-        $em = $app->em();
+        // special case user alerts
+        $contentIds = $contentMap['user'] ?? null;
+        if ($contentIds !== null)
+        {
+            foreach ($contentIds as $contentId => $alertIds)
+            {
+                $entity = $em->findCached('XF:User', $contentId);
+                if (!$entity)
+                {
+                    $userIds[$contentId] = $contentId;
+                }
+            }
+        }
+
+        if (count($userIds) !== 0)
+        {
+            $em->getFinder('XF:User')
+               ->whereIds($userIds)
+               ->fetch();
+        }
+
         foreach ($contentMap AS $contentType => $contentIds)
         {
             $handler = $this->getAlertHandler($contentType);
