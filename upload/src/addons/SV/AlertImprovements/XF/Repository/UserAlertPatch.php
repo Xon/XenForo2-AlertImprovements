@@ -4,6 +4,9 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
+use XF\Mvc\Entity\AbstractCollection;
+use XF\Entity\UserAlert as UserAlertEntity;
+use function array_keys;
 use function max;
 
 /**
@@ -107,5 +110,68 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         \XF::app()->jobManager()->enqueueLater('svUnviewedAlertCleanup', \XF::$time + 2*60, 'SV\AlertImprovements:UnviewedAlertCleanup', [
             'cutOff' => $cutOff,
         ], false);
+    }
+
+    /**
+     * @param AbstractCollection|array $alerts
+     * @return void
+     */
+    public function addContentToAlerts($alerts)
+    {
+        /** @var array<int, UserAlertEntity> $alerts */
+        /** @var array<int, array<int,int[]>> $contentMap */
+        $contentMap = [];
+        foreach ($alerts AS $alertId => $alert)
+        {
+            $contentMap[$alert->content_type][$alert->content_id][] = $alertId;
+        }
+
+        $app = $this->app();
+        $em = $app->em();
+        foreach ($contentMap AS $contentType => $contentIds)
+        {
+            $handler = $this->getAlertHandler($contentType);
+            if ($handler === null)
+            {
+                continue;
+            }
+            $entityName = $app->getContentTypeEntity($contentType);
+
+            foreach ($contentIds as $contentId => $alertIds)
+            {
+                $entity = $em->findCached($entityName, $contentId);
+                if (!$entity)
+                {
+                    continue;
+                }
+                unset($contentMap[$contentType][$contentId]);
+                if (count($contentMap[$contentType]) === 0)
+                {
+                    unset($contentMap[$contentType]);
+                }
+                foreach ($alertIds AS $alertId)
+                {
+                    $alerts[$alertId]->setContent($entity);
+                }
+            }
+        }
+
+        foreach ($contentMap AS $contentType => $contentIds)
+        {
+            $handler = $this->getAlertHandler($contentType);
+            if ($handler === null)
+            {
+                continue;
+            }
+            $data = $handler->getContent(array_keys($contentIds));
+            foreach ($contentIds as $contentId => $alertIds)
+            {
+                $content = $data[$contentId] ?? null;
+                foreach ($alertIds AS $alertId)
+                {
+                    $alerts[$alertId]->setContent($content);
+                }
+            }
+        }
     }
 }
