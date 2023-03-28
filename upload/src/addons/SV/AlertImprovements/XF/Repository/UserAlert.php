@@ -15,6 +15,7 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Finder;
 use function array_keys;
 use function array_slice;
+use function assert;
 use function count;
 use function is_array;
 use function max;
@@ -106,6 +107,13 @@ class UserAlert extends XFCP_UserAlert
     {
         /** @var ExtendedUserAlertFinder $finder */
         $finder = parent::findAlertsForUser($userId, null);
+        if ($userId === 0)
+        {
+            return $finder;
+        }
+        $user = $this->app()->find('XF:User', $userId);
+        assert($user instanceof ExtendedUserEntity);
+
         $finder->markUnviewableAsUnread();
         $finder->undoUserJoin();
 
@@ -163,7 +171,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         // invoked when alert pop-up
-        return $finder->shimSource(function ($limit, $offset) use ($doAlertPopupRewrite, $skipSummarize, $showUnreadOnly, $userId, $finder, $cutOff) {
+        return $finder->shimSource(function ($limit, $offset) use ($doAlertPopupRewrite, $skipSummarize, $showUnreadOnly, $user, $finder, $cutOff) {
             if ($offset !== 0)
             {
                 return null;
@@ -176,7 +184,7 @@ class UserAlert extends XFCP_UserAlert
             if (!$skipSummarize)
             {
                 // summarize & do not mark as read, this will be done at a later step and allow the just-read logic to work
-                $unviewedAlerts = $this->getAlertSummarizationRepo()->summarizeAlertsForUserId($userId,  false, 0);
+                $unviewedAlerts = $this->getAlertSummarizationRepo()->summarizeAlertsForUser($user,  false, 0);
                 // no alerts where summarized
                 if ($unviewedAlerts === null)
                 {

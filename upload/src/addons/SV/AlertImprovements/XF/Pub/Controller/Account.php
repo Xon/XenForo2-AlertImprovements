@@ -21,6 +21,7 @@ use XF\Mvc\Reply\View as ViewReply;
 use XF\Mvc\Reply\Redirect as RedirectReply;
 use XF\Mvc\Reply\Exception as ExceptionReply;
 use function array_slice, count, max, array_merge;
+use function assert;
 
 /**
  * Class Account
@@ -118,8 +119,10 @@ class Account extends XFCP_Account
         $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
         $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
+        $visitor = \XF::visitor();
+        assert($visitor instanceof ExtendedUserEntity);
         // summarize & mark as read as of now
-        $this->getAlertSummarizationRepo()->summarizeAlertsForUser(\XF::visitor(), \XF::$time);
+        $this->getAlertSummarizationRepo()->resummarizeAlertsForUser($visitor, \XF::$time);
 
         return $this->redirect($this->buildLink('account/alerts', null, ['show_only' => 'all']));
     }

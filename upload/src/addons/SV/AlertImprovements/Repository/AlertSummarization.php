@@ -9,7 +9,6 @@ use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Db\AbstractAdapter;
-use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
@@ -23,34 +22,6 @@ use function uasort;
 
 class AlertSummarization extends Repository
 {
-
-    /**
-     * @param int  $userId
-     * @param bool $ignoreReadState
-     * @param int  $summaryAlertViewDate
-     * @return array|null
-     * @throws \Exception
-     */
-    public function summarizeAlertsForUserId(int $userId, bool $ignoreReadState, int $summaryAlertViewDate): ?array
-    {
-        if ($userId !== \XF::visitor()->user_id)
-        {
-            /** @var User $user */
-            $user = $this->finder('XF:User')
-                         ->where('user_id', $userId)
-                         ->fetchOne();
-
-            return \XF::asVisitor(
-                $user,
-                function () use ($ignoreReadState, $summaryAlertViewDate) {
-                    return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
-                }
-            );
-        }
-
-        return $this->summarizeAlerts($ignoreReadState, $summaryAlertViewDate);
-    }
-
     public function canSummarizeAlerts(): bool
     {
         if (Globals::$skipSummarize)
@@ -71,7 +42,7 @@ class AlertSummarization extends Repository
         return ($visitor->alerts_unviewed >= $summarizeThreshold) || ($visitor->alerts_unread >= $summarizeThreshold);
     }
 
-    public function summarizeAlertsForUser(User $user, int $summaryAlertViewDate)
+    public function resummarizeAlertsForUser(ExtendedUserEntity $user, int $summaryAlertViewDate)
     {
         $userId = (int)$user->user_id;
 
@@ -93,7 +64,7 @@ class AlertSummarization extends Repository
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // do summarization outside the above transaction
-        $this->summarizeAlertsForUserId($userId,  true, $summaryAlertViewDate);
+        $this->summarizeAlertsForUser($user,  true, $summaryAlertViewDate);
 
         // update alert counters last and not in a large transaction
         $hasChange1 = $this->getAlertRepo()->updateUnreadCountForUserId($userId);
@@ -115,14 +86,12 @@ class AlertSummarization extends Repository
                     ->order('event_date', 'desc');
     }
 
-    public function summarizeAlerts(bool $ignoreReadState, int $summaryAlertViewDate): array
+    public function summarizeAlertsForUser(ExtendedUserEntity $user, bool $ignoreReadState, int $summaryAlertViewDate): ?array
     {
         // TODO : finish summarizing alerts
         $xfOptions = \XF::options();
-        /** @var ExtendedUserEntity $visitor */
-        $visitor = \XF::visitor();
-        $userId = (int)$visitor->user_id;
-        $option = $visitor->Option;
+        $userId = (int)$user->user_id;
+        $option = $user->Option;
         assert($option !== null);
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
@@ -295,7 +264,7 @@ class AlertSummarization extends Repository
             $hasChange2 = $this->getAlertRepo()->updateUnviewedCountForUserId($userId);
             if ($hasChange1 || $hasChange2)
             {
-                $this->getAlertRepo()->refreshUserAlertCounters($visitor);
+                $this->getAlertRepo()->refreshUserAlertCounters($user);
             }
         }
 
@@ -476,8 +445,6 @@ class AlertSummarization extends Repository
         {
             return;
         }
-
-
 
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
             $summaryId = $summaryAlert->alert_id;
