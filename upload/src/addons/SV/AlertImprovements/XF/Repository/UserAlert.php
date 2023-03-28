@@ -358,11 +358,6 @@ class UserAlert extends XFCP_UserAlert
         return ($visitor->alerts_unviewed >= $summarizeThreshold) || ($visitor->alerts_unread >= $summarizeThreshold);
     }
 
-    /**
-     * @param bool $ignoreReadState
-     * @param int  $summaryAlertViewDate
-     * @return array
-     */
     protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
