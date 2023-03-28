@@ -7,6 +7,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\ControllerPlugin\AlertAction;
 use SV\AlertImprovements\Globals;
+use SV\AlertImprovements\Repository\AlertSummarization;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
@@ -117,10 +118,8 @@ class Account extends XFCP_Account
         $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
         $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
         // summarize & mark as read as of now
-        $alertRepo->summarizeAlertsForUser(\XF::visitor(), \XF::$time);
+        $this->getAlertSummarizationRepo()->summarizeAlertsForUser(\XF::visitor(), \XF::$time);
 
         return $this->redirect($this->buildLink('account/alerts', null, ['show_only' => 'all']));
     }
@@ -281,9 +280,7 @@ class Account extends XFCP_Account
         /** @var AlertAction $alertAction */
         $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
-            /** @var ExtendedUserAlertRepo $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
-            $alertRepo->insertUnsummarizedAlerts($alert);
+            $this->getAlertSummarizationRepo()->insertUnsummarizedAlerts($alert);
         }, \XF::phrase('svAlertImprov_unsummarize_alert'),
            \XF::phrase('svAlertImprov_unsummarize_alert'),
            \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_unsummarize_this_alert'),
@@ -626,5 +623,11 @@ class Account extends XFCP_Account
         }
 
         return $alert;
+    }
+
+    protected function getAlertSummarizationRepo(): AlertSummarization
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->repository('SV\AlertImprovements:AlertSummarization');
     }
 }
