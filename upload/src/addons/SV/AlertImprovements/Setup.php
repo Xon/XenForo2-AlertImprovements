@@ -9,6 +9,7 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
+use XF\PrintableException;
 use function min, max, microtime, array_keys, strpos;
 
 /**
@@ -114,6 +115,7 @@ class Setup extends AbstractSetup
     /**
      * @param array $stepParams
      * @return array|null
+     * @throws PrintableException
      */
     public function upgrade2081101Step1(array $stepParams): ?array
     {

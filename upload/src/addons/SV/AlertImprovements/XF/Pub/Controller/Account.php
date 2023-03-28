@@ -128,6 +128,7 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return AbstractReply
+     * @throws ExceptionReply
      */
     public function actionAlert(ParameterBag $params)
     {
@@ -188,6 +189,7 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return AbstractReply
+     * @throws ExceptionReply
      */
     public function actionAlertRead(ParameterBag $params)
     {
@@ -228,6 +230,7 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return AbstractReply
+     * @throws ExceptionReply
      */
     public function actionAlertUnread(ParameterBag $params)
     {
@@ -266,6 +269,7 @@ class Account extends XFCP_Account
     /**
      * @param ParameterBag $params
      * @return AbstractReply
+     * @throws ExceptionReply
      */
     public function actionAlertUnsummarize(ParameterBag $params)
     {

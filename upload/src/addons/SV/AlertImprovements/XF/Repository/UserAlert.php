@@ -53,7 +53,7 @@ class UserAlert extends XFCP_UserAlert
     {
         $userId = (int)$user->user_id;
 
-        // reaction summary alerts really can't me merged, so wipe all summary alerts, and then try again
+        // reaction summary alerts really can't be merged, so wipe all summary alerts, and then try again
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
 
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
@@ -70,7 +70,7 @@ class UserAlert extends XFCP_UserAlert
             ', [$userId, $viewedCutOff, $unviewedCutOff]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-        // do summerization outside the above transaction
+        // do summarization outside the above transaction
         $this->checkSummarizeAlertsForUser($userId, true, true, $summaryAlertViewDate);
 
         // update alert counters last and not in a large transaction
@@ -669,6 +669,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int                       $senderUserId
      * @param int                       $summaryAlertViewDate
      * @return bool
+     * @noinspection PhpDocMissingThrowsInspection
      */
     protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate): bool
     {
@@ -847,6 +848,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param User|ExtendedUserEntity $user
      * @param null|int                $readDate
+     * @noinspection PhpDocMissingThrowsInspection
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
@@ -955,6 +957,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int[]                   $alertIds
      * @param int                     $readDate
      * @param bool                    $updateAlertEntities
+     * @noinspection PhpDocMissingThrowsInspection
      */
     public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
     {
@@ -1044,6 +1047,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int[]                   $alertIds
      * @param bool                    $disableAutoRead
      * @param bool                    $updateAlertEntities
+     * @noinspection PhpDocMissingThrowsInspection
      */
     public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
     {
