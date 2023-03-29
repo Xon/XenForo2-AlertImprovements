@@ -52,12 +52,12 @@ class AlertSummarization extends Repository
             [$viewedCutOff, $unviewedCutOff] = $this->getAlertRepo()->getIgnoreAlertCutOffs();
 
             $db->query("
-                DELETE FROM xf_user_alert
+                DELETE alert FROM xf_user_alert as alert use index (alertedUserId_eventDate)
                 WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary' AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
             ", [$userId, $viewedCutOff, $unviewedCutOff]);
 
             $db->query('
-                UPDATE xf_user_alert
+                UPDATE xf_user_alert use index (alertedUserId_eventDate)
                 SET summerize_id = NULL
                 WHERE alerted_user_id = ? AND summerize_id IS NOT NULL AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
             ', [$userId, $viewedCutOff, $unviewedCutOff]);
