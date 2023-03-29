@@ -165,16 +165,19 @@ class UserAlert extends XFCP_UserAlert
             $finder->where(['summerize_id', null]);
         }
 
-        $doAlertPopupRewrite = Globals::$doAlertPopupRewrite ?? false;
-        $skipSummarize = (Globals::$skipSummarize ?? false) || !$this->getAlertSummarizationRepo()->canSummarizeAlerts();
+        if (Globals::$doAlertPopupRewrite ?? false)
+        {
+            // in alert pop-up, ensure unread alerts are preferred over read alerts
+            $finder->forceUnreadFirst();
+        }
 
-        if ($skipSummarize && !$doAlertPopupRewrite)
+        $skipSummarize = (Globals::$skipSummarize ?? false) || !$this->getAlertSummarizationRepo()->canSummarizeAlerts();
+        if ($skipSummarize)
         {
             return $finder;
         }
 
-        // invoked when alert pop-up
-        return $finder->shimSource(function ($limit, $offset) use ($doAlertPopupRewrite, $skipSummarize, $showUnreadOnly, $user, $finder, $cutOff) {
+        return $finder->shimSource(function ($limit, $offset) use ($user) {
             if ($offset !== 0)
             {
                 return null;
@@ -184,57 +187,7 @@ class UserAlert extends XFCP_UserAlert
                 return [];
             }
 
-            if (!$skipSummarize)
-            {
-                // summarize & do not mark as read, this will be done at a later step and allow the just-read logic to work
-                $unviewedAlerts = $this->getAlertSummarizationRepo()->summarizeAlertsForUser($user,  false, 0);
-                // no alerts where summarized
-                if ($unviewedAlerts === null)
-                {
-                    if ($doAlertPopupRewrite)
-                    {
-                        // in alert pop-up, ensure unread alerts are preferred over read alerts
-                        return $finder->forceUnreadFirst()
-                                      ->fetch($limit);
-                    }
-
-                    return null;
-                }
-                $unviewedAlerts = array_slice($unviewedAlerts, 0, $limit, true);
-                $unviewedAlerts = $finder->materializeAlerts($unviewedAlerts);
-
-                // summarization only applied to unread alerts, as such there may be read alerts which need fetching
-                $viewedAlerts = $finder->where('view_date', '>', 0)
-                                 ->fetch($limit)
-                                 ->toArray();
-
-                // need to preserve keys, so don't use array_merge
-                $alerts = $unviewedAlerts + $viewedAlerts;
-                $alerts = array_slice($alerts, 0, $limit, true);
-
-                // in alert pop-up, ensure unread alerts are preferred over read alerts
-                if (!$doAlertPopupRewrite)
-                {
-                    uasort($alerts,
-                        function ($a, $b) {
-                            if ($a['event_date'] === $b['event_date'])
-                            {
-                                return ($a['alert_id'] < $b['alert_id']) ? 1 : -1;
-                            }
-
-                            return ($a['event_date'] < $b['event_date']) ? 1 : -1;
-                        }
-                    );
-                }
-
-                return $alerts;
-            }
-            else if ($doAlertPopupRewrite)
-            {
-                // in alert pop-up, ensure unread alerts are preferred over read alerts
-                return $finder->forceUnreadFirst()
-                              ->fetch($limit);
-            }
+            $this->getAlertSummarizationRepo()->summarizeAlertsForUser($user,  false, 0);
 
             return null;
         });

@@ -124,53 +124,6 @@ class UserAlert extends XFCP_UserAlert
         return $collection;
     }
 
-    /**
-     * @param array $rawEntities
-     * @returns \SV\AlertImprovements\XF\Entity\UserAlert[]
-     * @return array
-     */
-    public function materializeAlerts(array $rawEntities): array
-    {
-        $output = [];
-        $em = $this->em;
-
-        // bulk load users, really should track all joins/Withs.
-        $userIds = [];
-        foreach ($rawEntities as $rawEntity)
-        {
-            $userId = (int)($rawEntity['user_id'] ?? 0);
-            if ($userId !== 0 && !$em->findCached('XF:User', $userId))
-            {
-                $userIds[$userId] = true;
-            }
-            $alertedUserId = (int)($rawEntity['user_id'] ?? 0);
-            if ($alertedUserId !== 0 && !$em->findCached('XF:User', $alertedUserId))
-            {
-                $userIds[$alertedUserId] = true;
-            }
-        }
-
-        if (count($userIds) !== 0)
-        {
-            $userIds = array_keys($userIds);
-            $em->getFinder('XF:User')->whereIds($userIds)->fetch();
-        }
-
-        // materialize raw entities into Entities
-        $id = $this->structure->primaryKey;
-        $shortname = $this->structure->shortName;
-        foreach ($rawEntities as $rawEntity)
-        {
-            $relations = [
-                'User'     => $em->findCached('XF:User', $rawEntity['user_id']) ?: null,
-                'Receiver' => $em->findCached('XF:User', $rawEntity['alerted_user_id']) ?: null,
-            ];
-            $output[$rawEntity[$id]] = $em->instantiateEntity($shortname, $rawEntity, $relations);
-        }
-
-        return $output;
-    }
-
     public function undoUserJoin(): self
     {
         foreach ($this->joins as &$join)

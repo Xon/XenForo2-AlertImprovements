@@ -13,7 +13,9 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
 use function array_column;
+use function array_key_exists;
 use function array_keys;
+use function array_slice;
 use function count;
 use function is_array;
 use function max;
@@ -45,16 +47,17 @@ class AlertSummarization extends Repository
     public function resummarizeAlertsForUser(ExtendedUserEntity $user, int $summaryAlertViewDate)
     {
         $userId = (int)$user->user_id;
-
+        $removedSummaryAlerts = false;
         // reaction summary alerts really can't be merged, so wipe all summary alerts, and then try again
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId, &$removedSummaryAlerts) {
 
             [$viewedCutOff, $unviewedCutOff] = $this->getAlertRepo()->getIgnoreAlertCutOffs();
 
-            $db->query("
+            $stmt = $db->query("
                 DELETE alert FROM xf_user_alert as alert use index (alertedUserId_eventDate)
                 WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary' AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
             ", [$userId, $viewedCutOff, $unviewedCutOff]);
+            $removedSummaryAlerts = $stmt->rowsAffected() !== 0;
 
             $db->query('
                 UPDATE xf_user_alert use index (alertedUserId_eventDate)
@@ -63,15 +66,17 @@ class AlertSummarization extends Repository
             ', [$userId, $viewedCutOff, $unviewedCutOff]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-        // do summarization outside the above transaction
-        $this->summarizeAlertsForUser($user,  true, $summaryAlertViewDate);
+        // summarization should not be run inside a transaction
+        $summarizedAlerts = $this->summarizeAlertsForUser($user,  true, $summaryAlertViewDate);
 
-        // update alert counters last and not in a large transaction
-        $hasChange1 = $this->getAlertRepo()->updateUnreadCountForUserId($userId);
-        $hasChange2 = $this->getAlertRepo()->updateUnviewedCountForUserId($userId);
-        if ($hasChange1 || $hasChange2)
+        if ($removedSummaryAlerts && !$summarizedAlerts)
         {
-            $this->getAlertRepo()->refreshUserAlertCounters($user);
+            $hasChange1 = $this->getAlertRepo()->updateUnreadCountForUserId($userId);
+            $hasChange2 = $this->getAlertRepo()->updateUnviewedCountForUserId($userId);
+            if ($hasChange1 || $hasChange2)
+            {
+                $this->getAlertRepo()->refreshUserAlertCounters($user);
+            }
         }
     }
 
@@ -86,8 +91,17 @@ class AlertSummarization extends Repository
                     ->order('event_date', 'desc');
     }
 
-    public function summarizeAlertsForUser(ExtendedUserEntity $user, bool $ignoreReadState, int $summaryAlertViewDate): ?array
+    public function summarizeAlertsForUser(ExtendedUserEntity $user, bool $ignoreReadState, int $summaryAlertViewDate): bool
     {
+        // build the list of handlers at once, and exclude based
+        $handlers = $this->getAlertHandlersForConsolidation();
+        // nothing to be done
+        $userHandler = $handlers['user'] ?? null;
+        if (count($handlers) === 0 || ($userHandler !== null && count($handlers) === 1))
+        {
+            return false;
+        }
+
         // TODO : finish summarizing alerts
         $xfOptions = \XF::options();
         $userId = (int)$user->user_id;
@@ -131,17 +145,6 @@ class AlertSummarization extends Repository
 
         $alerts = $finder->fetchRaw();
 
-        $outputAlerts = [];
-
-        // build the list of handlers at once, and exclude based
-        $handlers = $this->getAlertHandlersForConsolidation();
-        // nothing to be done
-        $userHandler = empty($handlers['user']) ? null : $handlers['user'];
-        if (empty($handlers) || ($userHandler && count($handlers) === 1))
-        {
-            return $alerts;
-        }
-
         // collect alerts into groupings by content/id
         $groupedContentAlerts = [];
         $groupedUserAlerts = [];
@@ -152,13 +155,11 @@ class AlertSummarization extends Repository
                 empty($handlers[$item['content_type']]) ||
                 preg_match('/^.*_summary$/', $item['action']))
             {
-                $outputAlerts[$id] = $item;
                 continue;
             }
             $handler = $handlers[$item['content_type']];
             if (!$handler->canSummarizeItem($item))
             {
-                $outputAlerts[$id] = $item;
                 continue;
             }
 
@@ -169,7 +170,7 @@ class AlertSummarization extends Repository
             {
                 $groupedContentAlerts[$contentType][$contentId][$id] = $item;
 
-                if ($userHandler && $userHandler->canSummarizeItem($item))
+                if ($userHandler !== null && $userHandler->canSummarizeItem($item))
                 {
                     if (!isset($groupedUserAlerts[$contentUserId]))
                     {
@@ -178,10 +179,6 @@ class AlertSummarization extends Repository
                     $groupedUserAlerts[$contentUserId]['c'] += 1;
                     $groupedUserAlerts[$contentUserId]['d'][$contentType][$contentId][$id] = $item;
                 }
-            }
-            else
-            {
-                $outputAlerts[$id] = $item;
             }
         }
 
@@ -193,7 +190,7 @@ class AlertSummarization extends Repository
             foreach ($contentIds as $contentId => $alertGrouping)
             {
                 if ($this->insertSummaryAlert(
-                    $handler, $summarizeThreshold, $contentType, $contentId, $alertGrouping, $grouped, $outputAlerts,
+                    $handler, $summarizeThreshold, $contentType, $contentId, $alertGrouping, $grouped,
                     'content', 0, $summaryAlertViewDate
                 ))
                 {
@@ -204,7 +201,7 @@ class AlertSummarization extends Repository
         }
 
         // see if we can group some alert by user (requires deap knowledge of most content types and the template)
-        if ($userHandler)
+        if ($userHandler !== null)
         {
             foreach ($groupedUserAlerts as $senderUserId => &$perUserAlerts)
             {
@@ -231,7 +228,7 @@ class AlertSummarization extends Repository
                     }
                 }
                 if ($userAlertGrouping && $this->insertSummaryAlert(
-                        $userHandler, $summarizeThreshold, 'user', $userId, $userAlertGrouping, $grouped, $outputAlerts,
+                        $userHandler, $summarizeThreshold, 'user', $userId, $userAlertGrouping, $grouped,
                         'user', $senderUserId, $summaryAlertViewDate
                     ))
                 {
@@ -240,19 +237,6 @@ class AlertSummarization extends Repository
                         unset($groupedContentAlerts[$alert['content_type_map']][$alert['content_id_map']][$id]);
                     }
                     $groupedAlerts = true;
-                }
-            }
-        }
-
-        // output ungrouped alerts
-        unset($contentIds);
-        foreach ($groupedContentAlerts as $contentType => $contentIds)
-        {
-            foreach ($contentIds as $contentId => $alertGrouping)
-            {
-                foreach ($alertGrouping as $alertId => $alert)
-                {
-                    $outputAlerts[$alertId] = $alert;
                 }
             }
         }
@@ -268,19 +252,7 @@ class AlertSummarization extends Repository
             }
         }
 
-        uasort(
-            $outputAlerts,
-            function ($a, $b) {
-                if ($a['event_date'] === $b['event_date'])
-                {
-                    return ($a['alert_id'] < $b['alert_id']) ? 1 : -1;
-                }
-
-                return ($a['event_date'] < $b['event_date']) ? 1 : -1;
-            }
-        );
-
-        return $outputAlerts;
+        return true;
     }
 
     /**
@@ -297,7 +269,7 @@ class AlertSummarization extends Repository
      * @return bool
      * @noinspection PhpDocMissingThrowsInspection
      */
-    protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, array &$outputAlerts, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate): bool
+    protected function insertSummaryAlert(ISummarizeAlert $handler, int $summarizeThreshold, string $contentType, int $contentId, array $alertGrouping, int &$grouped, string $groupingStyle, int $senderUserId, int $summaryAlertViewDate): bool
     {
         $grouped = 0;
         if (!$summarizeThreshold || count($alertGrouping) < $summarizeThreshold)
@@ -318,76 +290,77 @@ class AlertSummarization extends Repository
             'event_date'          => $lastAlert['event_date'],
             'view_date'           => $summaryAlertViewDate,
             'read_date'           => $summaryAlertViewDate,
-            'extra_data'          => [],
         ];
+        $summaryData = [];
         $contentTypes = [];
 
         if ($lastAlert['action'] === 'reaction')
         {
+            $reactionData = [];
             foreach ($alertGrouping as $alert)
             {
-                if (!empty($alert['extra_data']) && $alert['action'] === $lastAlert['action'])
+                if ($alert['action'] !== $lastAlert['action'])
                 {
-                    if (!isset($contentTypes[$alert['content_type']]))
-                    {
-                        $contentTypes[$alert['content_type']] = 0;
-                    }
-                    $contentTypes[$alert['content_type']]++;
-
-                    $extraData = @\json_decode($alert['extra_data'], true);
-
-                    if (is_array($extraData))
-                    {
-                        foreach ($extraData as $extraDataKey => $extraDataValue)
-                        {
-                            if (empty($summaryAlert['extra_data'][$extraDataKey][$extraDataValue]))
-                            {
-                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue] = 1;
-                            }
-                            else
-                            {
-                                $summaryAlert['extra_data'][$extraDataKey][$extraDataValue]++;
-                            }
-                        }
-                    }
+                    continue;
                 }
+                $extraData = @\json_decode($alert['extra_data'], true);
+                if (!is_array($extraData))
+                {
+                    continue;
+                }
+                $reactionId = $extraData['reaction_id'] ?? null;
+                if ($reactionId === null)
+                {
+                    continue;
+                }
+
+                $contentType = $alert['content_type'];
+                if (!array_key_exists($contentType, $contentTypes))
+                {
+                    $contentTypes[$contentType] = 0;
+                }
+                $contentTypes[$contentType] += 1;
+
+                $reactionId = (int)$reactionId;
+                if (!array_key_exists($reactionId, $reactionData))
+                {
+                    $reactionData[$reactionId] = 0;
+                }
+                $reactionData[$reactionId] += 1;
             }
-        }
-
-        if ($contentTypes)
-        {
-            $summaryAlert['extra_data']['ct'] = $contentTypes;
-        }
-
-        if ($summaryAlert['extra_data'] === false)
-        {
-            $summaryAlert['extra_data'] = [];
-        }
-
-        // ensure reactions are sorted
-        if (isset($summaryAlert['extra_data']['reaction_id']))
-        {
-            $reactionCounts = new ArrayCollection($summaryAlert['extra_data']['reaction_id']);
-
-            $addOns = \XF::app()->container('addon.cache');
-            if (isset($addOns['SV/ContentRatings']))
+            if (count($reactionData) !== 0)
             {
-                /** @var \SV\ContentRatings\XF\Repository\Reaction $reactionRepo */
-                $reactionRepo = $this->app()->repository('XF:Reaction');
-                $reactions = $reactionRepo->getReactionsAsEntities();
-                $reactionIds = $reactions->keys();
-            }
-            else
-            {
-                $reactions = $this->app()->get('reactions');
-                $reactionIds = ($reactions instanceof AbstractCollection)
-                    ? $reactions->keys()
-                    : array_keys($reactions);
-            }
-            $reactionCounts = $reactionCounts->sortByList($reactionIds);
+                // ensure reactions are sorted
+                $reactionCounts = new ArrayCollection($reactionData);
 
-            $summaryAlert['extra_data']['reaction_id'] = $reactionCounts->toArray();
+                $addOns = \XF::app()->container('addon.cache');
+                if (isset($addOns['SV/ContentRatings']))
+                {
+                    /** @var \SV\ContentRatings\XF\Repository\Reaction $reactionRepo */
+                    $reactionRepo = $this->app()->repository('XF:Reaction');
+                    $reactions = $reactionRepo->getReactionsAsEntities();
+                    $reactionIds = $reactions->keys();
+                }
+                else
+                {
+                    $reactions = $this->app()->get('reactions');
+                    $reactionIds = ($reactions instanceof AbstractCollection)
+                        ? $reactions->keys()
+                        : array_keys($reactions);
+                }
+                $reactionCounts = $reactionCounts->sortByList($reactionIds);
+                $reactionData = $reactionCounts->toArray();
+
+                $summaryData['reaction_id'] = $reactionData;
+            }
         }
+
+        if (count($contentTypes) !== 0)
+        {
+            $summaryData['ct'] = $contentTypes;
+        }
+
+        $summaryAlert['extra_data'] = $summaryData;
 
         $summaryAlert = $handler->summarizeAlerts($summaryAlert, $alertGrouping, $groupingStyle);
         if (empty($summaryAlert))
@@ -395,12 +368,12 @@ class AlertSummarization extends Repository
             return false;
         }
 
-        $summerizeId = $rowsAffected = null;
+        $rowsAffected = 0;
         $db = $this->db();
         $batchIds = array_column($alertGrouping, 'alert_id');
 
         // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
-        $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected, &$summerizeId) {
+        $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected) {
             // database update, saving this ensure xf_user/xf_user_alert table lock ordering is consistent
             /** @var ExtendedUserAlertEntity $alert */
             $alert = $this->em->create('XF:UserAlert');
@@ -410,15 +383,19 @@ class AlertSummarization extends Repository
             $alert->setOption('force_unread_in_ui', true);
             $summerizeId = $alert->alert_id;
 
-            // hide the non-summary alerts
-            $stmt = $db->query('
-                UPDATE xf_user_alert
-                SET summerize_id = ?, view_date = if(view_date = 0, ?, view_date), read_date = if(read_date = 0, ?, read_date)
-                WHERE alert_id IN (' . $db->quote($batchIds) . ')
-            ', [$summerizeId, \XF::$time, \XF::$time]);
-            $rowsAffected = $stmt->rowsAffected();
+            // limit the size of the IN clause
+            $chunks = array_chunk($batchIds, 500);
+            foreach ($chunks as $chunk)
+            {
+                // hide the non-summary alerts
+                $stmt = $db->query('
+                    UPDATE xf_user_alert
+                    SET summerize_id = ?, view_date = if(view_date = 0, ?, view_date), read_date = if(read_date = 0, ?, read_date)
+                    WHERE alert_id IN (' . $db->quote($chunk) . ')
+                ', [$summerizeId, \XF::$time, \XF::$time]);
 
-            return $stmt->rowsAffected();
+                $rowsAffected += $stmt->rowsAffected();
+            }
         };
 
         if ($db->inTransaction())
@@ -432,7 +409,6 @@ class AlertSummarization extends Repository
 
         // add to grouping
         $grouped += $rowsAffected;
-        $outputAlerts[$summerizeId] = $alert->toArray();
 
         return true;
     }
