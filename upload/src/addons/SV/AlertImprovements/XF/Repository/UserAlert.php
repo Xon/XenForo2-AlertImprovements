@@ -589,7 +589,7 @@ class UserAlert extends XFCP_UserAlert
                 }
 
                 $userAlertGrouping = [];
-                foreach ($perUserAlerts['d'] as $contentType => $contentIds)
+                foreach ($perUserAlerts['d'] as $contentType => &$contentIds)
                 {
                     foreach ($contentIds as $contentId => $alertGrouping)
                     {
