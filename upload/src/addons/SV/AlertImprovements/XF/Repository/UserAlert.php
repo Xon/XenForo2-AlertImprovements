@@ -156,10 +156,13 @@ class UserAlert extends XFCP_UserAlert
             );
         }
 
-        if (!(Globals::$forSummarizedAlertView ?? false))
+        if (Globals::$forSummarizedAlertView ?? false)
+        {
+            return $finder;
+        }
+        else
         {
             $finder->where(['summerize_id', null]);
-            return $finder;
         }
 
         $doAlertPopupRewrite = Globals::$doAlertPopupRewrite ?? false;
