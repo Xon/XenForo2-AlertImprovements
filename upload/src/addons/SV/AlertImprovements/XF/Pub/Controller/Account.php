@@ -366,8 +366,6 @@ class Account extends XFCP_Account
             $alerts = $response->getParam('alerts');
             if ($alerts)
             {
-                $this->markViewedAlertsRead($alerts, true);
-
                 $groupedAlerts = empty($options->svAlertsGroupByDate) ? null : $this->groupAlertsByDay($alerts);
 
                 $response->setParam('groupedAlerts', $groupedAlerts);
@@ -422,7 +420,12 @@ class Account extends XFCP_Account
             $alerts = $reply->getParam('alerts');
             if ($alerts)
             {
-                $this->markViewedAlertsRead($alerts, $skipMarkAsRead);
+                if (!$skipMarkAsRead)
+                {
+                    $alertRepo = $this->repository('XF:UserAlert');
+                    assert($alertRepo instanceof ExtendedUserAlertRepo);
+                    $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
+                }
 
                 $unreadAlertsAfterReadAlerts = \XF::options()->svUnreadAlertsAfterReadAlerts ?? false;
                 if ($unreadAlertsAfterReadAlerts)
@@ -456,32 +459,6 @@ class Account extends XFCP_Account
         }
 
         return $reply;
-    }
-
-    /**
-     * @param AbstractCollection|ExtendedUserAlertEntity[] $alerts
-     * @param bool $skipMarkAsRead
-     */
-    protected function markViewedAlertsRead($alerts, bool $skipMarkAsRead)
-    {
-        /** @var ExtendedUserEntity $visitor */
-        $visitor = \XF::visitor();
-        if ($skipMarkAsRead)
-        {
-            // if skipping alerts read, ensure non-auto read user-alerts are read anyway, otherwise they don't go away as expected
-            if ($visitor->alerts_unread)
-            {
-                /** @var ExtendedUserAlertRepo $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->markAlertsReadForContentIds('user', [$visitor->user_id], null, 0, $visitor, null, true);
-            }
-        }
-        else
-        {
-            /** @var ExtendedUserAlertRepo $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
-            $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
-        }
     }
 
     protected function markInaccessibleAlertsReadIfNeeded(AbstractCollection $displayedAlerts = null)
