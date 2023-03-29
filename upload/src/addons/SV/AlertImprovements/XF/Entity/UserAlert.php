@@ -146,7 +146,7 @@ class UserAlert extends XFCP_UserAlert
 
     protected function _saveToSource()
     {
-        if ($this->isInsert())
+        if ($this->isInsert() && $this->getOption('svInjectUserRecordLock'))
         {
             // Use an update-lock on the user record, to avoid deadlocks.
             // This ensuring consistent table lock ordering when marking as read/unread & alert summarization
@@ -184,6 +184,7 @@ class UserAlert extends XFCP_UserAlert
         ];
 
         $structure->options['svAlertImprov'] = true;
+        $structure->options['svInjectUserRecordLock'] = true;
 
         return $structure;
     }
