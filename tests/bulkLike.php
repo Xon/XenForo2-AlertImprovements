@@ -3,7 +3,7 @@
 
 ignore_user_abort(true);
 
-$dir = __DIR__ . '/../';
+$dir = dirname(__DIR__);
 require($dir . '/src/XF.php');
 
 XF::start($dir);
@@ -11,7 +11,7 @@ $app = XF::setupApp('XF\Pub\App');
 
 $userId = 7;
 $uniquePosts = 5;
-$reactionsPerPost = 6;
+$reactionsPerPost = 20;
 
 $testUser = $app->find('XF:User', $userId);
 assert($testUser instanceof XF\Entity\User);
@@ -61,13 +61,17 @@ $userAlertRepo->updateUnreadCountForUserId($userId);
 $userAlertRepo->updateUnviewedCountForUserId($userId);
 $userAlertRepo->refreshUserAlertCounters($testUser);
 
+$reactionContentStructure = $app->em()->getEntityStructure('XF:ReactionContent');
+$userAlertStructure = $app->em()->getEntityStructure('XF:UserAlert');
 $oldTime = \XF::$time;
 foreach ($contents as $content)
 {
     foreach ($users as $user)
     {
-        \XF::$time = $oldTime - random_int(0, 7 * 86400);
-        $reaction->structure()->columns['reaction_date'] = \XF::$time;
+        \XF::$time = $oldTime - ((int)substr((string)$user->user_id, 0, 1)) * 86400;
+        \XF::$time = \XF::$time - (\XF::$time % 86400);
+        $reactionContentStructure->columns['reaction_date']['default'] = \XF::$time;
+        $userAlertStructure->columns['event_date']['default'] = \XF::$time;
         \XF::asVisitor($user, function () use ($user, $content, $reaction, $reactionRepo) {
             $reactionRepo->insertReaction(
                 $reaction->reaction_id,
