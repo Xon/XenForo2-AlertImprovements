@@ -17,18 +17,4 @@ class ProfilePost extends XFCP_ProfilePost implements ISummarizeAlert
     {
         return empty($optOuts['profile_post_react']);
     }
-
-    /**
-     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
-     */
-    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool
-    {
-        switch ($contentType)
-        {
-            case 'profile_post':
-                return true;
-            default:
-                return false;
-        }
-    }
 }

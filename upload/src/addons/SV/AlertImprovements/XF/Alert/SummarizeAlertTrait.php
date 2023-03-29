@@ -13,33 +13,13 @@ use function in_array;
  */
 trait SummarizeAlertTrait
 {
-    public function canSummarizeItem(array $alert): bool
+    public function getSupportedActionsForSummarization(): array
     {
-        $validActions = ['reaction'];
-
-        return in_array($alert['action'], $validActions, true);
+        return ['reaction'];
     }
 
-    protected function getSummaryAction(array $summaryAlert): string
+    public function getSupportContentTypesForSummarization(): array
     {
-        return $summaryAlert['action'];
-    }
-
-    /**
-     * @param array    $summaryAlert
-     * @param Alerts[] $alerts
-     * @param string   $groupingStyle
-     * @return array|null
-     */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle): ?array
-    {
-        if ($groupingStyle !== 'content')
-        {
-            return null;
-        }
-
-        $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
-
-        return $summaryAlert;
+        return [$this->contentType];
     }
 }

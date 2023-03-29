@@ -14,45 +14,24 @@ use function in_array;
  */
 class User extends XFCP_User implements ISummarizeAlert
 {
-    use SummarizeAlertTrait;
-
     public function canSummarizeForUser(array $optOuts): bool
     {
         return true;
     }
 
-    public function canSummarizeItem(array $alert): bool
+    public function getSupportedActionsForSummarization(): array
     {
-        switch ($alert['content_type'])
-        {
-            case 'profile_post':
-            case 'profile_post_comment':
-            case 'report_comment':
-            case 'conversation_message':
-            case 'post':
-                $validActions = ['reaction'];
-
-                return in_array($alert['action'], $validActions, true);
-            default:
-                return false;
-        }
+        return [];
     }
 
-    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool
+    public function getSupportContentTypesForSummarization(): array
     {
-        return false;
-    }
-
-    /**
-     * @param array    $summaryAlert
-     * @param Alerts[] $alerts
-     * @param string   $groupingStyle
-     * @return array
-     */
-    public function summarizeAlerts(array $summaryAlert, array $alerts, string $groupingStyle): array
-    {
-        $summaryAlert['action'] = $this->getSummaryAction($summaryAlert);
-
-        return $summaryAlert;
+        return [
+            'profile_post',
+            'profile_post_comment',
+            'report_comment',
+            'conversation_message',
+            'post',
+        ];
     }
 }
