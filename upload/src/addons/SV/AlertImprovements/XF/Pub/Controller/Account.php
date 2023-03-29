@@ -367,8 +367,6 @@ class Account extends XFCP_Account
             $alerts = $response->getParam('alerts');
             if ($alerts)
             {
-                $this->markViewedAlertsRead($alerts, true);
-
                 $groupedAlerts = empty($options->svAlertsGroupByDate) ? null : $this->groupAlertsByDay($alerts);
 
                 $response->setParam('groupedAlerts', $groupedAlerts);
