@@ -230,11 +230,10 @@ class AlertSummarization extends Repository
 
         // collect alerts into groupings by content/id
         $groupedContentAlerts = [];
-        $groupedUserAlerts = [];
         $groupedAlerts = false;
         while ($item = $stmt->fetch())
         {
-            $id = $item['alert_id'];
+            $alertId = $item['alert_id'];
             if (!$ignoreReadState && $item['view_date'] !== 0)
             {
                 continue;
@@ -247,100 +246,110 @@ class AlertSummarization extends Repository
             }
             $action = $item['action'];
             $isSupportedAction = $actionsByContent[$contentType][$action] ?? null;
-            if (!$isSupportedAction)
+            if ($isSupportedAction === null)
             {
                 continue;
             }
 
+            $data = ['alert_id' => $alertId, 'content_type' => $contentType, 'extra_data' => $item['extra_data']];
             $contentId = $item['content_id'];
-            $contentUserId = $item['user_id'];
-            $groupedContentAlerts[$action][$contentType][$contentId][$id] = $item;
-
-            if ($userHandler !== null && isset($supportedContentTypesByHandler[$contentType]))
+            if (!isset($groupedContentAlerts[$contentType][$action][$contentId]))
             {
-                if (!isset($groupedUserAlerts[$action][$contentUserId]))
+                $groupedContentAlerts[$contentType][$action][$contentId] = ['c' => 0, 'd' => []];
+            }
+            $bucket = &$groupedContentAlerts[$contentType][$action][$contentId];
+            $bucket['c'] += 1;
+            $bucket['i'] = $item;
+            $bucket['d'][$alertId] = $data;
+            unset($bucket);
+
+            if (isset($supportedContentTypesByHandler['user'][$contentType]))
+            {
+                $contentUserId = $item['user_id'];
+                if (!isset($groupedContentAlerts['user'][$action][$contentUserId]))
                 {
-                    $groupedUserAlerts[$action][$contentUserId] = ['c' => 0, 'd' => []];
+                    $groupedContentAlerts['user'][$action][$contentUserId] = ['c' => 0, 'd' => []];
                 }
-                $groupedUserAlerts[$action][$contentUserId]['c'] += 1;
-                $groupedUserAlerts[$action][$contentUserId]['d'][$contentType][$contentId][$id] = $item;
+                $bucket = &$groupedContentAlerts['user'][$action][$contentUserId];
+                $bucket['c'] += 1;
+                $bucket['i'] = $item;
+                $bucket['d'][$contentType][$contentId][$alertId] = $data;
+                unset($bucket);
             }
         }
 
+        $groupedUserAlerts = $groupedContentAlerts['user'];
+        unset($groupedContentAlerts['user']);
         // determine what can be summarised by content types. These require explicit support (ie a template)
-        foreach ($groupedContentAlerts as $action => &$contentTypes)
+        foreach ($groupedContentAlerts as $contentType => $contentActions)
         {
-            foreach ($contentTypes as $contentType => &$contentIds)
+            foreach ($contentActions as $action => $contentIds)
             {
-                foreach ($contentIds as $contentId => $alertGrouping)
+                foreach ($contentIds as $contentId => $blob)
                 {
-                    if (count($alertGrouping) < $summarizeThreshold)
+                    if ($blob['c'] < $summarizeThreshold)
                     {
+                        unset($groupedContentAlerts[$contentType][$action][$contentId]);
                         continue;
                     }
-                    $summaryData = $this->getSummaryAlertData($action, $alertGrouping);
+                    $summaryData = $this->getSummaryAlertData($action, $blob['d']);
                     if ($summaryData === null)
                     {
+                        unset($groupedContentAlerts[$contentType][$action][$contentId]);
                         continue;
                     }
 
-                    if ($this->insertSummaryAlert($contentType, $contentId, $alertGrouping,  0, $summaryAlertViewDate, $summaryData))
+                    if ($this->insertSummaryAlert($contentType, $contentId, $blob['i'], $blob['d'],  0, $summaryAlertViewDate, $summaryData))
                     {
-                        unset($contentIds[$contentId]);
                         $groupedAlerts = true;
+                    }
+                    else
+                    {
+                        unset($groupedContentAlerts[$contentType][$action][$contentId]);
                     }
                 }
             }
         }
 
-        // see if we can group some alert by user (requires deap knowledge of most content types and the template)
-        if ($userHandler !== null)
+        foreach ($groupedUserAlerts as $action => &$senderIds)
         {
-            foreach ($groupedUserAlerts as $action => &$groupedByAction)
+            foreach ($senderIds as $senderUserId => $blob)
             {
-                foreach ($groupedByAction as $senderUserId => &$perUserAlerts)
+                if ($blob['c'] < $summarizeThreshold)
                 {
-                    if ($perUserAlerts['c'] < $summarizeThreshold)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    $userAlertGrouping = [];
-                    foreach ($perUserAlerts['d'] as $contentType => &$contentIds)
+                $userAlertGrouping = [];
+                foreach ($blob['d'] as $contentType => $contentIds)
+                {
+                    foreach ($contentIds as $contentId => $alertIds)
                     {
-                        foreach ($contentIds as $contentId => $alertGrouping)
+                        foreach ($alertIds as $alertId => $alert)
                         {
-                            foreach ($alertGrouping as $id => $alert)
+                            if (!isset($groupedContentAlerts[$contentType][$action][$contentId]['d'][$alertId]))
                             {
-                                if (isset($groupedContentAlerts[$contentType][$contentId][$id]))
-                                {
-                                    $alert['content_type_map'] = $contentType;
-                                    $alert['content_id_map'] = $contentId;
-                                    $userAlertGrouping[$id] = $alert;
-                                }
+                                $userAlertGrouping[$alertId] = $alert;
                             }
                         }
                     }
+                }
+                if (count($userAlertGrouping) === 0)
+                {
+                    continue;
+                }
 
-                    if (count($userAlertGrouping) == 0)
-                    {
-                        continue;
-                    }
+                $summaryData = $this->getSummaryAlertData($action, $userAlertGrouping);
+                if ($summaryData === null)
+                {
+                    continue;
+                }
 
-                    $summaryData = $this->getSummaryAlertData($action, $userAlertGrouping);
-                    if ($summaryData === null)
-                    {
-                        continue;
-                    }
+                $firstAlert = reset($userAlertGrouping);
 
-                    if ($this->insertSummaryAlert('user', $userId, $userAlertGrouping, $senderUserId, $summaryAlertViewDate, $summaryData))
-                    {
-                        foreach ($userAlertGrouping as $id => $alert)
-                        {
-                            unset($groupedContentAlerts[$alert['content_type_map']][$alert['content_id_map']][$id]);
-                        }
-                        $groupedAlerts = true;
-                    }
+                if ($this->insertSummaryAlert('user', $userId, $firstAlert, $userAlertGrouping, $senderUserId, $summaryAlertViewDate, $summaryData))
+                {
+                    $groupedAlerts = true;
                 }
             }
         }
@@ -362,6 +371,7 @@ class AlertSummarization extends Repository
     /**
      * @param string       $contentType
      * @param int          $contentId
+     * @param array        $lastAlert
      * @param array<array> $alertGrouping
      * @param int          $senderUserId
      * @param int          $summaryAlertViewDate
@@ -369,9 +379,8 @@ class AlertSummarization extends Repository
      * @return bool
      * @throws DeadlockException
      */
-    protected function insertSummaryAlert(string $contentType, int $contentId, array $alertGrouping, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool
+    protected function insertSummaryAlert(string $contentType, int $contentId, array $lastAlert, array $alertGrouping, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool
     {
-        $lastAlert = \reset($alertGrouping);
         $userId = $lastAlert['alerted_user_id'];
 
         // inject a grouped alert with the same content type/id, but with a different action
