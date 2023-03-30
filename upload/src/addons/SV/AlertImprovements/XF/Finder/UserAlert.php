@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\XF\Finder;
 
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
+use XF\Repository\UserAlert as UserAlertRepo;
 use function array_keys;
 use function array_search;
 use function array_unshift;
@@ -37,9 +38,11 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param bool $shimCollectionViewable
      */
-    public function markUnviewableAsUnread(bool $shimCollectionViewable = true): void
+    public function markUnviewableAsUnread(bool $shimCollectionViewable = true): self
     {
         $this->shimCollectionViewable = $shimCollectionViewable;
+
+        return $this;
     }
 
     public function getShimmedCollection(array $entities): AbstractCollection
@@ -140,13 +143,22 @@ class UserAlert extends XFCP_UserAlert
         return $this;
     }
 
-    public function forValidContentTypes(array $validContentTypes): self
+    public function forValidContentTypes(?array $validContentTypes = null): self
     {
+        if ($validContentTypes === null)
+        {
+            $alertRepo = $this->app()->repository('XF:UserAlert');
+            assert($alertRepo instanceof UserAlertRepo);
+            $validContentTypes = array_keys($alertRepo->getAlertHandlers());
+        }
+
         if (count($validContentTypes) === 0)
         {
             return $this->whereImpossible();
         }
 
+        // The list of alert handlers is generally quite small, and so a simple array check is vastly faster than the additional join
+        // XF ensures the list of alert handler classes is rebuild on add-on change, so this encodes the same information
         $this->where('content_type', $validContentTypes);
 
         $found = false;
@@ -159,6 +171,7 @@ class UserAlert extends XFCP_UserAlert
             }
         }
 
+        // leave the actual join, as mysql is smart enough to throw away a left-join which has no dependencies
         if ($found)
         {
             $conditions = [];

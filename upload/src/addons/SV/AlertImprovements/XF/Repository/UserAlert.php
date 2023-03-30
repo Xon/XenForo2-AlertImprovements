@@ -71,10 +71,7 @@ class UserAlert extends XFCP_UserAlert
         }
         /** @var ExtendedUserAlertFinder $finder */
         $finder = $this->finder('XF:UserAlert')
-                       ->where(['alert_id', $alertId])
-                       ->whereAddOnActive([
-                           'column' => 'depends_on_addon_id'
-                       ]);
+                       ->where(['alert_id', $alertId]);
         if ($userId !== 0)
         {
             $finder->where(['alerted_user_id', $userId]);
@@ -96,7 +93,11 @@ class UserAlert extends XFCP_UserAlert
             ]);
         }
 
-        $finder->markUnviewableAsUnread();
+        $finder
+            ->markUnviewableAsUnread()
+            ->forValidContentTypes()
+            ->undoUserJoin()
+        ;
 
         return $finder;
     }
@@ -117,8 +118,11 @@ class UserAlert extends XFCP_UserAlert
         $user = $this->app()->find('XF:User', $userId);
         assert($user instanceof ExtendedUserEntity);
 
-        $finder->markUnviewableAsUnread();
-        $finder->undoUserJoin();
+        $finder
+            ->markUnviewableAsUnread()
+            ->forValidContentTypes()
+            ->undoUserJoin()
+        ;
 
         $showUnreadOnly = Globals::$showUnreadOnly ?? false;
         if ($showUnreadOnly)
