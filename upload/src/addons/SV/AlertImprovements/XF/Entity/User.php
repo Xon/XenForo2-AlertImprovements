@@ -11,8 +11,7 @@ use function is_callable;
 /**
  * Extends \XF\Entity\User
  *
- * @property int alerts_unviewed;
- * @property UserOption Option
+ * @property-read UserOption $Option
  */
 class User extends XFCP_User
 {

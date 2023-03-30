@@ -11,9 +11,9 @@ use XF\Mvc\Entity\Structure;
 /**
  * Extends \XF\Entity\UserOption
  *
- * @property bool sv_alerts_popup_skips_mark_read
- * @property bool sv_alerts_page_skips_summarize
- * @property int  sv_alerts_summarize_threshold
+ * @property bool $sv_alerts_popup_skips_mark_read
+ * @property bool $sv_alerts_page_skips_summarize
+ * @property int  $sv_alerts_summarize_threshold
  */
 class UserOption extends XFCP_UserOption
 {

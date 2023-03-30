@@ -11,15 +11,15 @@ use function array_key_exists, is_array, preg_match, implode, trim, mb_strtolowe
 /**
  * Class UserAlert
  * COLUMNS
- * @property int                                      summerize_id
- * @property bool                                     auto_read
- * @property bool                                     read_date
  *
+ * @property int            $summerize_id
+ * @property bool           $auto_read
+ * @property bool           $read_date
  * GETTERS
- * @property bool                                     is_unread
- * @property bool                                     is_new
- * @property bool                                     is_summary
- * @property UserAlert                                SummaryAlert
+ * @property-read bool      $is_unread
+ * @property-read bool      $is_new
+ * @property-read bool      $is_summary
+ * @property-read UserAlert $SummaryAlert
  */
 class UserAlert extends XFCP_UserAlert
 {
