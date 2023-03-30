@@ -104,18 +104,18 @@ class AlertSummarization extends Repository
                 );
             }
 
+            // mysql really needs help with this one :(
             $db->query('
-                UPDATE xf_user_alert AS alert
-                JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.summerize_id
+                UPDATE xf_user_alert AS alert use index ('.($skipExpiredAlertSql === '' ? 'alertedUserId_eventDate' : 'alerted_user_id_summerize_id') .')
                 SET alert.summerize_id = NULL           
-                WHERE summaryRecord.alerted_user_id = ? 
+                WHERE alert.alerted_user_id = ? and alert.summerize_id is not null
                   '. $skipExpiredAlertSql .'
             ', $merge([$userId], $args));
 
             $db->query('
                 DELETE alert, summaryRecord
                 FROM xf_user_alert AS alert
-                JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.alert_id
+                LEFT JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.alert_id
                 WHERE summaryRecord.alerted_user_id = ? '. $skipExpiredAlertSql .'
             ', $merge([$userId], $args));
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);

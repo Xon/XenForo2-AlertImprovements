@@ -290,7 +290,7 @@ class Setup extends AbstractSetup
             $this->addOrChangeColumn($table, 'content_id', 'int');
             $this->addOrChangeColumn($table, 'action', 'varbinary', 30);
 
-            $table->addUniqueKey(['alerted_user_id', 'content_type', 'content_id', 'action'], 'alerted_user_id_content_type_content_id_action');
+            $table->addKey(['alerted_user_id', 'content_type', 'content_id', 'action'], 'alerted_user_id_content_type_content_id_action');
         };
 
         return $tables;
@@ -335,6 +335,8 @@ class Setup extends AbstractSetup
 
             // for unviewed calculations
             $table->addKey(['alerted_user_id', 'view_date']);
+            // for summarization
+            $table->addKey(['alerted_user_id', 'summerize_id'], 'alerted_user_id_summerize_id');
         };
 
         $tables['xf_user'] = function (Alter $table) {
