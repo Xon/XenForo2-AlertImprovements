@@ -93,6 +93,11 @@ class Account extends XFCP_Account
                 ],
             ]
         );
+        if (empty($options->svAlertsSummarize))
+        {
+            unset($input['option']['sv_alerts_page_skips_summarize']);
+            unset($input['option']['sv_alerts_summarize_threshold']);
+        }
 
         $userOptions = $visitor->getRelationOrDefault('Option');
         $form->setupEntityInput($userOptions, $input['option']);
