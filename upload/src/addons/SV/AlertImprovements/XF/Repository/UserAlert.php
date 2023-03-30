@@ -65,6 +65,10 @@ class UserAlert extends XFCP_UserAlert
      */
     public function findAlertByIdsForUser(int $userId, $alertId): ExtendedUserAlertFinder
     {
+        if (!is_array($alertId))
+        {
+            $alertId = [$alertId];
+        }
         /** @var ExtendedUserAlertFinder $finder */
         $finder = $this->finder('XF:UserAlert')
                        ->where(['alert_id', $alertId])
@@ -84,7 +88,6 @@ class UserAlert extends XFCP_UserAlert
         if ($skipExpiredAlerts)
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
-            $finder->indexHint('use', 'alertedUserId_eventDate');
             $finder->whereOr([
                 ['view_date', '>=', $viewedCutOff],
             ], [

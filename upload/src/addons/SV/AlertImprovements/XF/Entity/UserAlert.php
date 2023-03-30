@@ -149,6 +149,12 @@ class UserAlert extends XFCP_UserAlert
         parent::_preSave();
     }
 
+    protected function _postDelete()
+    {
+        parent::_postDelete();
+        $this->db()->query('DELETE FROM xf_sv_user_alert_summary WHERE alert_id  = ?', $this->alert_id);
+    }
+
     protected function _saveToSource()
     {
         if ($this->isInsert() && $this->getOption('svInjectUserRecordLock'))
