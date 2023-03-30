@@ -37,7 +37,7 @@
 		{{ phrase('svAlertImprov_alert_preferences') }}
 	</xf:trim></xf:button>
 
-	<xf:if is="$xf.options.svAlertsSummarize">
+	<xf:if is="$__globals.canResummarize">
 		<xf:button href="{{ link('account/summarize-alerts') }}" class="button--link"><xf:trim>
 			{{ phrase('svAlertImprov_resummarize_alerts') }}
 		</xf:trim></xf:button>
@@ -134,7 +134,7 @@
 					<xf:if is="$alert.view_date">
 						<li>{{ phrase('svAlertImprov_read_on:') }} <xf:date time="$alert.view_date" /></li>
 					</xf:if>
-					<xf:if is="$alert.is_summary">
+					<xf:if is="$alert.is_summary && $alert.canUnsummarize()">
 						<li><a class="alert--unsummarize" data-xf-click="unsummarize-alert" href="{{ link('account/alert/unsummarize', $alert) }}">{{phrase('svAlertImprov_unsummarize_alert')}}</a></li>
 					</xf:if>
 					<xf:if is="$alert.view_date">

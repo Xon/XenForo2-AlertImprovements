@@ -26,6 +26,12 @@ class Globals
      */
     public static $showUnreadOnly = false;
 
+    public static function isResummarizeAlertsEnabled(): bool
+    {
+        return (\XF::options()->svAlertsSummarize ?? true) &&
+               (\XF::app()->config('svAllowUnsummarizeAlerts') ?? true);
+    }
+
     public static function isSkippingExpiredAlerts(): bool
     {
         return \XF::app()->config('svSkipExpiredAlerts') ?? true;

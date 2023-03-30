@@ -6,6 +6,7 @@
 namespace SV\AlertImprovements\XF\Entity;
 
 use SV\AlertImprovements\Entity\SummaryAlert;
+use SV\AlertImprovements\Globals;
 use XF\Mvc\Entity\Structure;
 use function array_key_exists, is_array, preg_match, implode, trim, mb_strtolower;
 use function assert;
@@ -83,6 +84,11 @@ class UserAlert extends XFCP_UserAlert
         }
 
         return false;
+    }
+
+    public function canUnsummarize(): bool
+    {
+        return Globals::isResummarizeAlertsEnabled();
     }
 
     public function getSummary(): ?SummaryAlert

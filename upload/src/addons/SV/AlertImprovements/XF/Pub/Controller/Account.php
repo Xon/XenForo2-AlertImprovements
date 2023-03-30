@@ -115,8 +115,7 @@ class Account extends XFCP_Account
      */
     public function actionSummarizeAlerts(ParameterBag $params)
     {
-        $options = \XF::options();
-        if (empty($options->svAlertsSummarize))
+        if (!Globals::isResummarizeAlertsEnabled())
         {
             return $this->notFound();
         }
@@ -279,6 +278,11 @@ class Account extends XFCP_Account
      */
     public function actionAlertUnsummarize(ParameterBag $params)
     {
+        if (!Globals::isResummarizeAlertsEnabled())
+        {
+            return $this->notFound();
+        }
+
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
         if (!$alert->is_summary)
         {
@@ -288,6 +292,9 @@ class Account extends XFCP_Account
         /** @var AlertAction $alertAction */
         $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
+            $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
+            $this->assertNotFlooding('alertSummarize', $floodingLimit);
+
             $this->getAlertSummarizationRepo()->insertUnsummarizedAlerts($alert);
         }, \XF::phrase('svAlertImprov_unsummarize_alert'),
            \XF::phrase('svAlertImprov_unsummarize_alert'),
@@ -367,6 +374,7 @@ class Account extends XFCP_Account
         }
         if ($response instanceof View)
         {
+            $response->setParam('canResummarize', Globals::isResummarizeAlertsEnabled());
             /** @var AbstractCollection|ExtendedUserAlertEntity[] $alerts */
             $alerts = $response->getParam('alerts');
             if ($alerts)
