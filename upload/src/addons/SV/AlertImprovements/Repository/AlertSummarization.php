@@ -109,9 +109,9 @@ class AlertSummarization extends Repository
                 );
             }
 
-            // mysql really needs help with this one :(
+            // MySQL/MariaDb can just pick really horrible index choices for this, and correctly using index hints is challenging
             $db->query('
-                UPDATE xf_user_alert AS alert use index ('.($skipExpiredAlertSql === '' ? 'alertedUserId_eventDate' : 'alerted_user_id_summerize_id') .')
+                UPDATE xf_user_alert AS alert
                 SET alert.summerize_id = NULL           
                 WHERE alert.alerted_user_id = ? and alert.summerize_id is not null
                   '. $skipExpiredAlertSql .'
