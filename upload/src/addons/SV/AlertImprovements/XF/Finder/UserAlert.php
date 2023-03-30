@@ -5,8 +5,11 @@ namespace SV\AlertImprovements\XF\Finder;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
 use function array_keys;
+use function array_search;
 use function array_unshift;
 use function count;
+use function implode;
+use function str_replace;
 
 /**
  * Class UserAlert
@@ -131,6 +134,47 @@ class UserAlert extends XFCP_UserAlert
             if ($join['entity'] === 'XF:User' && !$join['fundamental'] && !$join['exists'])
             {
                 $join['fetch'] = false;
+            }
+        }
+
+        return $this;
+    }
+
+    public function forValidContentTypes(array $validContentTypes): self
+    {
+        if (count($validContentTypes) === 0)
+        {
+            return $this->whereImpossible();
+        }
+
+        $this->where('content_type', $validContentTypes);
+
+        $found = false;
+        foreach ($this->joins as $join)
+        {
+            if ($join['entity'] === 'XF:AddOn')
+            {
+                $found = true;
+                break;
+            }
+        }
+
+        if ($found)
+        {
+            $conditions = [];
+            foreach ([
+                         'AddOn.active'        => 1,
+                         'depends_on_addon_id' => '',
+                     ] as $key => $value)
+            {
+                $conditions[] = $this->columnSqlName($key, false) . ' = ' . $this->quote($value);
+            }
+            $sql = '(' . implode(') OR (', $conditions) . ')';
+
+            $i = array_search($sql, $this->conditions, true);
+            if ($i !== false)
+            {
+                unset($this->conditions[$i]);
             }
         }
 

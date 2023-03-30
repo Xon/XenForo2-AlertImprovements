@@ -22,6 +22,7 @@ use function array_keys;
 use function count;
 use function is_array;
 use function max;
+use function str_replace;
 
 class AlertSummarization extends Repository
 {
@@ -86,9 +87,6 @@ class AlertSummarization extends Repository
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->finder('XF:UserAlert')
                     ->where('alerted_user_id', $userId)
-                    ->whereAddOnActive([
-                        'column' => 'depends_on_addon_id'
-                    ])
                     ->order('event_date', 'desc');
     }
 
@@ -103,12 +101,17 @@ class AlertSummarization extends Repository
             return false;
         }
 
+        $validContentTypes = [];
         $actionsByContent = [];
         foreach ($handlers as $contentType => $handler)
         {
             $actionsByContent[$contentType] = array_fill_keys($handler->getSupportedActionsForSummarization(), true);
+            if (count($actionsByContent[$contentType]) !== 0)
+            {
+                $validContentTypes[] = $contentType;
+            }
         }
-        if (count($actionsByContent) === 0)
+        if (count($validContentTypes) === 0)
         {
             return false;
         }
@@ -129,7 +132,8 @@ class AlertSummarization extends Repository
         assert($option !== null);
         $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
-        $finder = $this->getFinderForSummarizeAlerts($userId);
+        $finder = $this->getFinderForSummarizeAlerts($userId)
+                       ->forValidContentTypes($validContentTypes);
         if (!$ignoreReadState)
         {
             $finder->showUnreadOnly();
