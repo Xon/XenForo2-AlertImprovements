@@ -54,8 +54,23 @@ class AlertSummarization extends Repository
         $userId = (int)$user->user_id;
         // reaction summary alerts really can't be merged, so wipe all summary alerts, and then try again
         $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
-
-            [$viewedCutOff, $unviewedCutOff] = $this->getAlertRepo()->getIgnoreAlertCutOffs();
+            // polyfill for a lack of a ... operator in php7.2
+            $merge = function (array $a, array $b): array {
+                foreach ($b as $i) {
+                    $a[] = $i;
+                }
+                return $a;
+            };
+            if (Globals::isSkippingExpiredAlerts())
+            {
+                $skipExpiredAlertSql =  ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
+                $args = $this->getAlertRepo()->getIgnoreAlertCutOffs();
+            }
+            else
+            {
+                $skipExpiredAlertSql = '';
+                $args = [];
+            }
 
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
 
@@ -67,8 +82,8 @@ class AlertSummarization extends Repository
                 WHERE summaryRecord.alerted_user_id = ? 
                   AND alert.alerted_user_id = ? 
                   AND alert.read_date = 0
-                  AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) 
-            ', [$userId, $userId, $viewedCutOff, $unviewedCutOff]);
+                  '. $skipExpiredAlertSql .' 
+            ', $merge([$userId, $userId], $args));
             $viewCount = (int)$db->fetchOne('
                 SELECT COUNT(alert.alert_id)
                 FROM xf_user_alert AS alert
@@ -76,8 +91,8 @@ class AlertSummarization extends Repository
                 WHERE summaryRecord.alerted_user_id = ? 
                   AND alert.alerted_user_id = ? 
                   AND alert.view_date = 0
-                  AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) 
-            ', [$userId, $userId, $viewedCutOff, $unviewedCutOff]);
+                  '. $skipExpiredAlertSql .' 
+            ', $merge([$userId, $userId], $args));
             if ($readCount !== 0 && $viewCount !== 0)
             {
                 $db->query('
@@ -94,15 +109,15 @@ class AlertSummarization extends Repository
                 JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.summerize_id
                 SET alert.summerize_id = NULL           
                 WHERE summaryRecord.alerted_user_id = ? 
-                  AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?))
-            ', [$userId, $viewedCutOff, $unviewedCutOff]);
+                  '. $skipExpiredAlertSql .'
+            ', $merge([$userId], $args));
 
             $db->query('
                 DELETE alert, summaryRecord
                 FROM xf_user_alert AS alert
                 JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.alert_id
-                WHERE summaryRecord.alerted_user_id = ? AND (view_date >= ? OR (view_date = 0 AND event_date >= ?))
-            ', [$userId, $viewedCutOff, $unviewedCutOff]);
+                WHERE summaryRecord.alerted_user_id = ? '. $skipExpiredAlertSql .'
+            ', $merge([$userId], $args));
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // summarization should not be run inside a transaction
@@ -168,8 +183,7 @@ class AlertSummarization extends Repository
         /** @noinspection PhpRedundantOptionalArgumentInspection */
         $finder->where('summerize_id', null);
 
-        $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
-        if ($skipExpiredAlerts)
+        if (Globals::isSkippingExpiredAlerts())
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getAlertRepo()->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');

@@ -19,14 +19,17 @@ class Globals
     /** @var bool */
     public static $skipMarkAlertsRead = false;
     /** @var bool */
-    public static $skipExpiredAlerts = true;
-    /** @var bool */
     public static $doAlertPopupRewrite = false;
 
     /**
      * @var bool
      */
     public static $showUnreadOnly = false;
+
+    public static function isSkippingExpiredAlerts(): bool
+    {
+        return \XF::app()->config('svSkipExpiredAlerts') ?? true;
+    }
 
 
     public static function isPrefetchRequest(): bool

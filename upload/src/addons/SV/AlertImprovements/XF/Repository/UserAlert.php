@@ -14,13 +14,11 @@ use XF\Entity\UserAlert as UserAlertEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Finder;
 use function array_keys;
-use function array_slice;
 use function assert;
 use function count;
 use function is_array;
 use function max;
 use function min;
-use function uasort;
 
 /**
  * Class UserAlert
@@ -39,6 +37,10 @@ class UserAlert extends XFCP_UserAlert
 
     public function getIgnoreAlertCutOffs(): array
     {
+        if (!Globals::isSkippingExpiredAlerts())
+        {
+            return [0, 0];
+        }
         $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 4);
         $viewedCutOff = \XF::$time - $viewedAlertExpiryDays * 86400;
 
@@ -81,8 +83,7 @@ class UserAlert extends XFCP_UserAlert
             $finder->whereImpossible();
         }
 
-        $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
-        if ($skipExpiredAlerts)
+        if (Globals::isSkippingExpiredAlerts())
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->whereOr([
@@ -130,8 +131,7 @@ class UserAlert extends XFCP_UserAlert
             $finder->showUnreadOnly();
         }
 
-        $skipExpiredAlerts = Globals::$skipExpiredAlerts ?? true;
-        if ($skipExpiredAlerts)
+        if (Globals::isSkippingExpiredAlerts())
         {
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
@@ -234,16 +234,26 @@ class UserAlert extends XFCP_UserAlert
 
         $db = $this->db();
         $db->executeTransaction(function () use ($db, $readDate, $userId) {
-            /** @noinspection PhpUnusedLocalVariableInspection */
-            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+            if (Globals::isSkippingExpiredAlerts())
+            {
+                $skipExpiredAlertSql =  '  and event_date >= ? ';
+                /** @noinspection PhpUnusedLocalVariableInspection */
+                [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+                $args = [$readDate, $readDate, $userId, $unviewedCutOff];
+            }
+            else
+            {
+                $skipExpiredAlertSql = '';
+                $args = [$readDate, $readDate, $userId];
+            }
             // table lock ordering required is [xf_user, xf_user_alert] to avoid deadlocks
             // update both view_date/read_date together to ensure they stay consistent
             $db->query('UPDATE xf_user SET alerts_unviewed = 0, alerts_unread = 0 WHERE user_id = ?', [$userId]);
             $db->query('UPDATE xf_user_alert 
                 SET view_date = ?, read_date = ? 
                 WHERE alerted_user_id = ? 
-                AND (read_date = 0 or view_date = 0) and event_date >= ?
-            ', [$readDate, $readDate, $userId, $unviewedCutOff]);
+                AND (read_date = 0 or view_date = 0) '.$skipExpiredAlertSql.'
+            ', $args);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         $user->setAsSaved('alerts_unviewed', 0);
@@ -436,15 +446,25 @@ class UserAlert extends XFCP_UserAlert
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
         }
 
-        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+        if (Globals::isSkippingExpiredAlerts())
+        {
+            $skipExpiredAlertSql =  ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+            $args = [$userId, $viewedCutOff, $unviewedCutOff];
+        }
+        else
+        {
+            $skipExpiredAlertSql = '';
+            $args = [$userId];
+        }
 
         $ids = $db->quote($alertIds);
         /** @noinspection SqlWithoutWhere */
         $stmt = $db->query('
-                UPDATE IGNORE xf_user_alert
+                UPDATE IGNORE xf_user_alert as alert
                 SET view_date = 0 ' . $disableAutoReadSql . '
-                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ') AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
-            ', [$userId, $viewedCutOff, $unviewedCutOff]
+                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ') '.$skipExpiredAlertSql.'
+            ', $args
         );
         $viewRowsAffected = $stmt->rowsAffected();
 
@@ -452,8 +472,8 @@ class UserAlert extends XFCP_UserAlert
         $stmt = $db->query('
                 UPDATE IGNORE xf_user_alert
                 SET read_date = 0 ' . $disableAutoReadSql . '
-                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ') AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
-            ', [$userId, $viewedCutOff, $unviewedCutOff]
+                WHERE alerted_user_id = ? AND alert_id IN (' . $ids . ') '.$skipExpiredAlertSql.'
+            ', $args
         );
         $readRowsAffected = $stmt->rowsAffected();
 
@@ -577,22 +597,31 @@ class UserAlert extends XFCP_UserAlert
         $actionFilter = $actions ? ' AND action in (' . $db->quote($actions) . ') ' : '';
         $autoMarkReadFilter = $respectAutoMarkRead ? ' AND auto_read = 1 ' : '';
 
-        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+        if (Globals::isSkippingExpiredAlerts())
+        {
+            $skipExpiredAlertSql =  ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+            $args = [$userId, $viewDate, $viewedCutOff, $unviewedCutOff];
+        }
+        else
+        {
+            $skipExpiredAlertSql = '';
+            $args = [$userId, $viewDate];
+        }
         // Do a select first to reduce the amount of rows that can be touched for the update.
         // This hopefully reduces contention as must of the time it should just be a select, without any updates
         $alertIds = $db->fetchAllColumn(
             '
             SELECT alert_id
-            FROM xf_user_alert
+            FROM xf_user_alert as alert
             WHERE alerted_user_id = ?
             AND (view_date = 0) ' . $autoMarkReadFilter . '
             AND event_date < ?
             AND content_type IN (' . $db->quote($contentType) . ')
             AND content_id IN (' . $db->quote($contentIds) . ")
-            AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
+            '.$skipExpiredAlertSql.'
             {$actionFilter}
-        ", [$userId, $viewDate, $viewedCutOff, $unviewedCutOff]
-        ); // do not bother selecting `read_date = 0 OR`
+        ", $args); // do not bother selecting `read_date = 0 OR`
 
         if (count($alertIds) === 0)
         {
@@ -706,14 +735,23 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
-        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+        if (Globals::isSkippingExpiredAlerts())
+        {
+            $skipExpiredAlertSql =  ' AND event_date >= ? ';
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+            $args = [$userId, $unviewedCutOff];
+        }
+        else
+        {
+            $skipExpiredAlertSql = '';
+            $args = [$userId];
+        }
 
         $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
             FROM xf_user_alert
-            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL AND event_date >= ?
-        ', [$userId, $unviewedCutOff]));
+            WHERE alerted_user_id = ? AND view_date = 0 AND summerize_id IS NULL '.$skipExpiredAlertSql.'
+        ', $args));
 
         $statement = $db->query('
             UPDATE xf_user
@@ -756,13 +794,23 @@ class UserAlert extends XFCP_UserAlert
             return false;
         }
 
-        [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+        if (Globals::isSkippingExpiredAlerts())
+        {
+            $skipExpiredAlertSql =  ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
+            [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
+            $args = [$userId, $viewedCutOff, $unviewedCutOff];
+        }
+        else
+        {
+            $skipExpiredAlertSql = '';
+            $args = [$userId];
+        }
 
         $count = min($this->svUserMaxAlertCount, (int)$db->fetchOne('
             SELECT COUNT(alert_id) 
-            FROM xf_user_alert
-            WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
-        ', [$userId, $viewedCutOff, $unviewedCutOff]));
+            FROM xf_user_alert as alert
+            WHERE alerted_user_id = ? AND read_date = 0 AND summerize_id IS NULL '.$skipExpiredAlertSql.'
+        ', $args));
 
         $statement = $db->query('
             UPDATE xf_user
