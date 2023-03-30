@@ -15,10 +15,12 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
 use XF\PrintableException;
+use function array_chunk;
 use function array_column;
 use function array_fill_keys;
 use function array_key_exists;
 use function array_keys;
+use function assert;
 use function count;
 use function is_array;
 use function max;
@@ -134,6 +136,7 @@ class AlertSummarization extends Repository
 
     public function summarizeAlertsForUser(ExtendedUserEntity $user, bool $ignoreReadState, int $summaryAlertViewDate): bool
     {
+        assert(!$this->db()->inTransaction());
         // build the list of handlers at once, and exclude based
         $handlers = $this->getAlertHandlersForConsolidation();
         // nothing to be done
@@ -265,7 +268,6 @@ class AlertSummarization extends Repository
         }
 
         // determine what can be summarised by content types. These require explicit support (ie a template)
-        $grouped = 0;
         foreach ($groupedContentAlerts as $action => &$contentTypes)
         {
             foreach ($contentTypes as $contentType => &$contentIds)
@@ -282,7 +284,7 @@ class AlertSummarization extends Repository
                         continue;
                     }
 
-                    if ($this->insertSummaryAlert($contentType, $contentId, $alertGrouping, $grouped, 0, $summaryAlertViewDate, $summaryData))
+                    if ($this->insertSummaryAlert($contentType, $contentId, $alertGrouping,  0, $summaryAlertViewDate, $summaryData))
                     {
                         unset($contentIds[$contentId]);
                         $groupedAlerts = true;
@@ -331,7 +333,7 @@ class AlertSummarization extends Repository
                         continue;
                     }
 
-                    if ($this->insertSummaryAlert('user', $userId, $userAlertGrouping, $grouped, $senderUserId, $summaryAlertViewDate, $summaryData))
+                    if ($this->insertSummaryAlert('user', $userId, $userAlertGrouping, $senderUserId, $summaryAlertViewDate, $summaryData))
                     {
                         foreach ($userAlertGrouping as $id => $alert)
                         {
@@ -361,24 +363,21 @@ class AlertSummarization extends Repository
      * @param string       $contentType
      * @param int          $contentId
      * @param array<array> $alertGrouping
-     * @param int          $grouped
      * @param int          $senderUserId
      * @param int          $summaryAlertViewDate
      * @param array        $summaryData
      * @return bool
      * @throws DeadlockException
-     * @throws Exception
-     * @throws PrintableException
      */
-    protected function insertSummaryAlert(string $contentType, int $contentId, array $alertGrouping, int &$grouped, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool
+    protected function insertSummaryAlert(string $contentType, int $contentId, array $alertGrouping, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool
     {
-        $grouped = 0;
         $lastAlert = \reset($alertGrouping);
+        $userId = $lastAlert['alerted_user_id'];
 
         // inject a grouped alert with the same content type/id, but with a different action
         $summaryAlert = [
             'depends_on_addon_id' => 'SV/AlertImprovements',
-            'alerted_user_id'     => $lastAlert['alerted_user_id'],
+            'alerted_user_id'     => $userId,
             'user_id'             => $senderUserId,
             'username'            => $senderUserId ? $lastAlert['username'] : 'Guest',
             'content_type'        => $contentType,
@@ -390,57 +389,38 @@ class AlertSummarization extends Repository
             'extra_data'          => $summaryData,
         ];
 
-        $rowsAffected = 0;
-        $db = $this->db();
+        // limit the size of the IN clause
         $batchIds = array_keys($alertGrouping);
+        $chunks = $this->updateAlertBatchSize < 1 ? [$batchIds] : array_chunk($batchIds, $this->updateAlertBatchSize);
 
-        // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
-        $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected) {
-            // database update, saving this ensure xf_user/xf_user_alert table lock ordering is consistent
-            /** @var ExtendedUserAlertEntity $alert */
-            $alert = $this->em->create('XF:UserAlert');
-            $alert->bulkSet($summaryAlert);
+        $visitor = \XF::visitor();
+        if ($visitor->user_id !== $userId)
+        {
+            $visitor = null;
+        }
+        /** @var ExtendedUserAlertEntity $alert */
+        $alert = $this->em->create('XF:UserAlert');
+        $alert->setupSummaryAlert($summaryAlert);
+
+        if (\XF::$developmentMode)
+        {
+            $this->db()->logSimpleOnly(true);
+        }
+
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($chunks, $alert, $userId, $visitor) {
             $alert->save(true, false);
-            // we need to treat this as unread for the current request so it can display the way we want
-            $alert->setOption('force_unread_in_ui', true);
-            $summerizeId = $alert->alert_id;
-            // denormalize the alert summary data
-            $summary = $this->em->create('SV\AlertImprovements:SummaryAlert');
-            foreach ($summary->structure()->columns as $column => $def)
-            {
-                if ($alert->isValidColumn($column))
-                {
-                    $summary->set($column, $alert->get($column));
-                }
-            }
-            $summary->save(true, false);
+            $summaryId = $alert->alert_id;
 
-            // limit the size of the IN clause
-            $chunks = $this->updateAlertBatchSize < 1 ? [$batchIds] : array_chunk($batchIds, $this->updateAlertBatchSize);
             foreach ($chunks as $chunk)
             {
                 // hide the non-summary alerts
-                $stmt = $db->query('
+                $db->query('
                     UPDATE xf_user_alert
                     SET summerize_id = ?, view_date = if(view_date = 0, ?, view_date), read_date = if(read_date = 0, ?, read_date)
                     WHERE alert_id IN (' . $db->quote($chunk) . ')
-                ', [$summerizeId, \XF::$time, \XF::$time]);
-
-                $rowsAffected += $stmt->rowsAffected();
+                ', [$summaryId, \XF::$time, \XF::$time]);
             }
-        };
-
-        if ($db->inTransaction())
-        {
-            $updateAlerts();
-        }
-        else
-        {
-            $db->executeTransaction($updateAlerts, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-        }
-
-        // add to grouping
-        $grouped += $rowsAffected;
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         return true;
     }

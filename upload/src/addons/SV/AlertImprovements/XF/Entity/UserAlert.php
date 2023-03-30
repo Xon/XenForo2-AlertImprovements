@@ -8,6 +8,7 @@ namespace SV\AlertImprovements\XF\Entity;
 use SV\AlertImprovements\Entity\SummaryAlert;
 use XF\Mvc\Entity\Structure;
 use function array_key_exists, is_array, preg_match, implode, trim, mb_strtolower;
+use function assert;
 
 /**
  * Class UserAlert
@@ -130,6 +131,31 @@ class UserAlert extends XFCP_UserAlert
         }
     }
 
+    protected $svIsSummaryAlertSetup = false;
+    public function setupSummaryAlert(array $summaryAlert): void
+    {
+        assert(!$this->exists());
+
+        $this->svIsSummaryAlertSetup = true;
+        // we need to treat this as unread for the current request so it can display the way we want
+        $this->setOption('force_unread_in_ui', true);
+        $this->bulkSet($summaryAlert);
+
+        // denormalize the alert summary data
+        $summary = $this->getRelationOrDefault('Summary');
+        foreach ($summary->structure()->columns as $column => $def)
+        {
+            if ($this->isValidColumn($column))
+            {
+                $value = $this->get($column) ?? $this->_getDeferredValue(function () use ($column) {
+                    return $this->get($column);
+                }, 'save');
+
+                $summary->set($column, $value);
+            }
+        }
+    }
+
     protected function _preSave()
     {
         $this->read_date = $this->view_date;
@@ -147,6 +173,24 @@ class UserAlert extends XFCP_UserAlert
         }
 
         parent::_preSave();
+    }
+
+    protected function _postSave()
+    {
+        if ($this->svIsSummaryAlertSetup && $this->isInsert())
+        {
+            // stock XF on insert will decrement the counters if inserting with the already read flag set
+            if ($this->view_date !== 0)
+            {
+                unset($this->_newValues['view_date']);
+            }
+            if ($this->read_date !== 0)
+            {
+                unset($this->_newValues['read_date']);
+            }
+        }
+
+        parent::_postSave();
     }
 
     protected function _postDelete()

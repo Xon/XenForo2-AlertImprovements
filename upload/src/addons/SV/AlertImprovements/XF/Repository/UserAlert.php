@@ -179,7 +179,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $skipSummarize = (Globals::$skipSummarize ?? false) || !$this->getAlertSummarizationRepo()->canSummarizeAlerts();
-        if ($skipSummarize)
+        if ($skipSummarize || $this->db()->inTransaction())
         {
             return $finder;
         }
