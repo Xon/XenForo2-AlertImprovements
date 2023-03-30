@@ -521,7 +521,7 @@ class AlertSummarization extends Repository
     {
         /** @var ExtendedUserEntity $user */
         $user = $summaryAlert->Receiver;
-        if ($user === null || $summaryAlert->is_summary)
+        if ($user === null || !$summaryAlert->is_summary)
         {
             return;
         }
