@@ -31,6 +31,10 @@ class Globals
         return \XF::app()->config('svSkipExpiredAlerts') ?? true;
     }
 
+    public static function isRemovingAddOnJoin(): bool
+    {
+        return \XF::app()->config('svRemoveAlertAddOnJoin') ?? true;
+    }
 
     public static function isPrefetchRequest(): bool
     {

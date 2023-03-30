@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\XF\Finder;
 
+use SV\AlertImprovements\Globals;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
 use XF\Repository\UserAlert as UserAlertRepo;
@@ -143,10 +144,24 @@ class UserAlert extends XFCP_UserAlert
         return $this;
     }
 
+    /**
+     * When config('svRemoveAddonJoin') is false, $validContentTypes = null will skip this function
+     * Otherwise the active add-on check will be removed
+     *
+     * @param array<string>|null $validContentTypes
+     * @return $this
+     */
     public function forValidContentTypes(?array $validContentTypes = null): self
     {
+        $isRemovingAddOnJoin = Globals::isRemovingAddOnJoin();
+
         if ($validContentTypes === null)
         {
+            if (!$isRemovingAddOnJoin)
+            {
+                return $this;
+            }
+
             $alertRepo = $this->app()->repository('XF:UserAlert');
             assert($alertRepo instanceof UserAlertRepo);
             $validContentTypes = array_keys($alertRepo->getAlertHandlers());
@@ -160,6 +175,11 @@ class UserAlert extends XFCP_UserAlert
         // The list of alert handlers is generally quite small, and so a simple array check is vastly faster than the additional join
         // XF ensures the list of alert handler classes is rebuild on add-on change, so this encodes the same information
         $this->where('content_type', $validContentTypes);
+
+        if (!$isRemovingAddOnJoin)
+        {
+            return $this;
+        }
 
         $found = false;
         foreach ($this->joins as $join)
