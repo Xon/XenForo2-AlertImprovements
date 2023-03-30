@@ -532,22 +532,19 @@ class AlertSummarization extends Repository
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
             $summaryAlert->delete(true, false);
 
-            // Make alerts visible
-            $unreadIncrement = $db->query('
-                UPDATE IGNORE xf_user_alert
-                SET read_date = 0
-                WHERE alerted_user_id = ? AND summerize_id = ? AND read_date <> 0
-            ', [$userId, $summaryId])->rowsAffected();
+            $row = $db->query('
+                SELECT COUNT(read_date <> 0), COUNT(view_date <> 0)
+                FROM xf_user_alert USE INDEX (alerted_user_id_summerize_id)
+                WHERE alerted_user_id = ? AND summerize_id = ?
+                LIMIT 1
+            ', [$userId, $summaryId])->fetchRowValues();
+            $unreadIncrement = $row[0] ?? 0;
+            $unviewedIncrement = $row[1] ?? 0;
 
-            $unviewedIncrement = $db->query('
-                UPDATE IGNORE xf_user_alert
-                SET view_date = 0
-                WHERE alerted_user_id = ? AND summerize_id = ? AND view_date <> 0
-            ', [$userId, $summaryId])->rowsAffected();
-
+            // make alerts visible
             $db->query('
-                UPDATE IGNORE xf_user_alert
-                SET summerize_id = NULL
+                UPDATE IGNORE xf_user_alert USE INDEX (alerted_user_id_summerize_id)
+                SET summerize_id = NULL, read_date = 0, view_date = 0
                 WHERE alerted_user_id = ? AND summerize_id = ?
             ', [$userId, $summaryId]);
 
