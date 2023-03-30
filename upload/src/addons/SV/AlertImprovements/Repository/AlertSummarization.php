@@ -26,6 +26,9 @@ use function str_replace;
 
 class AlertSummarization extends Repository
 {
+    /** @var int */
+    protected $updateAlertBatchSize = 1000;
+
     public function canSummarizeAlerts(): bool
     {
         if (Globals::$skipSummarize)
@@ -399,7 +402,7 @@ class AlertSummarization extends Repository
             $summary->save(true, false);
 
             // limit the size of the IN clause
-            $chunks = array_chunk($batchIds, 1000);
+            $chunks = $this->updateAlertBatchSize < 1 ? [$batchIds] : array_chunk($batchIds, $this->updateAlertBatchSize);
             foreach ($chunks as $chunk)
             {
                 // hide the non-summary alerts
