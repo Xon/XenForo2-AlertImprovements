@@ -213,6 +213,21 @@ class Setup extends AbstractSetup
         });
     }
 
+    public function upgrade1680110985Step1(): void
+    {
+        $this->installStep1();
+    }
+
+    public function upgrade1680110985Step2(): void
+    {
+        $this->query('
+            INSERT INTO xf_sv_user_alert_summary (alert_id, alerted_user_id, content_type, content_id, `action`)
+            SELECT alert_id, alerted_user_id, content_type, content_id, `action`
+            FROM xf_user_alert
+            WHERE summerize_id IS NULL AND `action` LIKE \'%_summary\';
+        ');
+    }
+
     public function uninstallStep1(): void
     {
         $sm = $this->schemaManager();
@@ -265,6 +280,17 @@ class Setup extends AbstractSetup
             $this->addOrChangeColumn($table, 'user_id', 'int')->primaryKey();
             $this->addOrChangeColumn($table, 'rebuild_date', 'int');
             $table->addKey('rebuild_date');
+        };
+
+        $tables['xf_sv_user_alert_summary'] = function ($table ) {
+            /** @var Alter|Create $table */
+            $this->addOrChangeColumn($table, 'alert_id', 'int')->primaryKey();
+            $this->addOrChangeColumn($table, 'alerted_user_id', 'int');
+            $this->addOrChangeColumn($table, 'content_type', 'varbinary', 25);
+            $this->addOrChangeColumn($table, 'content_id', 'int');
+            $this->addOrChangeColumn($table, 'action', 'varbinary', 30);
+
+            $table->addUniqueKey(['alerted_user_id', 'content_type', 'content_id', 'action'], 'alerted_user_id_content_type_content_id_action');
         };
 
         return $tables;

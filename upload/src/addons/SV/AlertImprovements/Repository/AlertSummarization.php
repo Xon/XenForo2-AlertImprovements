@@ -49,37 +49,61 @@ class AlertSummarization extends Repository
     public function resummarizeAlertsForUser(ExtendedUserEntity $user, int $summaryAlertViewDate)
     {
         $userId = (int)$user->user_id;
-        $removedSummaryAlerts = false;
         // reaction summary alerts really can't be merged, so wipe all summary alerts, and then try again
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId, &$removedSummaryAlerts) {
+        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
 
             [$viewedCutOff, $unviewedCutOff] = $this->getAlertRepo()->getIgnoreAlertCutOffs();
 
-            $stmt = $db->query("
-                DELETE alert FROM xf_user_alert as alert use index (alertedUserId_eventDate)
-                WHERE alerted_user_id = ? AND summerize_id IS NULL AND `action` LIKE '%_summary' AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
-            ", [$userId, $viewedCutOff, $unviewedCutOff]);
-            $removedSummaryAlerts = $stmt->rowsAffected() !== 0;
+            $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
+
+            // only compute a delta of read/view state changes, as to avoid touching every alert
+            $readCount = (int)$db->fetchOne('
+                SELECT COUNT(alert.alert_id)
+                FROM xf_user_alert AS alert
+                JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.alert_id
+                WHERE summaryRecord.alerted_user_id = ? 
+                  AND alert.alerted_user_id = ? 
+                  AND alert.read_date = 0
+                  AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) 
+            ', [$userId, $userId, $viewedCutOff, $unviewedCutOff]);
+            $viewCount = (int)$db->fetchOne('
+                SELECT COUNT(alert.alert_id)
+                FROM xf_user_alert AS alert
+                JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.alert_id
+                WHERE summaryRecord.alerted_user_id = ? 
+                  AND alert.alerted_user_id = ? 
+                  AND alert.view_date = 0
+                  AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) 
+            ', [$userId, $userId, $viewedCutOff, $unviewedCutOff]);
+            if ($readCount !== 0 && $viewCount !== 0)
+            {
+                $db->query('
+                    UPDATE xf_user
+                    SET alerts_unviewed = GREATEST(0, cast(alerts_unviewed AS SIGNED) - ?),
+                        alerts_unread = GREATEST(0, cast(alerts_unread AS SIGNED) - ?)
+                    WHERE user_id = ?
+                ', [$readCount, $viewCount, $userId]
+                );
+            }
 
             $db->query('
-                UPDATE xf_user_alert use index (alertedUserId_eventDate)
-                SET summerize_id = NULL
-                WHERE alerted_user_id = ? AND summerize_id IS NOT NULL AND (view_date >= ? OR (view_date = 0 and event_date >= ?))
+                UPDATE xf_user_alert AS alert
+                JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.summerize_id
+                SET alert.summerize_id = NULL           
+                WHERE summaryRecord.alerted_user_id = ? 
+                  AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?))
+            ', [$userId, $viewedCutOff, $unviewedCutOff]);
+
+            $db->query('
+                DELETE alert, summaryRecord
+                FROM xf_user_alert AS alert
+                JOIN xf_sv_user_alert_summary AS summaryRecord ON summaryRecord.alert_id = alert.alert_id
+                WHERE summaryRecord.alerted_user_id = ? AND (view_date >= ? OR (view_date = 0 AND event_date >= ?))
             ', [$userId, $viewedCutOff, $unviewedCutOff]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // summarization should not be run inside a transaction
-        $summarizedAlerts = $this->summarizeAlertsForUser($user,  true, $summaryAlertViewDate);
-
-        if ($removedSummaryAlerts && !$summarizedAlerts)
-        {
-            $hasChange1 = $this->getAlertRepo()->updateUnreadCountForUserId($userId);
-            $hasChange2 = $this->getAlertRepo()->updateUnviewedCountForUserId($userId);
-            if ($hasChange1 || $hasChange2)
-            {
-                $this->getAlertRepo()->refreshUserAlertCounters($user);
-            }
-        }
+        $this->summarizeAlertsForUser($user,  true, 0);
     }
 
     protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
@@ -164,7 +188,7 @@ class AlertSummarization extends Repository
         $svAlertsSummerizeLimit = (int)($xfOptions->svAlertsSummerizeLimit ?? 0);
         if ($svAlertsSummerizeLimit > 0)
         {
-            $finder->limit($svAlertsSummerizeLimit);
+            //$finder->limit($svAlertsSummerizeLimit);
         }
 
         $query = $finder->getQuery([
@@ -363,6 +387,16 @@ class AlertSummarization extends Repository
             // we need to treat this as unread for the current request so it can display the way we want
             $alert->setOption('force_unread_in_ui', true);
             $summerizeId = $alert->alert_id;
+            // denormalize the alert summary data
+            $summary = $this->em->create('SV\AlertImprovements:SummaryAlert');
+            foreach ($summary->structure()->columns as $column => $def)
+            {
+                if ($alert->isValidColumn($column))
+                {
+                    $summary->set($column, $alert->get($column));
+                }
+            }
+            $summary->save(true, false);
 
             // limit the size of the IN clause
             $chunks = array_chunk($batchIds, 1000);

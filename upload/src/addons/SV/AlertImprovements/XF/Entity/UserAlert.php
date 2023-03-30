@@ -5,6 +5,7 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
+use SV\AlertImprovements\Entity\SummaryAlert;
 use XF\Mvc\Entity\Structure;
 use function array_key_exists, is_array, preg_match, implode, trim, mb_strtolower;
 
@@ -19,7 +20,10 @@ use function array_key_exists, is_array, preg_match, implode, trim, mb_strtolowe
  * @property-read bool      $is_unread
  * @property-read bool      $is_new
  * @property-read bool      $is_summary
- * @property-read UserAlert $SummaryAlert
+ * @property-read UserAlert|null $SummaryAlert
+ * @property-read SummaryAlert|null $Summary
+ * RELATIONS
+ * @property-read SummaryAlert|null $Summary_
  */
 class UserAlert extends XFCP_UserAlert
 {
@@ -35,17 +39,12 @@ class UserAlert extends XFCP_UserAlert
         return $this->_getterCache['Handler'];
     }
 
-    /**
-     * @return int
-     */
-    protected function getReadDate()
+    protected function getReadDate(): int
     {
         return $this->view_date;
     }
 
-    /**
-     * @return bool
-     */
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function isUnread()
     {
         return $this->view_date === 0;
@@ -58,9 +57,7 @@ class UserAlert extends XFCP_UserAlert
         return $viewDate === 0 || $viewDate > \XF::$time - 600 || $this->getOption('force_unread_in_ui');
     }
 
-    /**
-     * @return bool
-     */
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function isUnreadInUi(): bool
     {
         if ($this->getOption('force_unread_in_ui'))
@@ -71,15 +68,13 @@ class UserAlert extends XFCP_UserAlert
         return $this->view_date === 0;
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function isRecentlyRead()
     {
         return ($this->view_date !== 0 && $this->view_date >= \XF::$time - 900);
     }
 
-    /**
-     * @return bool
-     */
-    protected function getIsSummary()
+    protected function getIsSummary(): bool
     {
         if ($this->summerize_id === null)
         {
@@ -87,6 +82,16 @@ class UserAlert extends XFCP_UserAlert
         }
 
         return false;
+    }
+
+    public function getSummary(): ?SummaryAlert
+    {
+        if (!$this->is_summary)
+        {
+            return null;
+        }
+
+        return $this->Summary;
     }
 
     public function getReactedContentSummary(string $glue = ' '): string
@@ -175,11 +180,18 @@ class UserAlert extends XFCP_UserAlert
         $structure->getters['read_date'] = ['getter' => 'getReadDate', 'cache' => false];
         $structure->getters['is_new'] = ['getter' => 'getIsNew', 'cache' => true];
         $structure->getters['is_summary'] = ['getter' => 'getIsSummary', 'cache' => true];
+        $structure->getters['Summary'] = ['getter' => 'getSummary', 'cache' => true];
 
         $structure->relations['SummaryAlert'] = [
             'entity'     => 'XF:UserAlert',
             'type'       => self::TO_ONE,
             'conditions' => [['alert_id', '=', '$summerize_id']],
+            'primary'    => true,
+        ];
+        $structure->relations['Summary'] = [
+            'entity'     => 'SV\AlertImprovements:SummaryAlert',
+            'type'       => self::TO_ONE,
+            'conditions' => 'alert_id',
             'primary'    => true,
         ];
 
