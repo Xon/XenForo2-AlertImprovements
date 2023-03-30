@@ -163,9 +163,10 @@ class AlertSummarization extends Repository
             $finder->limit($svAlertsSummerizeLimit);
         }
 
-        $alerts = $finder->fetchRaw([
+        $query = $finder->getQuery([
             // avoid fetching joins, and just fetch the limited data required
             'fetchOnly' => [
+                'alert_id',
                 'view_date',
                 'content_type',
                 'content_id',
@@ -177,13 +178,15 @@ class AlertSummarization extends Repository
                 'extra_data'
             ],
         ]);
+        $stmt = $this->db()->query($query);
 
         // collect alerts into groupings by content/id
         $groupedContentAlerts = [];
         $groupedUserAlerts = [];
         $groupedAlerts = false;
-        foreach ($alerts as $id => $item)
+        while ($item = $stmt->fetch())
         {
+            $id = $item['alert_id'];
             if (!$ignoreReadState && $item['view_date'] !== 0)
             {
                 continue;
@@ -344,7 +347,7 @@ class AlertSummarization extends Repository
 
         $rowsAffected = 0;
         $db = $this->db();
-        $batchIds = array_column($alertGrouping, 'alert_id');
+        $batchIds = array_keys($alertGrouping);
 
         // depending on context; insertSummaryAlert may be called inside a transaction or not so we want to re-run deadlocks immediately if there is no transaction otherwise allow the caller to run
         $updateAlerts = function () use ($db, $batchIds, $summaryAlert, &$alert, &$rowsAffected) {
@@ -358,7 +361,7 @@ class AlertSummarization extends Repository
             $summerizeId = $alert->alert_id;
 
             // limit the size of the IN clause
-            $chunks = array_chunk($batchIds, 500);
+            $chunks = array_chunk($batchIds, 1000);
             foreach ($chunks as $chunk)
             {
                 // hide the non-summary alerts
