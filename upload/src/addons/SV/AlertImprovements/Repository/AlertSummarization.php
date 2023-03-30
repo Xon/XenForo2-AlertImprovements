@@ -8,6 +8,7 @@ use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\StandardLib\BypassAccessStatus;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
 use XF\Db\Exception;
@@ -19,12 +20,14 @@ use function array_chunk;
 use function array_column;
 use function array_fill_keys;
 use function array_key_exists;
+use function array_key_last;
 use function array_keys;
 use function assert;
 use function count;
 use function is_array;
 use function max;
 use function str_replace;
+use function strpos;
 
 class AlertSummarization extends Repository
 {
@@ -411,15 +414,44 @@ class AlertSummarization extends Repository
         $alert = $this->em->create('XF:UserAlert');
         $alert->setupSummaryAlert($summaryAlert);
 
-        if (\XF::$developmentMode)
+        $db = $this->db();
+        $db->query('drop temporary table if exists xf_sv_user_alert_to_summarize');
+        $db->query('create temporary table xf_sv_user_alert_to_summarize (
+            `alert_id` bigint primary key
+        )');
+        $ids = array_map('\intval', array_keys($alertGrouping));
+        $sql = 'insert into xf_sv_user_alert_to_summarize (alert_id) values ('.implode('),(', $ids). ')';
+        $db->query($sql);
+        unset($sql);
+        // the bulk sql inserted may be very long. rewrite it so _debug=1 doesn't cause pain
+        if (\XF::$debugMode || $db->areQueriesLogged())
         {
-            $this->db()->logSimpleOnly(true);
+            $queryLog = $db->getQueryLog();
+            // todo replace with array_key_last when php 7.3 is a minimum version
+            $key = key(array_slice($queryLog, -1, 1, true));
+            $loggedQuery = $queryLog[$key]['query'] ?? null;
+            if ($loggedQuery !== null && strpos($loggedQuery, 'xf_sv_user_alert_to_summarize') !== 0)
+            {
+                $queryLog[$key]['query'] = 'insert into xf_sv_user_alert_to_summarize (alert_id) values (?)';
+                $setQueryLog = (new BypassAccessStatus)->setPrivate($db, 'queryLog');
+                $setQueryLog($queryLog);
+            }
         }
 
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($chunks, $alert, $userId, $visitor) {
+        $db->executeTransaction(function (AbstractAdapter $db) use ($chunks, $alert, $userId, $visitor) {
             $alert->save(true, false);
             $summaryId = $alert->alert_id;
 
+            // hide the non-summary alerts
+            $db->query('
+                UPDATE xf_user_alert as alert
+                join xf_sv_user_alert_to_summarize as toSummarize on toSummarize.alert_id =  alert.alert_id
+                SET alert.summerize_id = ?, 
+                    alert.view_date = if(view_date = 0, ?, view_date), 
+                    alert.read_date = if(read_date = 0, ?, read_date)
+            ', [$summaryId, \XF::$time, \XF::$time]);
+
+            /*
             foreach ($chunks as $chunk)
             {
                 // hide the non-summary alerts
@@ -429,6 +461,7 @@ class AlertSummarization extends Repository
                     WHERE alert_id IN (' . $db->quote($chunk) . ')
                 ', [$summaryId, \XF::$time, \XF::$time]);
             }
+            */
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         return true;
