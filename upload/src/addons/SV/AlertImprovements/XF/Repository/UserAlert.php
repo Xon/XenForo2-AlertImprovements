@@ -599,7 +599,7 @@ class UserAlert extends XFCP_UserAlert
 
         if (Globals::isSkippingExpiredAlerts())
         {
-            $skipExpiredAlertSql =  ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
+            $skipExpiredAlertSql = ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $args = [$userId, $viewDate, $viewedCutOff, $unviewedCutOff];
         }
@@ -618,10 +618,10 @@ class UserAlert extends XFCP_UserAlert
             AND (view_date = 0) ' . $autoMarkReadFilter . '
             AND event_date < ?
             AND content_type IN (' . $db->quote($contentType) . ')
-            AND content_id IN (' . $db->quote($contentIds) . ")
+            AND content_id IN (' . $db->quote($contentIds) . ')
             '.$skipExpiredAlertSql.'
-            {$actionFilter}
-        ", $args); // do not bother selecting `read_date = 0 OR`
+            '.$actionFilter.'
+        ', $args); // do not bother selecting `read_date = 0 OR`
 
         if (count($alertIds) === 0)
         {
@@ -738,6 +738,7 @@ class UserAlert extends XFCP_UserAlert
         if (Globals::isSkippingExpiredAlerts())
         {
             $skipExpiredAlertSql =  ' AND event_date >= ? ';
+            /** @noinspection PhpUnusedLocalVariableInspection */
             [$viewedCutOff, $unviewedCutOff] = $this->getIgnoreAlertCutOffs();
             $args = [$userId, $unviewedCutOff];
         }
