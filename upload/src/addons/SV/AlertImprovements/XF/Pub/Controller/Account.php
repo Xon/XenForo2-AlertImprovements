@@ -95,7 +95,7 @@ class Account extends XFCP_Account
                 ],
             ]
         );
-        if (empty($options->svAlertsSummarize))
+        if (!(\XF::options()->svAlertsSummarize ?? false))
         {
             unset($input['option']['sv_alerts_page_skips_summarize']);
             unset($input['option']['sv_alerts_summarize_threshold']);
