@@ -281,7 +281,7 @@ class AlertSummarization extends Repository
             }
         }
 
-        $groupedUserAlerts = $groupedContentAlerts['user'];
+        $groupedUserAlerts = $groupedContentAlerts['user'] ?? [];
         unset($groupedContentAlerts['user']);
         // determine what can be summarised by content types. These require explicit support (ie a template)
         foreach ($groupedContentAlerts as $contentType => $contentActions)
