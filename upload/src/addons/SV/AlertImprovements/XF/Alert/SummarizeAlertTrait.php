@@ -26,6 +26,14 @@ trait SummarizeAlertTrait
     }
 
     /**
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
+     */
+    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool
+    {
+        return $this->contentType === $contentType;
+    }
+
+    /**
      * @param array    $summaryAlert
      * @param Alerts[] $alerts
      * @param string   $groupingStyle

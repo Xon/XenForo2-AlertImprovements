@@ -17,18 +17,4 @@ class ConversationMessage extends XFCP_ConversationMessage implements ISummarize
     {
         return empty($optOuts['conversation_message_react']);
     }
-
-    /**
-     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
-     */
-    public function consolidateAlert(string &$contentType, int &$contentId, array $item): bool
-    {
-        switch ($contentType)
-        {
-            case 'conversation_message':
-                return true;
-            default:
-                return false;
-        }
-    }
 }
