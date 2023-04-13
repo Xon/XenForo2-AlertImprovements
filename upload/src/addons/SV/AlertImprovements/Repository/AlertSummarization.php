@@ -126,7 +126,7 @@ class AlertSummarization extends Repository
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
         // summarization should not be run inside a transaction
-        $this->summarizeAlertsForUser($user,  true, 0);
+        $this->summarizeAlertsForUser($user,  true, $summaryAlertViewDate);
     }
 
     protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
