@@ -7,6 +7,7 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use XF\Entity\ConversationMaster;
 use XF\Entity\ConversationUser;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
@@ -32,7 +33,7 @@ class Conversation extends XFCP_Conversation
             ($reply->getParam('messages')) &&
             ($conversation = $reply->getParam('conversation')))
         {
-            /** @var \XF\Entity\ConversationMaster $conversation */
+            /** @var ConversationMaster $conversation */
             /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
@@ -81,7 +82,7 @@ class Conversation extends XFCP_Conversation
         if ($reply instanceof View && $this->isConvEssActive())
         {
             /** @var AbstractCollection $messages */
-            /** @var \XF\Entity\ConversationMaster $conversation */
+            /** @var ConversationMaster $conversation */
             /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
@@ -121,7 +122,7 @@ class Conversation extends XFCP_Conversation
          * @var int                $lastDate
          */
         /** @noinspection PhpUndefinedMethodInspection */
-        list ($contents, $lastDate) = parent::_getNextLivePosts($convUser, $lastDate, $limit);
+        [$contents, $lastDate] = parent::_getNextLivePosts($convUser, $lastDate, $limit);
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();

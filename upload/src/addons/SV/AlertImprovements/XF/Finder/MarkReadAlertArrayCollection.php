@@ -8,6 +8,7 @@ use XF\Mvc\Entity\ArrayCollection;
 
 class MarkReadAlertArrayCollection extends ArrayCollection
 {
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function filterViewable(): ArrayCollection
     {
         $unviewableAlerts = [];

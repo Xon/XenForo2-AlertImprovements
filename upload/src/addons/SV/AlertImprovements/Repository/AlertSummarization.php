@@ -8,25 +8,22 @@ use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\ContentRatings\XF\Repository\Reaction;
 use SV\StandardLib\BypassAccessStatus;
+use XF\Alert\AbstractHandler;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
 use XF\Db\Exception;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
-use XF\PrintableException;
-use function array_chunk;
-use function array_column;
 use function array_fill_keys;
 use function array_key_exists;
-use function array_key_last;
 use function array_keys;
 use function assert;
 use function count;
 use function is_array;
 use function max;
-use function str_replace;
 use function strpos;
 
 class AlertSummarization extends Repository
@@ -186,7 +183,6 @@ class AlertSummarization extends Repository
         {
             $finder->showUnreadOnly();
         }
-        /** @noinspection PhpRedundantOptionalArgumentInspection */
         $finder->where('summerize_id', null);
 
         if (Globals::isSkippingExpiredAlerts())
@@ -381,6 +377,7 @@ class AlertSummarization extends Repository
      * @param array        $summaryData
      * @return bool
      * @throws DeadlockException
+     * @throws Exception
      */
     protected function insertSummaryAlert(string $contentType, int $contentId, array $lastAlert, array $alertGrouping, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool
     {
@@ -402,8 +399,8 @@ class AlertSummarization extends Repository
         ];
 
         // limit the size of the IN clause
-        $batchIds = array_keys($alertGrouping);
-        $chunks = $this->updateAlertBatchSize < 1 ? [$batchIds] : array_chunk($batchIds, $this->updateAlertBatchSize);
+        //$batchIds = array_keys($alertGrouping);
+        //$chunks = $this->updateAlertBatchSize < 1 ? [$batchIds] : array_chunk($batchIds, $this->updateAlertBatchSize);
 
         $visitor = \XF::visitor();
         if ($visitor->user_id !== $userId)
@@ -438,7 +435,7 @@ class AlertSummarization extends Repository
             }
         }
 
-        $db->executeTransaction(function (AbstractAdapter $db) use ($chunks, $alert, $userId, $visitor) {
+        $db->executeTransaction(function (AbstractAdapter $db) use ($alert, $userId, $visitor) {
             $alert->save(true, false);
             $summaryId = $alert->alert_id;
 
@@ -513,7 +510,7 @@ class AlertSummarization extends Repository
             $addOns = \XF::app()->container('addon.cache');
             if (isset($addOns['SV/ContentRatings']))
             {
-                /** @var \SV\ContentRatings\XF\Repository\Reaction $reactionRepo */
+                /** @var Reaction $reactionRepo */
                 $reactionRepo = $this->app()->repository('XF:Reaction');
                 $reactions = $reactionRepo->getReactionsAsEntities();
                 $reactionIds = $reactions->keys();
@@ -585,7 +582,7 @@ class AlertSummarization extends Repository
     }
 
     /**
-     * @return \XF\Alert\AbstractHandler[]|ISummarizeAlert[]
+     * @return AbstractHandler[]|ISummarizeAlert[]
      */
     public function getAlertHandlersForConsolidation(): array
     {

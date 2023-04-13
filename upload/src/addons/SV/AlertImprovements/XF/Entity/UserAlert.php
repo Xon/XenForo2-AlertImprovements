@@ -17,7 +17,7 @@ use function assert;
  *
  * @property int            $summerize_id
  * @property bool           $auto_read
- * @property bool           $read_date
+ * @property int            $read_date
  * GETTERS
  * @property-read bool      $is_unread
  * @property-read bool      $is_new

@@ -5,6 +5,7 @@ namespace SV\AlertImprovements\Job;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Db\AbstractAdapter;
 use XF\Job\AbstractRebuildJob;
+use XF\Phrase;
 use function array_merge;
 
 /**
@@ -52,12 +53,12 @@ class AlertTotalRebuild extends AbstractRebuildJob
         if (empty($this->data['pruneRebuildTable']))
         {
             $db->executeTransaction(function() use ($db){
-                $db->query("
+                $db->query('
                     DELETE pendingRebuild 
                     FROM xf_sv_user_alert_rebuild AS pendingRebuild
                     LEFT JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
                     WHERE xf_user.user_id IS NULL
-                ");
+                ');
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
             $this->data['pruneRebuildTable'] = true;
         }
@@ -76,12 +77,12 @@ class AlertTotalRebuild extends AbstractRebuildJob
         }
 
         return $db->fetchAllColumn($db->limit(
-            "
+            '
 				SELECT pendingRebuild.user_id
 				FROM xf_sv_user_alert_rebuild as pendingRebuild
 				INNER JOIN xf_user on xf_user.user_id = pendingRebuild.user_id 
 				ORDER BY pendingRebuild.rebuild_date, pendingRebuild.user_id
-			", $batch
+			', $batch
         ));
     }
 
@@ -91,7 +92,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
         $this->repo->updateUnreadCountForUserId($id);
     }
 
-    protected function getStatusType(): \XF\Phrase
+    protected function getStatusType(): Phrase
     {
         return \XF::phrase('alerts');
     }

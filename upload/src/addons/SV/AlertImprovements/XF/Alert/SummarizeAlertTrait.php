@@ -2,10 +2,6 @@
 
 namespace SV\AlertImprovements\XF\Alert;
 
-use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
-
-use function in_array;
-
 /**
  * Trait SummarizeAlertTrait
  *

@@ -201,23 +201,10 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User     $user
-     * @param null|int $viewDate
-     */
-    public function markUserAlertsViewed(User $user, $viewDate = null)
-    {
-        $this->markUserAlertsRead($user, $viewDate);
-    }
-
-    public function markUserAlertViewed(UserAlertEntity $alert, $viewDate = null)
-    {
-        $this->markUserAlertRead($alert, $viewDate);
-    }
-
-    /**
      * @param User|ExtendedUserEntity $user
      * @param null|int                $readDate
      * @noinspection PhpDocMissingThrowsInspection
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function markUserAlertsRead(User $user, $readDate = null)
     {
@@ -260,6 +247,7 @@ class UserAlert extends XFCP_UserAlert
         $user->setAsSaved('alerts_unread', 0);
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function autoMarkUserAlertsRead(AbstractCollection $alerts, User $user, $readDate = null)
     {
         if (Globals::$skipMarkAlertsRead)
@@ -274,6 +262,7 @@ class UserAlert extends XFCP_UserAlert
         $this->markSpecificUserAlertsRead($alerts, $user, $readDate);
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function markSpecificUserAlertsRead(AbstractCollection $alerts, User $user, int $readDate = null)
     {
         $userId = (int)$user->user_id;
@@ -316,6 +305,7 @@ class UserAlert extends XFCP_UserAlert
      * @param string|null $onlyActions
      * @param User|null   $user
      * @param int|null    $readDate
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
     {
@@ -635,6 +625,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param UserAlertEntity|ExtendedUserAlertEntity $alert
      * @param int|null                                $readDate
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function markUserAlertRead(UserAlertEntity $alert, $readDate = null)
     {
@@ -651,6 +642,7 @@ class UserAlert extends XFCP_UserAlert
     /**
      * @param UserAlertEntity|ExtendedUserAlertEntity $alert
      * @param bool                                    $disableAutoRead
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function markUserAlertUnread(UserAlertEntity $alert, bool $disableAutoRead = true)
     {
@@ -667,6 +659,7 @@ class UserAlert extends XFCP_UserAlert
      * @param User $user
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function updateUnviewedCountForUser(User $user)
     {
@@ -690,6 +683,7 @@ class UserAlert extends XFCP_UserAlert
      * @param User $user
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function updateUnreadCountForUser(User $user)
     {

@@ -1,9 +1,14 @@
 <?php
+/**
+ * @noinspection PhpMissingParentCallCommonInspection
+ */
 
 namespace SV\AlertImprovements\XF\Repository;
 
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
+use XF\Db\DeadlockException;
+use XF\Entity\User;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Entity\UserAlert as UserAlertEntity;
 use function array_keys;
@@ -16,6 +21,20 @@ use function max;
  */
 class UserAlertPatch extends XFCP_UserAlertPatch
 {
+    /**
+     * @param User     $user
+     * @param null|int $viewDate
+     */
+    public function markUserAlertsViewed(User $user, $viewDate = null)
+    {
+        $this->markUserAlertsRead($user, $viewDate);
+    }
+
+    public function markUserAlertViewed(UserAlertEntity $alert, $viewDate = null)
+    {
+        $this->markUserAlertRead($alert, $viewDate);
+    }
+
     public function pruneViewedAlertsBatch(int $cutOff, float $startTime, float $maxRunTime, int &$batchSize): bool
     {
         if (!$cutOff)
@@ -42,7 +61,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             }
             while ($statement && $statement->rowsAffected() >= $batchSize);
         }
-        catch (\XF\Db\DeadlockException $e)
+        catch (DeadlockException $e)
         {
             $db->rollback();
             // reduce batch size, and signal to try again
@@ -77,7 +96,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             }
             while ($statement && $statement->rowsAffected() >= $batchSize);
         }
-        catch (\XF\Db\DeadlockException $e)
+        catch (DeadlockException $e)
         {
             $db->rollback();
             // reduce batch size, and signal to try again
@@ -115,6 +134,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     /**
      * @param AbstractCollection|array $alerts
      * @return void
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function addContentToAlerts($alerts)
     {
@@ -176,6 +196,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
                 unset($contentMap[$contentType][$contentId]);
                 if (count($contentMap[$contentType]) === 0)
                 {
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     unset($contentMap[$contentType]);
                 }
                 foreach ($alertIds AS $alertId)

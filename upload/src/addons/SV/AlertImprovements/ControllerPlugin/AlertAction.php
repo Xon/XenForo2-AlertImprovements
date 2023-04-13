@@ -5,15 +5,16 @@ namespace SV\AlertImprovements\ControllerPlugin;
 use SV\AlertImprovements\XF\Entity\UserAlert;
 use XF\ControllerPlugin\AbstractPlugin;
 use XF\Mvc\Reply\AbstractReply;
+use XF\Phrase;
 
 class AlertAction extends AbstractPlugin
 {
     /**
      * @param UserAlert         $alert
      * @param \Closure          $actionCallback
-     * @param \XF\Phrase|string $contentTitle
-     * @param \XF\Phrase|string $buttonText
-     * @param \XF\Phrase|string $actionText
+     * @param Phrase|string $contentTitle
+     * @param Phrase|string $buttonText
+     * @param Phrase|string $actionText
      * @param string            $confirmUrl
      * @param string|null       $redirectMsg
      * @param string|null       $returnUrl

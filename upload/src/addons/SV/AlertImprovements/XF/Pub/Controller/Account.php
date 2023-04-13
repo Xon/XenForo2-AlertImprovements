@@ -10,8 +10,10 @@ use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertSummarization;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
+use XF\Entity\UserAlert;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
+use XF\Mvc\FormAction;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
@@ -20,6 +22,7 @@ use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Mvc\Reply\View as ViewReply;
 use XF\Mvc\Reply\Redirect as RedirectReply;
 use XF\Mvc\Reply\Exception as ExceptionReply;
+use XF\Service\FloodCheck;
 use function array_slice, count, max, array_merge;
 use function assert;
 
@@ -30,6 +33,7 @@ use function assert;
  */
 class Account extends XFCP_Account
 {
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function actionAlertsMarkRead()
     {
         /** @var ExtendedUserEntity $visitor */
@@ -48,7 +52,7 @@ class Account extends XFCP_Account
             $alertIds = $this->filter('alert_ids', 'array-uint');
             if ($alertIds)
             {
-                /** @var \XF\Entity\UserAlert[]|AbstractCollection $alerts */
+                /** @var UserAlert[]|AbstractCollection $alerts */
                 $alerts = $alertRepo->findAlertByIdsForUser($visitor->user_id, $alertIds)
                                     ->limit(\XF::options()->alertsPerPage * 2)
                                     ->fetch();
@@ -80,7 +84,7 @@ class Account extends XFCP_Account
 
     /**
      * @param User $visitor
-     * @return \XF\Mvc\FormAction
+     * @return FormAction
      */
     protected function preferencesSaveProcess(User $visitor)
     {
@@ -328,7 +332,7 @@ class Account extends XFCP_Account
             return false;
         }
 
-        /** @var \XF\Service\FloodCheck $floodChecker */
+        /** @var FloodCheck $floodChecker */
         $floodChecker = $this->service('XF:FloodCheck');
         $timeRemaining = $floodChecker->checkFlooding('alertSummarize', $visitor->user_id, $floodingLimit);
 
@@ -474,6 +478,7 @@ class Account extends XFCP_Account
         return $reply;
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function markInaccessibleAlertsReadIfNeeded(AbstractCollection $displayedAlerts = null)
     {
         // no-op this, as stock calls this stupidly often and loads all unread alerts without sanity checks...
@@ -537,6 +542,7 @@ class Account extends XFCP_Account
      * aka the inline moderation wrapper.
      *
      * @throws ExceptionReply
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function actionAlertToggle()
     {
@@ -593,6 +599,7 @@ class Account extends XFCP_Account
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
      * @throws ExceptionReply
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {

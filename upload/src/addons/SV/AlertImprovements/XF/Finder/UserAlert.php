@@ -11,7 +11,6 @@ use function array_search;
 use function array_unshift;
 use function count;
 use function implode;
-use function str_replace;
 
 /**
  * Class UserAlert
@@ -38,6 +37,7 @@ class UserAlert extends XFCP_UserAlert
 
     /**
      * @param bool $shimCollectionViewable
+     * @return UserAlert
      */
     public function markUnviewableAsUnread(bool $shimCollectionViewable = true): self
     {

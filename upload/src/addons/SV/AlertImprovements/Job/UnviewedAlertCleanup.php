@@ -2,7 +2,12 @@
 
 namespace SV\AlertImprovements\Job;
 
+use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\AlertImprovements\XF\Repository\UserAlertPatch;
+use XF\Db\DeadlockException;
+use XF\Db\Exception;
 use XF\Job\AbstractJob;
+use XF\Job\JobResult;
 use function max;
 use function microtime;
 
@@ -18,10 +23,10 @@ class UnviewedAlertCleanup extends AbstractJob
 
     /**
      * @param float $maxRunTime
-     * @return \XF\Job\JobResult
-     * @throws \XF\Db\Exception
+     * @return JobResult
+     * @throws Exception
      */
-    public function run($maxRunTime): \XF\Job\JobResult
+    public function run($maxRunTime): JobResult
     {
         $cutOff = $this->data['cutOff'] ?? 0;
         $cutOff = (int)$cutOff;
@@ -57,7 +62,7 @@ class UnviewedAlertCleanup extends AbstractJob
                         WHERE view_date = 0 AND event_date <= ?
                     ', [\XF::$time, $cutOffWindow]);
                 }
-                catch (\XF\Db\DeadlockException $e)
+                catch (DeadlockException $e)
                 {
                     $db->rollback();
                     // on deadlock resume later
@@ -87,7 +92,7 @@ class UnviewedAlertCleanup extends AbstractJob
             return $this->resume();
         }
 
-        /** @var \SV\AlertImprovements\XF\Repository\UserAlertPatch|\SV\AlertImprovements\XF\Repository\UserAlert $alertRepo */
+        /** @var UserAlertPatch|UserAlert $alertRepo */
         $alertRepo = \XF::app()->repository('XF:UserAlert');
 
         if (empty($this->data['pruned']))

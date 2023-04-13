@@ -25,6 +25,7 @@ class RebuildAlertTotals extends AbstractRebuildCommand
 
     protected function configureOptions(): void
     {
+        parent::configureOptions();
         $this->addOption(
             'pendingRebuilds',
             null,

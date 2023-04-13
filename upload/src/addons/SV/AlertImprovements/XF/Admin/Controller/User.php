@@ -5,6 +5,9 @@
 
 namespace SV\AlertImprovements\XF\Admin\Controller;
 
+use XF\Mvc\FormAction;
+use XF\Mvc\Reply\Exception;
+
 /**
  * Class User
  *
@@ -14,8 +17,8 @@ class User extends XFCP_User
 {
     /**
      * @param \XF\Entity\User $user
-     * @return \XF\Mvc\FormAction
-     * @throws \XF\Mvc\Reply\Exception
+     * @return FormAction
+     * @throws Exception
      */
     protected function userSaveProcess(\XF\Entity\User $user)
     {
