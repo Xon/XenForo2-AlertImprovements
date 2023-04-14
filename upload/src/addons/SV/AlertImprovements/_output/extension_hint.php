@@ -28,6 +28,8 @@ namespace SV\AlertImprovements\XF\Entity
 	class XFCP_User extends \XF\Entity\User {}
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}
 	class XFCP_UserOption extends \XF\Entity\UserOption {}
+	class XFCP_UserOptionPatch1 extends \XF\Entity\UserOption {}
+	class XFCP_UserOptionPatch2 extends \XF\Entity\UserOption {}
 }
 
 namespace SV\AlertImprovements\XF\Finder

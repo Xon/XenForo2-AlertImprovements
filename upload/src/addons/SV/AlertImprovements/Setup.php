@@ -2,7 +2,7 @@
 
 namespace SV\AlertImprovements;
 
-use SV\AlertImprovements\XF\Entity\UserOption;
+use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
@@ -10,7 +10,11 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
+use XF\Entity\Template;
 use XF\PrintableException;
+use XF\Util\Arr;
+use function explode;
+use function json_encode;
 use function min, max, microtime, array_keys, strpos;
 
 /**
@@ -156,7 +160,7 @@ class Setup extends AbstractSetup
         $startTime = microtime(true);
         foreach($templates as $template)
         {
-            /** @var \XF\Entity\Template $template*/
+            /** @var Template $template*/
             if (empty($templateRenames[$template->title]))
             {
                 continue;
@@ -166,7 +170,7 @@ class Setup extends AbstractSetup
 
             $template->title = $templateRenames[$template->title];
             $template->version_id = 2081101;
-            $template->version_string = "2.8.11";
+            $template->version_string = '2.8.11';
             $template->save(false, true);
 
             if (microtime(true) - $startTime >= $maxRunTime)
@@ -236,13 +240,23 @@ class Setup extends AbstractSetup
 
     public function upgrade2090007Step3(array $stepData): ?array
     {
-        if (!$this->columnExists('xf_user_option', 'sv_skip_auto_read_for_op'))
+        $columns = [
+            ['alert_optout', '<>', ''],
+            ['push_optout', '<>', ''],
+        ];
+
+        if ($this->columnExists('xf_user_option', 'sv_skip_auto_read_for_op'))
         {
-            return null;
+            $columns[] = ['sv_skip_auto_read_for_op', '=', 0];
+        }
+
+        if ($this->columnExists('xf_user_option', 'nf_discord_optout'))
+        {
+            $columns[] = ['nf_discord_optout', '<>', ''];
         }
 
         $finder = \XF::finder('XF:UserOption')
-                     ->where('sv_skip_auto_read_for_op', '=', 0);
+                     ->whereOr($columns);
 
         $next = $stepData['userId'] ?? 0;
         if (!isset($stepData['max']))
@@ -252,24 +266,59 @@ class Setup extends AbstractSetup
 
         $userOptions = $finder->where('user_id', '>', $next)
                               ->limit(100)
-                              ->fetch();
-        if ($userOptions->count() === 0)
+                              ->fetchRaw();
+        if (count($userOptions) === 0)
         {
             return null;
         }
 
-        $maxRunTime = \max(\min(\XF::app()->config('jobMaxRunTime'), 4), 1);
-        $startTime = \microtime(true);
+        /** @var AlertPreferences $alertPrefsRepo */
+        $alertPrefsRepo = $this->app->repository('SV\AlertImprovements:AlertPreferences');
+        /** @var array<string> $optOutActions */
+        $optOutActions = array_keys($alertPrefsRepo->getAlertOptOutActionList());
+
+        $convertOptOut = function (string $type, ?string $column, array &$optOuts) use ($alertPrefsRepo, $optOutActions) {
+            $column = $column ?? '';
+            if ($column === '')
+            {
+                return;
+            }
+            $optOutList = Arr::stringToArray($column, '/\S*,\s*/');
+            foreach ($optOutList as $optOut)
+            {
+                $parts = $alertPrefsRepo->convertStringyOptOut($optOutActions, $optOut);
+                if ($parts === null)
+                {
+                    // bad data, just skips since it wouldn't do anything
+                    continue;
+                }
+                [$contentType, $action] = $parts;
+
+                $optOuts[$type][$contentType][$action] = true;
+            }
+        };
+
+        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $startTime = microtime(true);
         foreach ($userOptions as $userOption)
         {
-            /** @var UserOption $userOption */
-            $stepData['userId'] = $userOption->user_id;
+            $stepData['userId'] = $userOption['user_id'];
 
-            $optOuts = $userOption->sv_autoread_optout ?? [];
-            $optOuts['post_op_insert'] = 'post_op_insert';
-            $userOption->sv_autoread_optout = $optOuts;
+            $optOuts = @json_decode($userOption['sv_alert_pref'], true) ?: [];
 
-            $userOption->saveIfChanged();
+            $convertOptOut('alert', $userOption['alert_optout'] ?? '', $optOuts);
+            $convertOptOut('push', $userOption['push_optout'] ?? '', $optOuts);
+            $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $optOuts);
+            if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
+            {
+                $optOuts['autoRead']['post']['op_insert'] = true;
+            }
+
+            $this->db()->query('
+                UPDATE xf_user_option
+                SET sv_alert_pref = ?
+                WHERE user_id = ?
+            ', [json_encode($optOuts), $userOption['user_id']]);
 
             if (\microtime(true) - $startTime >= $maxRunTime)
             {
@@ -356,7 +405,7 @@ class Setup extends AbstractSetup
             $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
-            $this->addOrChangeColumn($table, 'sv_autoread_optout', 'text')->nullable()->setDefault(null);
+            $this->addOrChangeColumn($table, 'sv_alert_pref', 'blob')->nullable()->setDefault(null);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
@@ -405,7 +454,7 @@ class Setup extends AbstractSetup
 
         $tables['xf_user_option'] = function (Alter $table) {
             $table->dropColumns([
-                'sv_autoread_optout',
+                'sv_alert_pref',
                 'sv_alerts_popup_skips_mark_read',
                 'sv_alerts_page_skips_mark_read',
                 'sv_alerts_page_skips_summarize',
