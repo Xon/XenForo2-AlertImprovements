@@ -29,6 +29,7 @@ use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_slice, count, max, array_merge;
+use function array_values;
 use function assert;
 use function is_array;
 use function is_callable;
@@ -145,30 +146,26 @@ class Account extends XFCP_Account
             unset($input['option']['sv_alerts_summarize_threshold']);
         }
 
+        assert( $visitor instanceof ExtendedUserEntity);
         $userOptions = $visitor->getRelationOrDefault('Option');
         $form->setupEntityInput($userOptions, $input['option']);
 
         $alertOptions = $this->filter('svAlertOptions', 'str');
         switch ($alertOptions)
         {
-            case 'defaults':
-                $form->setupEntityInput($visitor->Option, [
-                    'sv_alert_pref' => [],
-                ]);
-                break;
             case 'none':
-                $form->setupEntityInput($visitor->Option, [
+                $form->setupEntityInput($userOptions, [
                     'sv_alert_pref' => ['none' => true],
                 ]);
                 break;
+            case 'defaults':
+                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor, true);
+                $form->setupEntityInput($userOptions, $patchedOptOuts);
+                break;
             case 'custom':
             default:
-                assert( $visitor instanceof ExtendedUserEntity);
-                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor);
-                if (count($patchedOptOuts) !== 0)
-                {
-                    $form->setupEntityInput($visitor->Option, $patchedOptOuts);
-                }
+                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor, false);
+                $form->setupEntityInput($userOptions, $patchedOptOuts);
                 break;
         }
 
@@ -196,7 +193,7 @@ class Account extends XFCP_Account
         return $types;
     }
 
-    protected function svGetAlertOptOutFromInputs(ExtendedUserEntity $visitor): array
+    protected function svGetAlertOptOutFromInputs(ExtendedUserEntity $visitor, bool $resetAll): array
     {
         $types = $this->svGetOptOutsTypes();
 
@@ -216,18 +213,19 @@ class Account extends XFCP_Account
             'sv_alert_pref' => $visitor->Option->sv_alert_pref ?? [],
         ];
         unset($entityInputs['sv_alert_pref']['none']);
-        $alertInputs = function (string $type, ?string $oldOutputName, string $inputKey, ?string $isShownKey = null)
-        use ($alertPrefsRepo, $reset, $alertOptOutDefaults, $optOutActions, $optOutActionList, &$entityInputs) {
 
+        foreach ($types as $type => $alertConfig)
+        {
+            [$oldOutputName, $inputKey, $isShownKey] = $alertConfig;
             if (!array_key_exists($type, $alertOptOutDefaults))
             {
-                return;
+                continue;
             }
 
             $optOuts = [];
             /** @var array<bool> $inputs */
             $inputs = $this->filter($inputKey, 'array-bool');
-            $isShown = $isShownKey ? $this->filter($isShownKey, 'array-bool') : null;
+            $isShown = (!$resetAll || $isShownKey) ? $this->filter($isShownKey, 'array-bool') : null;
             foreach ($optOutActions as $optOut)
             {
                 $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);
@@ -241,7 +239,7 @@ class Account extends XFCP_Account
                 $wasShowed = $isShown === null || isset($isShown[$optOut]);
                 $defaultValue = $alertOptOutDefaults[$type][$contentType][$action] ?? true;
                 $value = $inputs[$optOut] ?? false;
-                if ($reset[$optOut] ?? false)
+                if ($resetAll || ($reset[$optOut] ?? false))
                 {
                     $value = $defaultValue;
                 }
@@ -266,12 +264,6 @@ class Account extends XFCP_Account
             {
                 $entityInputs[$oldOutputName] = array_values($optOuts);
             }
-        };
-
-        foreach ($types as $type => $alertConfig)
-        {
-            [$oldOutputName, $inputKey, $isShownKey] = $alertConfig;
-            $alertInputs($type, $oldOutputName, $inputKey, $isShownKey);
         }
 
         // don't story empty lists to reduce json parsing needed
