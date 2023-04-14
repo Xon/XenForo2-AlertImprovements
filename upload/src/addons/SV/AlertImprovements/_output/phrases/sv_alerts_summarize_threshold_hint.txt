@@ -1,1 +1,1 @@
-Summarize similar alerts with numbers greater than
+Summarize similar alerts with numbers greater than or equal
