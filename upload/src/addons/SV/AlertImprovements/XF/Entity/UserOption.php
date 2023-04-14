@@ -5,6 +5,7 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
+use SV\AlertImprovements\Repository\AlertPreferences;
 use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Structure;
 
@@ -20,7 +21,8 @@ class UserOption extends XFCP_UserOption
 {
     public function doesAutoReadAlert(string $contentType, string $action): bool
     {
-        return $this->sv_alert_pref['autoRead'][$contentType][$action] ?? true;
+        return $this->sv_alert_pref['autoRead'][$contentType][$action]
+               ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('autoRead', $contentType, $action);
     }
 
     protected function _setupDefaults()
@@ -55,5 +57,11 @@ class UserOption extends XFCP_UserOption
         ];
 
         return $structure;
+    }
+
+    public function getSvAlertPreferencesRepo(): AlertPreferences
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->repository('SV\AlertImprovements:AlertPreferences');
     }
 }

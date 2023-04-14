@@ -2,7 +2,6 @@
 
 namespace SV\AlertImprovements\Repository;
 
-use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
 use function array_fill_keys;
@@ -13,11 +12,19 @@ use function implode;
 
 class AlertPreferences extends Repository
 {
+    /** @var ?array */
+    protected $alertOptOutActionList = null;
+
     /**
      * @return array<string,array<string,bool>>
      */
-    public function getAlertOptOutActionList(): array
+    public function getAlertOptOutActionList(bool $fromCache = true): array
     {
+        if ($fromCache && $this->alertOptOutActionList !== null)
+        {
+            return $this->alertOptOutActionList;
+        }
+
         $handlers = $this->getAlertRepo()->getAlertHandlers();
 
         $actions = [];
@@ -28,6 +35,8 @@ class AlertPreferences extends Repository
                 $actions[$contentType][$action] = true;
             }
         }
+
+        $this->alertOptOutActionList = $actions;
 
         return $actions;
     }
@@ -67,14 +76,35 @@ class AlertPreferences extends Repository
         return null;
     }
 
+    /** @var array<string,array<string,array<string, bool>>> */
+    protected $optOutDefaults = [];
+
+    public function getAlertPreferenceDefault(string $type, string $contentType, string $action): bool
+    {
+        $defaultsByType = $this->optOutDefaults[$type] ?? null;
+        if ($defaultsByType === null)
+        {
+            $this->optOutDefaults[$type] = $defaultsByType = $this->getAlertPreferencesDefaults([$type], $this->getAlertOptOutActionList())[$type];
+        }
+
+        return $defaultsByType[$contentType][$action] ?? true;
+    }
+
     /**
      * @param array<string> $types
      * @param array<string,array<string,bool>> $optOutActions
      * @return array<string,array<string,array<string, bool>>>
      */
-    public function getAlertOptOutsDefaults(array $types, array $optOutActions): array
+    public function getAlertPreferencesDefaults(array $types, array $optOutActions): array
     {
-        return array_fill_keys($types, $optOutActions);
+        $defaults = array_fill_keys($types, $optOutActions);
+
+        if (\XF::isAddOnActive('SV/ThreadStarterAlerts') && in_array('autoRead', $types, true))
+        {
+            $defaults['autoRead']['post']['op_insert'] = false;
+        }
+
+        return $defaults;
     }
 
     protected function getAlertRepo(): UserAlert

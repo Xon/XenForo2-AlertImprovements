@@ -24,6 +24,7 @@ use XF\Mvc\Reply\View as ViewReply;
 use XF\Mvc\Reply\Redirect as RedirectReply;
 use XF\Mvc\Reply\Exception as ExceptionReply;
 use XF\Service\FloodCheck;
+use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_slice, count, max, array_merge;
@@ -147,7 +148,7 @@ class Account extends XFCP_Account
         $alertPrefsRepo = $this->repository('SV\AlertImprovements:AlertPreferences');
         assert($alertPrefsRepo instanceof AlertPreferences);
         $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertOptOutDefaults = $alertPrefsRepo->getAlertOptOutsDefaults($types, $optOutActionList);
+        $alertOptOutDefaults = $alertPrefsRepo->getAlertPreferencesDefaults($types, $optOutActionList);
 
         $alertRepo = $this->repository('XF:UserAlert');
         assert($alertRepo instanceof ExtendedUserAlertRepo);
@@ -155,7 +156,7 @@ class Account extends XFCP_Account
         $optOutActions = array_keys($alertRepo->getAlertOptOutActions());
 
         /** @var array<bool> $reset */
-        $reset = $this->filter('reset', 'array-bool');
+        $reset = $this->filter('reset-alerts', 'array-bool');
         $entityInputs = [
             'sv_alert_pref' => $visitor->Option->sv_alert_pref ?? [],
         ];
@@ -216,6 +217,17 @@ class Account extends XFCP_Account
         $alertInputs('push', 'push_optout', 'push', 'push_shown');
         // NF/Discord add-on support
         $alertInputs('discord', 'nf_discord_optout', 'nf_discord');
+
+        // don't story empty lists to reduce json parsing needed
+        foreach ($entityInputs['sv_alert_pref'] as &$contentTypes)
+        {
+            $contentTypes = array_filter($contentTypes, function (array $item) {
+                return count($item) !== 0;
+            });
+        }
+        $entityInputs['sv_alert_pref'] = array_filter($entityInputs['sv_alert_pref'], function (array $item) {
+            return count($item) !== 0;
+        });
 
         return $entityInputs;
     }

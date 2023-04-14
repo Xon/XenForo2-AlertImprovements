@@ -1,0 +1,9 @@
+{
+    "template": "account_preferences",
+    "description": "Inject per-alert-type reset toggle",
+    "execution_order": 1,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:formrow label=\"{$label}\" data-content-type=\"{$contentType}\" data-action=\"{$action}\"",
+    "replace": "<xf:set var=\"$hintHtml\">\n\t<xf:checkbox standalone=\"true\">\n\t\t<xf:option name=\"reset-alerts[{$contentType}_{$action}]\" label=\"{{ phrase('svAlertImprov_reset_alert') }}\" />\n\t</xf:checkbox>\t\n</xf:set>\n\n$0 hint=\"{$hintHtml|raw}\"\n\t\n\t"
+}
