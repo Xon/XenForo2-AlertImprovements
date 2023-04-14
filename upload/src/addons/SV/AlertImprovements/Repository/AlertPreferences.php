@@ -32,6 +32,14 @@ class AlertPreferences extends Repository
         return $actions;
     }
 
+    /**
+     * Converts from "{$contentType}_{$action}" => [$contentType,$action]
+     * While this is ambiguous if '_' is used in the content-type, XF doesn't handle that case well either
+     *
+     * @param array  $optOutActions
+     * @param string $optOut
+     * @return array|null
+     */
     public function convertStringyOptOut(array $optOutActions, string $optOut): ?array
     {
         $parts = explode('_', $optOut);
