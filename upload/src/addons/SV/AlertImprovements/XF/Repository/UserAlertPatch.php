@@ -233,21 +233,11 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      */
     public function patchAutoReadForInsertAlert(int $receiverId, string $contentType, string $action, array &$extra, array &$options = null)
     {
-        /** @var UserOption $userOption */
-        $userOption = $this->app()->em()->find('XF:UserOption', $receiverId);
-        if ($userOption === null)
+        /** @var UserOption|null $userOption */
+        $userOption = $this->em->find('XF:UserOption', $receiverId);
+        if ($userOption !== null)
         {
-            return;
-        }
-
-        $defaultValue = $options['autoRead'] ?? null;
-        // todo this should compare against global defaults!
-        $autoRead = $userOption->doesAutoReadAlert($contentType,$action);
-
-        if ($defaultValue !== $autoRead)
-        {
-            // write it back
-            $options['autoRead'] = $autoRead;
+            $options['autoRead'] = $userOption->doesAutoReadAlert($contentType, $action);
         }
     }
 }
