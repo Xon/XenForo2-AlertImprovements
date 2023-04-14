@@ -1,7 +1,7 @@
 {
     "template": "account_alerts",
     "description": "Wrap alerts listing with form to update alert read/view states",
-    "execution_order": 6396,
+    "execution_order": 9,
     "enabled": true,
     "action": "preg_replace",
     "find": "#(^<div class=\"block(?:.*?)?\".*?)(<div class=\"block-body.*?>.*?<\\/xf:if>.*<\\/div>)(.*?</div>\\s*<xf:pagenav.*?^<\\/div>$)#sim",
