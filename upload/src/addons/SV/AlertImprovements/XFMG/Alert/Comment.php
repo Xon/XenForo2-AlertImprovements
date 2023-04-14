@@ -11,9 +11,4 @@ use SV\AlertImprovements\XF\Alert\SummarizeAlertTrait;
 class Comment extends XFCP_Comment implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
-
-    public function canSummarizeForUser(array $optOuts): bool
-    {
-        return empty($optOuts['xfmg_comment_react']);
-    }
 }

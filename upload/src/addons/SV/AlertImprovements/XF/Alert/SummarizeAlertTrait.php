@@ -14,6 +14,11 @@ trait SummarizeAlertTrait
         return ['reaction'];
     }
 
+    public function canSummarizeForUser(array $optOuts): bool
+    {
+        return true;
+    }
+
     public function getSupportContentTypesForSummarization(): array
     {
         return [$this->contentType];

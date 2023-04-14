@@ -12,9 +12,4 @@ use SV\AlertImprovements\ISummarizeAlert;
 class Post extends XFCP_Post implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
-
-    public function canSummarizeForUser(array $optOuts): bool
-    {
-        return empty($optOuts['report_comment_react']);
-    }
 }
