@@ -19,11 +19,11 @@
 		  arg-selected=""
 		  >
 	<div class="block-outer-main">
-		<div class="buttonGroup"><xf:trim>
-			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'all')|replace('page', '')) }}" class="button {{ $selected === 'all' ? 'button--alt' : 'button--link' }}"><xf:trim>
+		<div class="buttonGroup alerts-filter"><xf:trim>
+			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'all')|replace('page', '')) }}" class="{{ $selected === 'all' ? 'button--primary' : 'button--link' }}"><xf:trim>
 				{{ phrase('all') }}
 				</xf:trim></xf:button>
-			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'unread')|replace('page', '')) }}" class="button {{ $selected === 'unread' ? 'button--alt' : 'button--link' }}"><xf:trim>
+			<xf:button href="{{ link('account/alerts', null, $navParams|replace('show_only', 'unread')|replace('page', '')) }}" class="{{ $selected === 'unread' ? 'button--primary' : 'button--link' }}"><xf:trim>
 				{{ phrase('svAlertImprov_unread') }}
 				</xf:trim></xf:button>
 		</xf:trim></div>

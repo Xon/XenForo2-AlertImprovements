@@ -1,0 +1,6 @@
+{
+    "from_class": "XFMG\\Alert\\Media",
+    "to_class": "SV\\AlertImprovements\\XFMG\\Alert\\Media",
+    "execute_order": 9,
+    "active": true
+}

@@ -12,9 +12,4 @@ use SV\AlertImprovements\ISummarizeAlert;
 class ProfilePostComment extends XFCP_ProfilePostComment implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
-
-    public function canSummarizeForUser(array $optOuts): bool
-    {
-        return empty($optOuts['profile_post_react']);
-    }
 }

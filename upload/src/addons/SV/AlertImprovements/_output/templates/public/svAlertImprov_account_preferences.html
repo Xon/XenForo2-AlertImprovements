@@ -16,8 +16,8 @@
 		</xf:if>
 	</xf:checkboxrow>
 	<xf:if is="$xf.options.svAlertsSummarize">
-	<xf:textboxrow name="option[sv_alerts_summarize_threshold]" value="{{$xf.visitor.Option.sv_alerts_summarize_threshold}}" 
-				   type="number" min="0"
-				   explain="{{ phrase('sv_alerts_summarize_threshold_hint') }}" />
+	<xf:numberboxrow name="option[sv_alerts_summarize_threshold]" value="{{$xf.visitor.Option.sv_alerts_summarize_threshold}}" 
+					 min="0" data-step="1"
+					 explain="{{ phrase('sv_alerts_summarize_threshold_hint') }}" />
 	</xf:if>
 </div>

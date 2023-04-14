@@ -1,0 +1,1 @@
+<a {contentLinkParams}>Your album</a> {title} has received <a {unsummarizeAlertLinkAttributes}>reactions</a> {reactions}

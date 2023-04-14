@@ -2,17 +2,17 @@
 	<xf:macro template="svAlertImprov_macros" name="alert_reactions" arg-alert="{$alert}" />
 </xf:set>
 
-<xf:if is="{$xf.visitor.user_id} === {$content.profile_user_id}">
+<xf:if is="$xf.visitor.user_id === $content.profile_user_id">
 	{{ phrase('your_profile_post_has_received_x_reactions', {
 		'reactions': {$reactions}|raw,
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '"',
-		'contentLinkParams': 'href="' . link('profile-posts/comments', $content) . '" class="fauxBlockLink-blockLink"'
+		'contentLinkParams': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
 <xf:else />
 	{{ phrase('your_profile_post_on_ys_profile_has_received_x_reactions', {
 		'reactions': {$reactions}|raw,
 		'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '"',
 		'profileUserLink': '<a href="' . link('members', $content.ProfileUser) . '">' . $content.ProfileUser.username . '</a>',
-		'contentLinkParams': 'href="' . link('profile-posts/comments', $content) . '" class="fauxBlockLink-blockLink"'
+		'contentLinkParams': 'href="' . link('profile-posts', $content) . '" class="fauxBlockLink-blockLink"'
 	}) }}
 </xf:if>

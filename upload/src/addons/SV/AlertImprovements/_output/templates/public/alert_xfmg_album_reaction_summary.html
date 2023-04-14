@@ -1,0 +1,11 @@
+<xf:set var="$reactions">
+	<xf:macro template="svAlertImprov_macros" name="alert_reactions" arg-alert="{$alert}" />
+</xf:set>
+<xf:set var="$contentSummary" value="{{ $alert.hasOption('svAlertImprov') ? $alert.getReactedContentSummary(' ') : '' }}" />
+
+{{ phrase('your_album_y_has_received_x_reactions', {
+    'reactions': {$reactions}|raw,
+    'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '"',
+    'contentLinkParams': 'href="' . link('media/albums', $content) . '" class="fauxBlockLink-blockLink"',
+    'title': $content.title
+}) }}

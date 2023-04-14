@@ -344,9 +344,7 @@ class AlertSummarization extends Repository
                     continue;
                 }
 
-                $firstAlert = reset($userAlertGrouping);
-
-                if ($this->insertSummaryAlert('user', $userId, $firstAlert, $userAlertGrouping, $senderUserId, $summaryAlertViewDate, $summaryData))
+                if ($this->insertSummaryAlert('user', $userId, $blob['i'], $userAlertGrouping, $senderUserId, $summaryAlertViewDate, $summaryData))
                 {
                     $groupedAlerts = true;
                 }
