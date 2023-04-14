@@ -9,6 +9,7 @@ use SV\AlertImprovements\ControllerPlugin\AlertAction;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\AlertImprovements\Repository\AlertSummarization;
+use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
 use XF\Entity\UserAlert;
@@ -29,6 +30,7 @@ use function array_key_exists;
 use function array_keys;
 use function array_slice, count, max, array_merge;
 use function assert;
+use function is_array;
 use function is_callable;
 
 /**
@@ -87,6 +89,39 @@ class Account extends XFCP_Account
         return $this->addAccountWrapperParams($view, 'alerts');
     }
 
+    public function actionPreferences()
+    {
+        $reply = parent::actionPreferences();
+
+        if ($reply instanceof ViewReply)
+        {
+            $userOption = \XF::visitor()->Option ?? null;
+            assert($userOption instanceof UserOption);
+            $alertPrefs = $userOption->sv_alert_pref;
+
+            if ($alertPrefs === [])
+            {
+                $alertOption = 'defaults';
+            }
+            else if (isset($alertPrefs['none']))
+            {
+                $alertOption = 'none';
+                // configure custom alerting options as the default
+                $userOption->sv_alert_pref = [];
+                $userOption->setReadOnly(true);
+            }
+            else
+            {
+                $alertOption = 'custom';
+            }
+
+            $reply->setParam('svAlertOptions', $alertOption);
+        }
+
+
+        return $reply;
+    }
+
     /**
      * @param User $visitor
      * @return FormAction
@@ -113,11 +148,28 @@ class Account extends XFCP_Account
         $userOptions = $visitor->getRelationOrDefault('Option');
         $form->setupEntityInput($userOptions, $input['option']);
 
-        assert( $visitor instanceof ExtendedUserEntity);
-        $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor);
-        if (count($patchedOptOuts) !== 0)
+        $alertOptions = $this->filter('svAlertOptions', 'str');
+        switch ($alertOptions)
         {
-            $form->setupEntityInput($visitor->Option, $patchedOptOuts);
+            case 'defaults':
+                $form->setupEntityInput($visitor->Option, [
+                    'sv_alert_pref' => [],
+                ]);
+                break;
+            case 'none':
+                $form->setupEntityInput($visitor->Option, [
+                    'sv_alert_pref' => ['none' => true],
+                ]);
+                break;
+            case 'custom':
+            default:
+                assert( $visitor instanceof ExtendedUserEntity);
+                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor);
+                if (count($patchedOptOuts) !== 0)
+                {
+                    $form->setupEntityInput($visitor->Option, $patchedOptOuts);
+                }
+                break;
         }
 
         return $form;
@@ -127,15 +179,18 @@ class Account extends XFCP_Account
     {
         $visitor = \XF::visitor();
 
-        $types = ['alert', 'autoRead'];
+        $types = [
+            'alert' => ['alert_optout', 'alert', null],
+            'autoRead' => [null, 'autoread', null],
+        ];
         if ($visitor->canUsePushNotifications())
         {
-            $types[] = 'push';
+            $types['push'] = ['push_optout', 'push', 'push_shown'];
         }
         // NF/Discord add-on support
         if (is_callable([$this, 'canMirrorDiscordAlerts']) && $this->canMirrorDiscordAlerts())
         {
-            $types[] = 'discord';
+            $types['discord'] = ['nf_discord_optout', 'nf_discord', null];
         }
 
         return $types;
@@ -148,7 +203,7 @@ class Account extends XFCP_Account
         $alertPrefsRepo = $this->repository('SV\AlertImprovements:AlertPreferences');
         assert($alertPrefsRepo instanceof AlertPreferences);
         $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertOptOutDefaults = $alertPrefsRepo->getAlertPreferencesDefaults($types, $optOutActionList);
+        $alertOptOutDefaults = $alertPrefsRepo->getAlertPreferencesDefaults(array_keys($types), $optOutActionList);
 
         $alertRepo = $this->repository('XF:UserAlert');
         assert($alertRepo instanceof ExtendedUserAlertRepo);
@@ -160,6 +215,7 @@ class Account extends XFCP_Account
         $entityInputs = [
             'sv_alert_pref' => $visitor->Option->sv_alert_pref ?? [],
         ];
+        unset($entityInputs['sv_alert_pref']['none']);
         $alertInputs = function (string $type, ?string $oldOutputName, string $inputKey, ?string $isShownKey = null)
         use ($alertPrefsRepo, $reset, $alertOptOutDefaults, $optOutActions, $optOutActionList, &$entityInputs) {
 
@@ -212,11 +268,11 @@ class Account extends XFCP_Account
             }
         };
 
-        $alertInputs('alert', 'alert_optout', 'alert');
-        $alertInputs('autoRead', null, 'autoread');
-        $alertInputs('push', 'push_optout', 'push', 'push_shown');
-        // NF/Discord add-on support
-        $alertInputs('discord', 'nf_discord_optout', 'nf_discord');
+        foreach ($types as $type => $alertConfig)
+        {
+            [$oldOutputName, $inputKey, $isShownKey] = $alertConfig;
+            $alertInputs($type, $oldOutputName, $inputKey, $isShownKey);
+        }
 
         // don't story empty lists to reduce json parsing needed
         foreach ($entityInputs['sv_alert_pref'] as &$contentTypes)
@@ -225,7 +281,7 @@ class Account extends XFCP_Account
                 return count($item) !== 0;
             });
         }
-        $entityInputs['sv_alert_pref'] = array_filter($entityInputs['sv_alert_pref'], function (array $item) {
+        $entityInputs['sv_alert_pref'] = array_filter($entityInputs['sv_alert_pref'], function (array$item) {
             return count($item) !== 0;
         });
 

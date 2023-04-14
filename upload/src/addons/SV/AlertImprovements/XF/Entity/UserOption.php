@@ -15,12 +15,17 @@ use XF\Mvc\Entity\Structure;
  * @property bool $sv_alerts_popup_skips_mark_read
  * @property bool $sv_alerts_page_skips_summarize
  * @property int  $sv_alerts_summarize_threshold
- * @property array|null $sv_alert_pref
+ * @property array $sv_alert_pref
  */
 class UserOption extends XFCP_UserOption
 {
     public function doesAutoReadAlert(string $contentType, string $action): bool
     {
+        if ($this->sv_alert_pref['none'] ?? false)
+        {
+            return false;
+        }
+
         return $this->sv_alert_pref['autoRead'][$contentType][$action]
                ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('autoRead', $contentType, $action);
     }
