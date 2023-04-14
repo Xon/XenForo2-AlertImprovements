@@ -1,6 +1,6 @@
 {
     "from_class": "XFMG\\Alert\\Comment",
     "to_class": "SV\\AlertImprovements\\XFMG\\Alert\\Comment",
-    "execute_order": 6398,
+    "execute_order": 9,
     "active": true
 }

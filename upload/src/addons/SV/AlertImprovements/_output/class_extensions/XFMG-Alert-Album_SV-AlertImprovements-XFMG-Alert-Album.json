@@ -1,6 +1,6 @@
 {
     "from_class": "XFMG\\Alert\\Album",
     "to_class": "SV\\AlertImprovements\\XFMG\\Alert\\Album",
-    "execute_order": 6398,
+    "execute_order": 9,
     "active": true
 }
