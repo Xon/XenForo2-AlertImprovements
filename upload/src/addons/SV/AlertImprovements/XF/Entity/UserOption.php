@@ -21,12 +21,13 @@ class UserOption extends XFCP_UserOption
 {
     public function doesAutoReadAlert(string $contentType, string $action): bool
     {
-        if ($this->sv_alert_pref['none'] ?? false)
+        $alertPreferences = $this->sv_alert_pref;
+        if ($alertPreferences['none'] ?? false)
         {
             return false;
         }
 
-        return $this->sv_alert_pref['autoRead'][$contentType][$action]
+        return $alertPreferences['autoRead'][$contentType][$action]
                ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('autoRead', $contentType, $action);
     }
 
