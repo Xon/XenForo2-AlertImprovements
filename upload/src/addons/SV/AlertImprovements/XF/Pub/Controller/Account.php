@@ -200,7 +200,7 @@ class Account extends XFCP_Account
         $alertPrefsRepo = $this->repository('SV\AlertImprovements:AlertPreferences');
         assert($alertPrefsRepo instanceof AlertPreferences);
         $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertOptOutDefaults = $alertPrefsRepo->getAlertPreferencesDefaults(array_keys($types), $optOutActionList);
+        $alertOptOutDefaults = $alertPrefsRepo->getAllAlertPreferencesDefaults(array_keys($types), $optOutActionList);
 
         $alertRepo = $this->repository('XF:UserAlert');
         assert($alertRepo instanceof ExtendedUserAlertRepo);
@@ -225,7 +225,7 @@ class Account extends XFCP_Account
             $optOuts = [];
             /** @var array<bool> $inputs */
             $inputs = $this->filter($inputKey, 'array-bool');
-            $isShown = (!$resetAll || $isShownKey) ? $this->filter($isShownKey, 'array-bool') : null;
+            $isShown = (!$resetAll && $isShownKey) ? $this->filter($isShownKey, 'array-bool') : null;
             foreach ($optOutActions as $optOut)
             {
                 $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);

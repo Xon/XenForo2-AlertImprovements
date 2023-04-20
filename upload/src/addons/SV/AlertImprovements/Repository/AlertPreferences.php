@@ -9,6 +9,7 @@ use function array_shift;
 use function count;
 use function explode;
 use function implode;
+use function in_array;
 
 class AlertPreferences extends Repository
 {
@@ -39,6 +40,21 @@ class AlertPreferences extends Repository
         $this->alertOptOutActionList = $actions;
 
         return $actions;
+    }
+
+    public function getAlertPreferenceTypes(): array
+    {
+        $types = [
+            'alert',
+            'autoRead',
+            'push',
+        ];
+        if (\XF::isAddOnActive('NF/Discord'))
+        {
+            $types [] = 'discord';
+        }
+
+        return $types;
     }
 
     /**
@@ -76,18 +92,27 @@ class AlertPreferences extends Repository
         return null;
     }
 
-    /** @var array<string,array<string,array<string, bool>>> */
-    protected $optOutDefaults = [];
+    protected $optOutDefaults = null;
 
     public function getAlertPreferenceDefault(string $type, string $contentType, string $action): bool
     {
-        $defaultsByType = $this->optOutDefaults[$type] ?? null;
-        if ($defaultsByType === null)
+        if ($this->optOutDefaults === null)
         {
-            $this->optOutDefaults[$type] = $defaultsByType = $this->getAlertPreferencesDefaults([$type], $this->getAlertOptOutActionList())[$type];
+            $optOutDefaults = \XF::options()->svAlertPreferences ?? [];
+            $this->optOutDefaults = $this->setUpAlertPreferenceDefaults($optOutDefaults, false);
         }
 
-        return $defaultsByType[$contentType][$action] ?? true;
+        return $this->optOutDefaults[$type][$contentType][$action] ?? true;
+    }
+
+    protected function setUpAlertPreferenceDefaults(array $preferences, bool $allDefaults): array
+    {
+        if (($allDefaults || !isset($preferences['autoRead']['post']['op_insert'])) && \XF::isAddOnActive('SV/ThreadStarterAlerts'))
+        {
+            $preferences['autoRead']['post']['op_insert'] = false;
+        }
+
+        return $preferences;
     }
 
     /**
@@ -95,16 +120,9 @@ class AlertPreferences extends Repository
      * @param array<string,array<string,bool>> $optOutActions
      * @return array<string,array<string,array<string, bool>>>
      */
-    public function getAlertPreferencesDefaults(array $types, array $optOutActions): array
+    public function getAllAlertPreferencesDefaults(array $types, array $optOutActions): array
     {
-        $defaults = array_fill_keys($types, $optOutActions);
-
-        if (\XF::isAddOnActive('SV/ThreadStarterAlerts') && in_array('autoRead', $types, true))
-        {
-            $defaults['autoRead']['post']['op_insert'] = false;
-        }
-
-        return $defaults;
+        return $this->setUpAlertPreferenceDefaults(array_fill_keys($types, $optOutActions), true);
     }
 
     protected function getAlertRepo(): UserAlert

@@ -1,0 +1,15 @@
+{
+    "edit_format": "callback",
+    "edit_format_params": "SV\\AlertImprovements\\Option\\AlertPreferences::renderOption",
+    "data_type": "array",
+    "sub_options": [
+        "*"
+    ],
+    "validation_class": "SV\\AlertImprovements\\Option\\AlertPreferences",
+    "validation_method": "verifyOption",
+    "advanced": true,
+    "default_value": "{\"autoRead\":{\"post\":{\"op_insert\":false}}}",
+    "relations": {
+        "AlertImprovements": 200
+    }
+}
