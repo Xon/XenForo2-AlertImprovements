@@ -210,7 +210,7 @@ class Account extends XFCP_Account
         /** @var array<bool> $reset */
         $reset = $this->filter('reset-alerts', 'array-bool');
         $entityInputs = [
-            'sv_alert_pref' => $visitor->Option->sv_alert_pref ?? [],
+            'sv_alert_pref' => $visitor->Option->sv_alert_pref,
         ];
         unset($entityInputs['sv_alert_pref']['none']);
 

@@ -56,8 +56,8 @@ class UserOption extends XFCP_UserOption
         $structure->columns['sv_alerts_summarize_threshold'] = ['type' => Entity::UINT, 'default' => 4];
 
         $structure->columns['sv_alert_pref'] = [
-            'type' => self::JSON_ARRAY,
-            'default' => [],
+            'type' => self::JSON_ARRAY, //json array returns [] when the column is null
+            'default' => null,
             'nullable' => true,
             'changeLog' => false,
         ];
