@@ -13,7 +13,9 @@ use XF\Db\Schema\Create;
 use XF\Entity\Template;
 use XF\PrintableException;
 use XF\Util\Arr;
-use function explode;
+use function count;
+use function implode;
+use function json_decode;
 use function json_encode;
 use function min, max, microtime, array_keys, strpos;
 
@@ -241,35 +243,30 @@ class Setup extends AbstractSetup
     public function upgrade2090007Step3(array $stepData): ?array
     {
         $columns = [
-            ['alert_optout', '<>', ''],
-            ['push_optout', '<>', ''],
+            "alert_optout <> ''",
+            "push_optout <> ''",
         ];
 
         if ($this->columnExists('xf_user_option', 'sv_skip_auto_read_for_op'))
         {
-            $columns[] = ['sv_skip_auto_read_for_op', '=', 0];
+            $columns[] = 'sv_skip_auto_read_for_op = 0';
         }
 
         if ($this->columnExists('xf_user_option', 'nf_discord_optout'))
         {
-            $columns[] = ['nf_discord_optout', '<>', ''];
+            $columns[] = "nf_discord_optout <> ''";
         }
+        $sqlWhere = '(('. implode(') OR (', $columns) .'))';
 
-        $finder = \XF::finder('XF:UserOption')
-                     ->whereOr($columns);
-
+        $db = $this->db();
         $next = $stepData['userId'] ?? 0;
         if (!isset($stepData['max']))
         {
-            $stepData['max'] = $finder->total();
-        }
-
-        $userOptions = $finder->where('user_id', '>', $next)
-                              ->limit(100)
-                              ->fetchRaw();
-        if (count($userOptions) === 0)
-        {
-            return null;
+            $stepData['max'] = (int)$db->fetchOne('
+                SELECT max(user_id) 
+                FROM xf_user_option 
+                WHERE ' . $sqlWhere
+            );
         }
 
         /** @var AlertPreferences $alertPrefsRepo */
@@ -283,7 +280,7 @@ class Setup extends AbstractSetup
             {
                 return;
             }
-            $optOutList = Arr::stringToArray($column, '/\S*,\s*/');
+            $optOutList = Arr::stringToArray($column, '/\s*,\s*/');
             foreach ($optOutList as $optOut)
             {
                 $parts = $alertPrefsRepo->convertStringyOptOut($optOutActions, $optOut);
@@ -300,11 +297,32 @@ class Setup extends AbstractSetup
 
         $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
         $startTime = microtime(true);
-        foreach ($userOptions as $userOption)
-        {
-            $stepData['userId'] = $userOption['user_id'];
 
-            $optOuts = @json_decode($userOption['sv_alert_pref'], true) ?: [];
+        $userIds = $db->fetchAllColumn('
+            SELECT user_id 
+            FROM xf_user_option 
+            WHERE user_id > ? AND ' . $sqlWhere .'
+            LIMIT 100
+        ', [$next]);
+        if (count($userIds) === 0)
+        {
+            return null;
+        }
+
+        foreach ($userIds as $userId)
+        {
+            $userId = (int)$userId;
+            $stepData['userId'] = $userId;
+
+            $db->beginTransaction();
+            $userOption = $db->fetchRow('
+                SELECT * 
+                FROM xf_user_option 
+                WHERE user_id = ? 
+                FOR UPDATE
+            ', [$userId]);
+
+            $optOuts = @json_decode($userOption['sv_alert_pref'] ?? '', true) ?: [];
 
             $convertOptOut('alert', $userOption['alert_optout'] ?? '', $optOuts);
             $convertOptOut('push', $userOption['push_optout'] ?? '', $optOuts);
@@ -314,13 +332,15 @@ class Setup extends AbstractSetup
                 $optOuts['autoRead']['post']['op_insert'] = true;
             }
 
-            $this->db()->query('
+            $db->query('
                 UPDATE xf_user_option
                 SET sv_alert_pref = ?
                 WHERE user_id = ?
-            ', [json_encode($optOuts), $userOption['user_id']]);
+            ', [json_encode($optOuts), $userId]);
 
-            if (\microtime(true) - $startTime >= $maxRunTime)
+            $db->commit();
+
+            if (microtime(true) - $startTime >= $maxRunTime)
             {
                 break;
             }
