@@ -20,6 +20,7 @@ use XF\Mvc\Entity\Repository;
 use function array_fill_keys;
 use function array_key_exists;
 use function array_keys;
+use function array_sum;
 use function assert;
 use function count;
 use function is_array;
@@ -570,9 +571,8 @@ class AlertSummarization extends Repository
         return count($summaryData) === 0 ? null : $summaryData;
     }
 
-    protected function getSummaryAlertDataForUserFollow(array $alertGrouping): ?array
+    protected function getSummaryAlertDataForCountable(array $alertGrouping, bool $asSystemAlert): ?array
     {
-        /** @noinspection PhpUnusedLocalVariableInspection */
         [$userIds, $contentTypes] = $this->countAlertDataForSummary('user_id', false, $alertGrouping);
         unset($userIds[0]);
 
@@ -582,9 +582,17 @@ class AlertSummarization extends Repository
         }
 
         return [
-            'asSystemAlert' => true,
-            'count' => count($userIds),
+            'asSystemAlert' => $asSystemAlert,
+            'sum' => array_sum($userIds),
+            'total' => count($userIds),
+            'u' => $userIds,
+            'ct' => $contentTypes,
         ];
+    }
+
+    protected function getSummaryAlertDataForUserFollow(array $alertGrouping): ?array
+    {
+        return $this->getSummaryAlertDataForCountable($alertGrouping, true);
     }
 
     public function insertUnsummarizedAlerts(ExtendedUserAlertEntity $summaryAlert)
