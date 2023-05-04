@@ -1,0 +1,1 @@
+<a {unsummarizeAlertLinkAttributes}>{usersCount} users</a> are now following you.

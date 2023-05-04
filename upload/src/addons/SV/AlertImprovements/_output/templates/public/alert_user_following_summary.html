@@ -1,0 +1,4 @@
+{{ phrase('sv_user_following_summary', {
+    'usersCount': {$extra.count|number},
+    'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '"'
+}) }}

@@ -18,7 +18,9 @@ class User extends XFCP_User implements ISummarizeAlert
 
     public function getSupportedActionsForSummarization(): array
     {
-        return [];
+        return [
+            'following',
+        ];
     }
 
     public function getSupportContentTypesForSummarization(): array

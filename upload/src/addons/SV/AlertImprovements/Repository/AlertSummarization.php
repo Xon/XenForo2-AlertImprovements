@@ -23,6 +23,7 @@ use function array_keys;
 use function assert;
 use function count;
 use function is_array;
+use function json_decode;
 use function max;
 use function strpos;
 
@@ -250,8 +251,14 @@ class AlertSummarization extends Repository
                 continue;
             }
 
-            $data = ['alert_id' => $alertId, 'content_type' => $contentType, 'extra_data' => $item['extra_data']];
+            $data = [
+                'alert_id' => $alertId,
+                'content_type' => $contentType,
+                'extra_data' => $item['extra_data'],
+                'user_id' => $item['user_id'],
+            ];
             $contentId = $item['content_id'];
+
             if (!isset($groupedContentAlerts[$contentType][$action][$contentId]))
             {
                 $groupedContentAlerts[$contentType][$action][$contentId] = ['c' => 0, 'd' => []];
@@ -259,6 +266,12 @@ class AlertSummarization extends Repository
             $bucket = &$groupedContentAlerts[$contentType][$action][$contentId];
             $bucket['c'] += 1;
             $bucket['i'] = $item;
+            if ($contentType === 'user')
+            {
+                $bucket['d'][$contentType][$contentId][$alertId] = $data;
+                unset($bucket);
+                continue;
+            }
             $bucket['d'][$alertId] = $data;
             unset($bucket);
 
@@ -342,6 +355,12 @@ class AlertSummarization extends Repository
                 if ($summaryData === null)
                 {
                     continue;
+                }
+                $asSystemAlert = $summaryData['asSystemAlert'] ?? false;
+                unset($summaryData['asSystemAlert']);
+                if ($asSystemAlert)
+                {
+                    $senderUserId = 0;
                 }
 
                 if ($this->insertSummaryAlert('user', $userId, $blob['i'], $userAlertGrouping, $senderUserId, $summaryAlertViewDate, $summaryData))
@@ -464,23 +483,32 @@ class AlertSummarization extends Repository
 
     protected function getSummaryAlertData(string $action, array $alertGrouping): ?array
     {
-        if ($action !== 'reaction')
+        switch ($action)
         {
-            return null;
+            case 'reaction':
+                return $this->getSummaryAlertDataForReaction($alertGrouping);
+            case 'following':
+                return $this->getSummaryAlertDataForUserFollow($alertGrouping);
+            default:
+                return null;
         }
+    }
 
-        $summaryData = [];
+    protected function countAlertDataForSummary(string $key, bool $fromExtra, array $alertGrouping): array
+    {
         $contentTypes = [];
-        $reactionData = [];
+        $countedData = [];
         foreach ($alertGrouping as $alert)
         {
-            $extraData = @\json_decode($alert['extra_data'], true);
+            $extraData = $fromExtra
+                ? @json_decode($alert['extra_data'], true)
+                : $alert;
             if (!is_array($extraData))
             {
                 continue;
             }
-            $reactionId = $extraData['reaction_id'] ?? null;
-            if ($reactionId === null)
+            $id = $extraData[$key] ?? null;
+            if ($id === null)
             {
                 continue;
             }
@@ -492,13 +520,21 @@ class AlertSummarization extends Repository
             }
             $contentTypes[$contentType] += 1;
 
-            $reactionId = (int)$reactionId;
-            if (!array_key_exists($reactionId, $reactionData))
+            $id = (int)$id;
+            if (!array_key_exists($id, $countedData))
             {
-                $reactionData[$reactionId] = 0;
+                $countedData[$id] = 0;
             }
-            $reactionData[$reactionId] += 1;
+            $countedData[$id] += 1;
         }
+
+        return [$countedData, $contentTypes];
+    }
+
+    protected function getSummaryAlertDataForReaction(array $alertGrouping): ?array
+    {
+        $summaryData = [];
+        [$reactionData, $contentTypes] = $this->countAlertDataForSummary('reaction_id', true, $alertGrouping);
 
         if (count($reactionData) !== 0)
         {
@@ -531,7 +567,24 @@ class AlertSummarization extends Repository
             $summaryData['ct'] = $contentTypes;
         }
 
-        return $summaryData;
+        return count($summaryData) === 0 ? null : $summaryData;
+    }
+
+    protected function getSummaryAlertDataForUserFollow(array $alertGrouping): ?array
+    {
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        [$userIds, $contentTypes] = $this->countAlertDataForSummary('user_id', false, $alertGrouping);
+        unset($userIds[0]);
+
+        if (count($userIds) === 0)
+        {
+            return null;
+        }
+
+        return [
+            'asSystemAlert' => true,
+            'count' => count($userIds),
+        ];
     }
 
     public function insertUnsummarizedAlerts(ExtendedUserAlertEntity $summaryAlert)
