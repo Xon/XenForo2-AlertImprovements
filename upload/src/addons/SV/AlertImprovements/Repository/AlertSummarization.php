@@ -405,7 +405,7 @@ class AlertSummarization extends Repository
             'depends_on_addon_id' => 'SV/AlertImprovements',
             'alerted_user_id'     => $userId,
             'user_id'             => $senderUserId,
-            'username'            => $senderUserId ? $lastAlert['username'] : 'Guest',
+            'username'            => $senderUserId ? $lastAlert['username'] : '',
             'content_type'        => $contentType,
             'content_id'          => $contentId,
             'action'              => $lastAlert['action'] . '_summary',
