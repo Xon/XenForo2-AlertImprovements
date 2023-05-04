@@ -490,6 +490,8 @@ class AlertSummarization extends Repository
                 return $this->getSummaryAlertDataForReaction($alertGrouping);
             case 'following':
                 return $this->getSummaryAlertDataForUserFollow($alertGrouping);
+            case 'quote':
+                return $this->getSummaryAlertDataForQuote($alertGrouping);
             default:
                 return null;
         }
@@ -593,6 +595,11 @@ class AlertSummarization extends Repository
     protected function getSummaryAlertDataForUserFollow(array $alertGrouping): ?array
     {
         return $this->getSummaryAlertDataForCountable($alertGrouping, true);
+    }
+
+    protected function getSummaryAlertDataForQuote(array $alertGrouping): ?array
+    {
+        return $this->getSummaryAlertDataForCountable($alertGrouping, false);
     }
 
     public function insertUnsummarizedAlerts(ExtendedUserAlertEntity $summaryAlert)
