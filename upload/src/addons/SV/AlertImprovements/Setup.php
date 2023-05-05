@@ -215,12 +215,17 @@ class Setup extends AbstractSetup
         });
     }
 
-    public function upgrade1680110985Step1(): void
+    public function upgrade1683247293Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade1680110985Step2(): void
+    public function upgrade1683247293Step2(): void
+    {
+        $this->installStep2();
+    }
+
+    public function upgrade1683247293Step3(): void
     {
         $this->query('
             INSERT INTO xf_sv_user_alert_summary (alert_id, alerted_user_id, content_type, content_id, `action`)
@@ -230,17 +235,7 @@ class Setup extends AbstractSetup
         ');
     }
 
-    public function upgrade2090007Step1(): void
-    {
-        $this->installStep1();
-    }
-
-    public function upgrade2090007Step2(): void
-    {
-        $this->installStep2();
-    }
-
-    public function upgrade2090007Step3(array $stepData): ?array
+    public function upgrade1683247293Step4(array $stepData): ?array
     {
         $columns = [
             "alert_optout <> ''",
