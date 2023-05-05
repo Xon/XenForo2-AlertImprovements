@@ -2,14 +2,13 @@
 
 namespace SV\AlertImprovements\Repository;
 
-use SV\AlertImprovements\XF\Repository\UserAlert;
+use XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
 use function array_fill_keys;
 use function array_shift;
 use function count;
 use function explode;
 use function implode;
-use function in_array;
 
 class AlertPreferences extends Repository
 {
