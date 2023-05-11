@@ -215,17 +215,17 @@ class Setup extends AbstractSetup
         });
     }
 
-    public function upgrade1683247293Step1(): void
+    public function upgrade1683812804Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade1683247293Step2(): void
+    public function upgrade1683812804Step2(): void
     {
         $this->installStep2();
     }
 
-    public function upgrade1683247293Step3(): void
+    public function upgrade1683812804Step3(): void
     {
         $this->query('
             INSERT INTO xf_sv_user_alert_summary (alert_id, alerted_user_id, content_type, content_id, `action`)
@@ -235,7 +235,7 @@ class Setup extends AbstractSetup
         ');
     }
 
-    public function upgrade1683247293Step4(array $stepData): ?array
+    public function upgrade1683812804Step4(array $stepData): ?array
     {
         $columns = [
             "alert_optout <> ''",
@@ -266,10 +266,9 @@ class Setup extends AbstractSetup
 
         /** @var AlertPreferences $alertPrefsRepo */
         $alertPrefsRepo = $this->app->repository('SV\AlertImprovements:AlertPreferences');
-        /** @var array<string> $optOutActions */
-        $optOutActions = array_keys($alertPrefsRepo->getAlertOptOutActionList());
+        $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
 
-        $convertOptOut = function (string $type, ?string $column, array &$optOuts) use ($alertPrefsRepo, $optOutActions) {
+        $convertOptOut = function (string $type, ?string $column, array &$optOuts) use ($alertPrefsRepo, $optOutActionList) {
             $column = $column ?? '';
             if ($column === '')
             {
@@ -278,7 +277,7 @@ class Setup extends AbstractSetup
             $optOutList = Arr::stringToArray($column, '/\s*,\s*/');
             foreach ($optOutList as $optOut)
             {
-                $parts = $alertPrefsRepo->convertStringyOptOut($optOutActions, $optOut);
+                $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);
                 if ($parts === null)
                 {
                     // bad data, just skips since it wouldn't do anything
