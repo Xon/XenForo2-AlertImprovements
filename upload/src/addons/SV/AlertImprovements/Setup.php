@@ -286,7 +286,7 @@ class Setup extends AbstractSetup
                 }
                 [$contentType, $action] = $parts;
 
-                $optOuts[$type][$contentType][$action] = true;
+                $optOuts[$type][$contentType][$action] = false;
             }
         };
 
@@ -324,7 +324,7 @@ class Setup extends AbstractSetup
             $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $optOuts);
             if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
             {
-                $optOuts['autoRead']['post']['op_insert'] = true;
+                $optOuts['autoRead']['post']['op_insert'] = false;
             }
 
             $db->query('
