@@ -366,9 +366,6 @@ class Setup extends AbstractSetup
         }
     }
 
-    /**
-     * @throws \XF\Db\Exception
-     */
     public function uninstallStep3(): void
     {
         $this->db()->query("
@@ -380,6 +377,9 @@ class Setup extends AbstractSetup
 
     public function postUpgrade($previousVersion, array &$stateChanges): void
     {
+        $previousVersion = (int)$previousVersion;
+        parent::postUpgrade($previousVersion, $stateChanges);
+
         if ($previousVersion >= 2080000 && $previousVersion < 2080400)
         {
             \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', 'SV\AlertImprovements:AlertTotalRebuild', [], true);
