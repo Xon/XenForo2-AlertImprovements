@@ -312,6 +312,24 @@ SV.AlertImprovements = SV.AlertImprovements || {};
         }
     });
 
+    XF.Element.extend('tooltip', {
+        __backup: {
+            'init': 'svAlertImprovementsTooltipAliasedInit',
+        },
+
+        options: $.extend({}, XF.Tooltip.prototype.options, {
+            positionOver: null,
+        }),
+
+        init: function() {
+            this.svAlertImprovementsTooltipAliasedInit();
+
+            if (this.options.positionOver !== null) {
+                this.tooltip.setPositioner(XF.findRelativeIf(this.options.positionOver, this.$target));
+            }
+        },
+    });
+
     XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.BulkMarkRead');
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
     XF.Click.register('unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
