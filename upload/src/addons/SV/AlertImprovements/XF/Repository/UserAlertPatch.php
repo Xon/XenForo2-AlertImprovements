@@ -184,7 +184,11 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             {
                 continue;
             }
-            $entityName = $app->getContentTypeEntity($contentType);
+            $entityName = $app->getContentTypeEntity($contentType, false);
+            if ($entityName === null)
+            {
+                continue;
+            }
 
             foreach ($contentIds as $contentId => $alertIds)
             {
