@@ -268,7 +268,7 @@ class Setup extends AbstractSetup
         $alertPrefsRepo = $this->app->repository('SV\AlertImprovements:AlertPreferences');
         $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
 
-        $convertOptOut = function (string $type, ?string $column, array &$optOuts) use ($alertPrefsRepo, $optOutActionList) {
+        $convertOptOut = function (string $type, ?string $column, array &$alertPrefs) use ($alertPrefsRepo, $optOutActionList) {
             $column = $column ?? '';
             if ($column === '')
             {
@@ -285,7 +285,7 @@ class Setup extends AbstractSetup
                 }
                 [$contentType, $action] = $parts;
 
-                $optOuts[$type][$contentType][$action] = false;
+                $alertPrefs[$type][$contentType][$action] = false;
             }
         };
 
@@ -316,21 +316,21 @@ class Setup extends AbstractSetup
                 FOR UPDATE
             ', [$userId]);
 
-            $optOuts = @json_decode($userOption['sv_alert_pref'] ?? '', true) ?: [];
+            $alertPrefs = @json_decode($userOption['sv_alert_pref'] ?? '', true) ?: [];
 
-            $convertOptOut('alert', $userOption['alert_optout'] ?? '', $optOuts);
-            $convertOptOut('push', $userOption['push_optout'] ?? '', $optOuts);
-            $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $optOuts);
+            $convertOptOut('alert', $userOption['alert_optout'] ?? '', $alertPrefs);
+            $convertOptOut('push', $userOption['push_optout'] ?? '', $alertPrefs);
+            $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $alertPrefs);
             if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
             {
-                $optOuts['autoRead']['post']['op_insert'] = false;
+                $alertPrefs['autoRead']['post']['op_insert'] = false;
             }
 
             $db->query('
                 UPDATE xf_user_option
                 SET sv_alert_pref = ?
                 WHERE user_id = ?
-            ', [json_encode($optOuts), $userId]);
+            ', [json_encode($alertPrefs), $userId]);
 
             $db->commit();
 
