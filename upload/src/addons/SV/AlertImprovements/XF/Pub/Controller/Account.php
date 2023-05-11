@@ -100,7 +100,7 @@ class Account extends XFCP_Account
             assert($userOption instanceof UserOption);
             $alertPrefs = $userOption->sv_alert_pref;
 
-            if ($alertPrefs === [])
+            if ($alertPrefs === [] || $alertPrefs === null)
             {
                 $alertOption = 'defaults';
             }
@@ -209,8 +209,9 @@ class Account extends XFCP_Account
 
         /** @var array<bool> $reset */
         $reset = $this->filter('reset-alerts', 'array-bool');
+        $sv_alert_pref = $visitor->Option->sv_alert_pref;
         $entityInputs = [
-            'sv_alert_pref' => $visitor->Option->sv_alert_pref,
+            'sv_alert_pref' => $sv_alert_pref ?? [],
         ];
         unset($entityInputs['sv_alert_pref']['none']);
 

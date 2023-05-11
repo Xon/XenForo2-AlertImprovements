@@ -15,7 +15,7 @@ use XF\Mvc\Entity\Structure;
  * @property bool $sv_alerts_popup_skips_mark_read
  * @property bool $sv_alerts_page_skips_summarize
  * @property int  $sv_alerts_summarize_threshold
- * @property array $sv_alert_pref
+ * @property ?array $sv_alert_pref
  */
 class UserOption extends XFCP_UserOption
 {
@@ -56,7 +56,7 @@ class UserOption extends XFCP_UserOption
         $structure->columns['sv_alerts_summarize_threshold'] = ['type' => Entity::UINT, 'default' => 4];
 
         $structure->columns['sv_alert_pref'] = [
-            'type' => self::JSON_ARRAY, //json array returns [] when the column is null
+            'type' => self::JSON_ARRAY,
             'default' => null,
             'nullable' => true,
             'changeLog' => false,
