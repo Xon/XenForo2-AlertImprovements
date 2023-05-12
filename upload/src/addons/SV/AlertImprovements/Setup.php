@@ -54,7 +54,7 @@ class Setup extends AbstractSetup
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_popup_skips_mark_read' => '',
-            'sv_alerts_page_skips_summarize'  => '',
+            'sv_alerts_page_skips_summarize'  => 1,
             'sv_alerts_summarize_threshold'   => 4,
         ]);
     }
@@ -343,6 +343,11 @@ class Setup extends AbstractSetup
         return $stepData;
     }
 
+    public function upgrade1683812805Step1(): void
+    {
+        $this->installStep1();
+    }
+
     public function uninstallStep1(): void
     {
         $sm = $this->schemaManager();
@@ -417,7 +422,7 @@ class Setup extends AbstractSetup
 
         $tables['xf_user_option'] = function (Alter $table) {
             $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
-            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
+            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(1);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
             $this->addOrChangeColumn($table, 'sv_alert_pref', 'blob')->nullable()->setDefault(null);
         };
