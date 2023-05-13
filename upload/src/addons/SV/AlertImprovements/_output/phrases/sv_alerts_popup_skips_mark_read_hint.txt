@@ -1,2 +1,2 @@
-Do not mark alerts as read when viewing the alerts pop-up.<br/><br/>
+Do not mark "Read-on-View" alerts as read when viewing the alerts pop-up.<br/><br/>
 To ensure alerts are always marked as read, uncheck this option, and ensure the "Read-on-View" option for each alert type is checked.
