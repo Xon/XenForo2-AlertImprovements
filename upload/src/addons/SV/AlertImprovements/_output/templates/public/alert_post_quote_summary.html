@@ -1,0 +1,8 @@
+{{ phrase('svAlertImprov_post_quote_summary', {
+    'quoteSummary': (($extra.sum === $extra.total)
+        ? phrase('svAlertImprov_x_quotes', {'quotes': $extra.sum|number})
+        : phrase('svAlertImprov_x_quotes_by_y_users', {'quotes': $extra.sum|number, 'users': $extra.total|number})),
+    'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '"',
+    'contentLinkParams': 'href="' . link('posts', $content) . '" class="fauxBlockLink-blockLink"',
+    'title': prefix('thread', $content.Thread) . $content.Thread.title
+}) }}

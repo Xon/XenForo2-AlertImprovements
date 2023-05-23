@@ -1,0 +1,1 @@
+Allows individual alert/push & auto-read/mark-as-read behaviour defaults to be configured

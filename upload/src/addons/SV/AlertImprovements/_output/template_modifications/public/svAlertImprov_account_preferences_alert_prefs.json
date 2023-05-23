@@ -1,0 +1,9 @@
+{
+    "template": "account_preferences",
+    "description": "Rationalize alerting preferences",
+    "execution_order": 1,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "$(<xf:if is=\"\\$alertOptOuts is not empty\">)(.*)(</xf:if>.*?<xf:submitrow icon=\"save\" sticky=\"true\" />)$si",
+    "replace": "$1\n<xf:radiorow label=\"{{ phrase('svAlertImprov_alerting_preferences') }}\"\n\t\t\t name=\"svAlertOptions\"\n\t\t\t value=\"{$svAlertOptions}\">\n\t<xf:option value=\"none\" label=\"{{ phrase('svAlertImprov_alert_none') }}\" />\n\t<xf:option value=\"defaults\" label=\"{{ phrase('svAlertImprov_alerts_use_defaults') }}\" />\t\n\t<xf:option value=\"custom\"\n\t\t\t   label=\"{{ phrase('svAlertImprov_alerts_use_custom') }}\" \n\t\t\t   data-xf-init=\"disabler\"\n\t\t\t   data-container=\".js-customAlertPreferences\"\n\t\t\t   data-hide=\"true\"/>\n</xf:radiorow>\n<div class=\"js-customAlertPreferences\">\n$2\n</div>\n$3"
+}

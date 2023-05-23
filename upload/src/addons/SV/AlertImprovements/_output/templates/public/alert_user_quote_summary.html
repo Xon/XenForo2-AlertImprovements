@@ -1,0 +1,5 @@
+{{ phrase('svAlertImprov_user_quote_summary', {
+    'name': username_link($user, false, {'defaultname': $alert.username}),
+    'count': $extra.sum|number,
+    'unsummarizeAlertLinkAttributes': 'href="' . link('account/alert', $alert) . '"'
+}) }}

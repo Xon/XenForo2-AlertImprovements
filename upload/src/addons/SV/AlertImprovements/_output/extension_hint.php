@@ -35,6 +35,8 @@ namespace SV\AlertImprovements\XF\Entity
 	class XFCP_User extends \XF\Entity\User {}
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}
 	class XFCP_UserOption extends \XF\Entity\UserOption {}
+	class XFCP_UserOptionPatch1 extends \XF\Entity\UserOption {}
+	class XFCP_UserOptionPatch2 extends \XF\Entity\UserOption {}
 }
 
 namespace SV\AlertImprovements\XF\Finder
@@ -54,5 +56,6 @@ namespace SV\AlertImprovements\XF\Pub\Controller
 namespace SV\AlertImprovements\XF\Repository
 {
 	class XFCP_UserAlert extends \XF\Repository\UserAlert {}
+	class XFCP_UserAlertAutoReadPatch extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertPatch extends \XF\Repository\UserAlert {}
 }

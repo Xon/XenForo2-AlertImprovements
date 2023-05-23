@@ -1,0 +1,23 @@
+<xf:formrow name="{$inputName}"
+			label="{$option.title}"
+			hint="{$hintHtml}"
+			explain="{$explainHtml}"
+			finalhtml="{$listedHtml}">
+</xf:formrow>
+<xf:foreach loop="$alertActions" key="$contentType" value="$actions">		
+	<xf:formrow label="{{ $xf.app.getContentTypePhrase($contentType) }}">
+		<xf:foreach loop="$actions" key="$action" value="$null">
+			<xf:checkboxrow rowtype="fullWidth"
+							label="{{ phrase_dynamic('alert_opt_out.' . $contentType . '_' . $action) }}"
+							data-content-type="{$contentType}"
+							data-action="{$action}">
+				<xf:foreach loop="$alertTypes" value="$alertType">
+					<xf:option label="{{ phrase_dynamic('svAlertImprov_alert_types.'.$alertType) }}"
+							   name="{$inputName}[{$alertType}][{$contentType}][{$action}]"							   
+							   selected="{{ ({$optionValue.{$alertType}.{$contentType}.{$action}}) ? '1' : ''}}"  
+							   />
+				</xf:foreach>
+			</xf:checkboxrow>
+		</xf:foreach>
+	</xf:formrow>
+</xf:foreach>

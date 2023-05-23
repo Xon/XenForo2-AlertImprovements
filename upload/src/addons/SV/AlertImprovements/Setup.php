@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements;
 
+use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
@@ -9,7 +10,13 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
+use XF\Entity\Template;
 use XF\PrintableException;
+use XF\Util\Arr;
+use function count;
+use function implode;
+use function json_decode;
+use function json_encode;
 use function min, max, microtime, array_keys, strpos;
 
 /**
@@ -47,7 +54,7 @@ class Setup extends AbstractSetup
     {
         $this->applyRegistrationDefaults([
             'sv_alerts_popup_skips_mark_read' => '',
-            'sv_alerts_page_skips_summarize'  => '',
+            'sv_alerts_page_skips_summarize'  => 1,
             'sv_alerts_summarize_threshold'   => 4,
         ]);
     }
@@ -155,7 +162,7 @@ class Setup extends AbstractSetup
         $startTime = microtime(true);
         foreach($templates as $template)
         {
-            /** @var \XF\Entity\Template $template*/
+            /** @var Template $template*/
             if (empty($templateRenames[$template->title]))
             {
                 continue;
@@ -165,7 +172,7 @@ class Setup extends AbstractSetup
 
             $template->title = $templateRenames[$template->title];
             $template->version_id = 2081101;
-            $template->version_string = "2.8.11";
+            $template->version_string = '2.8.11';
             $template->save(false, true);
 
             if (microtime(true) - $startTime >= $maxRunTime)
@@ -195,11 +202,6 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    public function upgrade2081500Step1(): void
-    {
-        $this->installStep1();
-    }
-
     public function upgrade2081500Step2(): void
     {
         // purge broken jobs
@@ -213,12 +215,17 @@ class Setup extends AbstractSetup
         });
     }
 
-    public function upgrade1680110985Step1(): void
+    public function upgrade1683812804Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade1680110985Step2(): void
+    public function upgrade1683812804Step2(): void
+    {
+        $this->installStep2();
+    }
+
+    public function upgrade1683812804Step3(): void
     {
         $this->query('
             INSERT INTO xf_sv_user_alert_summary (alert_id, alerted_user_id, content_type, content_id, `action`)
@@ -226,6 +233,119 @@ class Setup extends AbstractSetup
             FROM xf_user_alert
             WHERE summerize_id IS NULL AND `action` LIKE \'%_summary\';
         ');
+    }
+
+    public function upgrade1683812804Step4(array $stepData): ?array
+    {
+        $columns = [
+            "alert_optout <> ''",
+            "push_optout <> ''",
+        ];
+
+        if ($this->columnExists('xf_user_option', 'sv_skip_auto_read_for_op'))
+        {
+            $columns[] = 'sv_skip_auto_read_for_op = 0';
+        }
+
+        if ($this->columnExists('xf_user_option', 'nf_discord_optout'))
+        {
+            $columns[] = "nf_discord_optout <> ''";
+        }
+        $sqlWhere = '(('. implode(') OR (', $columns) .'))';
+
+        $db = $this->db();
+        $next = $stepData['userId'] ?? 0;
+        if (!isset($stepData['max']))
+        {
+            $stepData['max'] = (int)$db->fetchOne('
+                SELECT max(user_id) 
+                FROM xf_user_option 
+                WHERE ' . $sqlWhere
+            );
+        }
+
+        /** @var AlertPreferences $alertPrefsRepo */
+        $alertPrefsRepo = $this->app->repository('SV\AlertImprovements:AlertPreferences');
+        $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
+
+        $convertOptOut = function (string $type, ?string $column, array &$alertPrefs) use ($alertPrefsRepo, $optOutActionList) {
+            $column = $column ?? '';
+            if ($column === '')
+            {
+                return;
+            }
+            $optOutList = Arr::stringToArray($column, '/\s*,\s*/');
+            foreach ($optOutList as $optOut)
+            {
+                $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);
+                if ($parts === null)
+                {
+                    // bad data, just skips since it wouldn't do anything
+                    continue;
+                }
+                [$contentType, $action] = $parts;
+
+                $alertPrefs[$type][$contentType][$action] = false;
+            }
+        };
+
+        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
+        $startTime = microtime(true);
+
+        $userIds = $db->fetchAllColumn('
+            SELECT user_id 
+            FROM xf_user_option 
+            WHERE user_id > ? AND ' . $sqlWhere .'
+            LIMIT 100
+        ', [$next]);
+        if (count($userIds) === 0)
+        {
+            return null;
+        }
+
+        foreach ($userIds as $userId)
+        {
+            $userId = (int)$userId;
+            $stepData['userId'] = $userId;
+
+            $db->beginTransaction();
+            $userOption = $db->fetchRow('
+                SELECT * 
+                FROM xf_user_option 
+                WHERE user_id = ? 
+                FOR UPDATE
+            ', [$userId]);
+
+            $alertPrefs = @json_decode($userOption['sv_alert_pref'] ?? '', true) ?: [];
+
+            $convertOptOut('alert', $userOption['alert_optout'] ?? '', $alertPrefs);
+            $convertOptOut('push', $userOption['push_optout'] ?? '', $alertPrefs);
+            $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $alertPrefs);
+            if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
+            {
+                $alertPrefs['autoRead']['post']['op_insert'] = false;
+            }
+
+            $db->query('
+                UPDATE xf_user_option
+                SET sv_alert_pref = ?
+                WHERE user_id = ?
+            ', [json_encode($alertPrefs), $userId]);
+
+            $db->commit();
+
+            if (microtime(true) - $startTime >= $maxRunTime)
+            {
+                break;
+            }
+        }
+
+        return $stepData;
+    }
+
+    public function upgrade1683812805Step1(): void
+    {
+        $this->installStep1();
     }
 
     public function uninstallStep1(): void
@@ -251,9 +371,6 @@ class Setup extends AbstractSetup
         }
     }
 
-    /**
-     * @throws \XF\Db\Exception
-     */
     public function uninstallStep3(): void
     {
         $this->db()->query("
@@ -265,6 +382,9 @@ class Setup extends AbstractSetup
 
     public function postUpgrade($previousVersion, array &$stateChanges): void
     {
+        $previousVersion = (int)$previousVersion;
+        parent::postUpgrade($previousVersion, $stateChanges);
+
         if ($previousVersion >= 2080000 && $previousVersion < 2080400)
         {
             \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', 'SV\AlertImprovements:AlertTotalRebuild', [], true);
@@ -302,8 +422,9 @@ class Setup extends AbstractSetup
 
         $tables['xf_user_option'] = function (Alter $table) {
             $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
-            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(0);
+            $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(1);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
+            $this->addOrChangeColumn($table, 'sv_alert_pref', 'blob')->nullable()->setDefault(null);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {
@@ -351,7 +472,13 @@ class Setup extends AbstractSetup
         $tables = [];
 
         $tables['xf_user_option'] = function (Alter $table) {
-            $table->dropColumns(['sv_alerts_popup_skips_mark_read', 'sv_alerts_page_skips_mark_read', 'sv_alerts_page_skips_summarize', 'sv_alerts_summarize_threshold']);
+            $table->dropColumns([
+                'sv_alert_pref',
+                'sv_alerts_popup_skips_mark_read',
+                'sv_alerts_page_skips_mark_read',
+                'sv_alerts_page_skips_summarize',
+                'sv_alerts_summarize_threshold',
+            ]);
         };
 
         $tables['xf_user_alert'] = function (Alter $table) {

@@ -1,9 +1,9 @@
 {
     "template": "account_preferences",
     "description": "Adds additional alert preferences",
-    "execution_order": 6398,
+    "execution_order": 6397,
     "enabled": true,
     "action": "preg_replace",
     "find": "#(?:[\\t ]*<h2 class=\"block-formSectionHeader.*?{{ phrase\\('alert_preferences'\\))|(?:[\\t ]*<xf:if is=\"\\$alertOptOuts)#si",
-    "replace": "<xf:include template=\"svAlertImprov_account_preferences_extra\" />\n$0"
+    "replace": "<xf:include template=\"svAlertImprov_account_preferences\" />\n$0"
 }

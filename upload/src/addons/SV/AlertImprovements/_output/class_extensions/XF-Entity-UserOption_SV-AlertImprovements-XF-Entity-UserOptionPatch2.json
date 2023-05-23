@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\Entity\\UserOption",
+    "to_class": "SV\\AlertImprovements\\XF\\Entity\\UserOptionPatch2",
+    "execute_order": 6529,
+    "active": true
+}

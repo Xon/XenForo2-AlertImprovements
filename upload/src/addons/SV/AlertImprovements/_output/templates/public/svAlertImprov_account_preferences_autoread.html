@@ -1,0 +1,7 @@
+<li class="notificationChoices-choice notificationChoices-choice--autoread">
+	<xf:checkbox standalone="true">
+		<xf:option name="autoread[{$contentType}_{$action}]"
+				   checked="{{ $xf.visitor.Option.doesAutoReadAlert($contentType, $action) }}"
+				   label="{{ phrase('svAlertImprov_autoread') }}" />
+	</xf:checkbox>
+</li>

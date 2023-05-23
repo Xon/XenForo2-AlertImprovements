@@ -1,0 +1,9 @@
+{
+    "template": "account_preferences",
+    "description": "Add auto-read preferences",
+    "execution_order": 6398,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#(<xf:foreach loop=\"\\$alertOptOuts.*?)([\\t ]+<xf:if is=\"\\$canPush)#s",
+    "replace": "$1<xf:include template=\"svAlertImprov_account_preferences_autoread\" />\n$2"
+}

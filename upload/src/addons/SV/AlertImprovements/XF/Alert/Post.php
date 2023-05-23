@@ -12,4 +12,9 @@ use SV\AlertImprovements\ISummarizeAlert;
 class Post extends XFCP_Post implements ISummarizeAlert
 {
     use SummarizeAlertTrait;
+
+    public function getSupportedActionsForSummarization(): array
+    {
+        return ['reaction', 'quote'];
+    }
 }
