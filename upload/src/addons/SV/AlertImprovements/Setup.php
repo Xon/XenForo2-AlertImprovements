@@ -502,12 +502,15 @@ class Setup extends AbstractSetup
     {
         $this->checkRequirementsTrait($errors, $warnings);
 
-        /** @var ?AddOnEntity $addon */
-        $addon = $this->addOn->getInstalledAddOn();
-        if ($addon !== null && version_compare($addon->version_string, '2.9.5', '<='))
+        if ($this->isCliRecommendedCheck(0, 0, 500000, 50000))
         {
-            $html = 'It is recommended to close the site when upgrading from before v2.10.0 as to avoid alerts being generated with the wrong auto-read/mark-as-read configuration while user settings are migrated';
-            $warnings[] = new PreEscaped($html);
+            /** @var ?AddOnEntity $addon */
+            $addon = $this->addOn->getInstalledAddOn();
+            if ($addon !== null && version_compare($addon->version_string, '2.9.5', '<='))
+            {
+                $html = 'For busy sites, it is recommended to close the site when upgrading from before v2.10.0 as to avoid alerts being generated with the wrong auto-read/mark-as-read configuration while user settings are migrated';
+                $warnings[] = new PreEscaped($html);
+            }
         }
     }
 }
