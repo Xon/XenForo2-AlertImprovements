@@ -326,9 +326,9 @@ class Setup extends AbstractSetup
             $convertOptOut('alert', $userOption['alert_optout'] ?? '', $alertPrefs);
             $convertOptOut('push', $userOption['push_optout'] ?? '', $alertPrefs);
             $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $alertPrefs);
-            if (isset($userOption['sv_skip_auto_read_for_op']))
+            if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
             {
-                $alertPrefs['autoRead']['post']['op_insert'] = !$userOption['sv_skip_auto_read_for_op'];
+                $alertPrefs['autoRead']['post']['op_insert'] = true;
             }
 
             $db->query('
