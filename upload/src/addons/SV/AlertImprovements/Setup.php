@@ -10,7 +10,9 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
+use XF\Entity\AddOn as AddOnEntity;
 use XF\Entity\Template;
+use XF\PreEscaped;
 use XF\PrintableException;
 use XF\Util\Arr;
 use function count;
@@ -18,6 +20,7 @@ use function implode;
 use function json_decode;
 use function json_encode;
 use function min, max, microtime, array_keys, strpos;
+use function version_compare;
 
 /**
  * Class Setup
@@ -26,7 +29,9 @@ use function min, max, microtime, array_keys, strpos;
  */
 class Setup extends AbstractSetup
 {
-    use InstallerHelper;
+    use InstallerHelper {
+        checkRequirements as protected checkRequirementsTrait;
+    }
     use StepRunnerInstallTrait;
     use StepRunnerUpgradeTrait;
     use StepRunnerUninstallTrait;
@@ -486,5 +491,23 @@ class Setup extends AbstractSetup
         };
 
         return $tables;
+    }
+
+    /**
+     * @param array $errors
+     * @param array $warnings
+     * @noinspection PhpMissingParentCallCommonInspection
+     */
+    public function checkRequirements(&$errors = [], &$warnings = []): void
+    {
+        $this->checkRequirementsTrait($errors, $warnings);
+
+        /** @var ?AddOnEntity $addon */
+        $addon = $this->addOn->getInstalledAddOn();
+        if ($addon !== null && version_compare($addon->version_string, '2.9.5', '<='))
+        {
+            $html = 'It is recommended to close the site when upgrading from before v2.10.0 as to avoid alerts being generated with the wrong auto-read/mark-as-read configuration while user settings are migrated';
+            $warnings[] = new PreEscaped($html);
+        }
     }
 }
