@@ -32,6 +32,8 @@ class AlertSummarization extends Repository
 {
     /** @var int */
     protected $updateAlertBatchSize = 1000;
+    /** @var int */
+    protected $minimumSummarizeThreshold = 2;
 
     public function canSummarizeAlerts(): bool
     {
@@ -48,7 +50,11 @@ class AlertSummarization extends Repository
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        $summarizeThreshold = (int)max(2, $visitor->Option->sv_alerts_summarize_threshold);
+        $summarizeThreshold = $visitor->Option->sv_alerts_summarize_threshold ?? 4;
+        if ($summarizeThreshold < $this->minimumSummarizeThreshold)
+        {
+            return false;
+        }
 
         return ($visitor->alerts_unviewed >= $summarizeThreshold) || ($visitor->alerts_unread >= $summarizeThreshold);
     }
@@ -138,6 +144,12 @@ class AlertSummarization extends Repository
 
     public function summarizeAlertsForUser(ExtendedUserEntity $user, bool $ignoreReadState, int $summaryAlertViewDate): bool
     {
+        $summarizeThreshold = $user->Option->sv_alerts_summarize_threshold ?? 4;
+        if ($summarizeThreshold < $this->minimumSummarizeThreshold)
+        {
+            return false;
+        }
+
         assert(!$this->db()->inTransaction());
         // build the list of handlers at once, and exclude based
         $handlers = $this->getAlertHandlersForConsolidation();
@@ -175,9 +187,6 @@ class AlertSummarization extends Repository
         // TODO : finish summarizing alerts
         $xfOptions = \XF::options();
         $userId = (int)$user->user_id;
-        $option = $user->Option;
-        assert($option !== null);
-        $summarizeThreshold = $option->sv_alerts_summarize_threshold;
 
         $finder = $this->getFinderForSummarizeAlerts($userId)
                        ->forValidContentTypes($validContentTypes);
