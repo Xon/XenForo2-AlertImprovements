@@ -1,2 +1,6 @@
 Allows grouping of alerts by content type or user to reduce clutter when a user receives a high numbers of alerts.<br/>
-This feature currently only works with reactions
+This feature currently only works with a limited set of alerts:<ul>
+<li>reactions</li>
+<li>post quotes</li>
+<li>user follow</li>
+</ul>
