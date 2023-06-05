@@ -1,2 +1,5 @@
-Do not mark "Alert bell read" alerts as read when viewing the alerts pop-up.<br/><br/>
-To ensure alerts are always marked as read, uncheck this option, and ensure the "Alert bell read" option for each alert type is checked.
+When set, the alert pop-up ignores the per-alert "alert bell read" option.<br/><br/>
+To ensure alerts are always marked as read when opening the alert bell:<ul>
+<li>Uncheck this option.</li>
+<li>Ensure the "Alert bell read" option for each alert type is checked.</li>
+</ul>

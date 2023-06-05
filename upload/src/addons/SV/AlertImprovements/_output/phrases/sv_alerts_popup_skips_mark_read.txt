@@ -1,1 +1,1 @@
-Alerts pop-up skips mark read
+Alerts pop-up does not mark alerts as read
