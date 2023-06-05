@@ -588,7 +588,7 @@ class Account extends XFCP_Account
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $option = $visitor->Option;
-        $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_read_behavior);
+        $skipMarkAsRead = Globals::isPrefetchRequest();
         Globals::$skipMarkAlertsRead = true;
         Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts(1);
         Globals::$doAlertPopupRewrite = true;

@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\XF\Repository;
 
+use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertSummarization;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
@@ -255,9 +256,24 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $alerts = $alerts->filter(function (ExtendedUserAlertEntity $alert) {
-            return $alert->getHandler() === null || ($alert->isUnread() && $alert->auto_read);
-        });
+        $readBehavior = $user->Option->sv_alerts_popup_read_behavior ?? PopUpReadBehavior::PerUser;
+        switch ($readBehavior)
+        {
+            case PopUpReadBehavior::NeverMarkRead:
+                return;
+            case PopUpReadBehavior::AlwaysMarkRead:
+                $alerts = $alerts->filter(function (ExtendedUserAlertEntity $alert) {
+                    return $alert->isUnread();
+                });
+                break;
+            case PopUpReadBehavior::PerUser:
+                $alerts = $alerts->filter(function (ExtendedUserAlertEntity $alert) {
+                    return $alert->isUnread() && $alert->auto_read;
+                });
+                break;
+            default:
+                throw new \LogicException('Unknown PopUpReadBehavior value:'.$readBehavior);
+        }
 
         $this->markSpecificUserAlertsRead($alerts, $user, $readDate);
     }
@@ -291,7 +307,7 @@ class UserAlert extends XFCP_UserAlert
             }
         }
 
-        if (!$unreadAlertIds)
+        if (count($unreadAlertIds) === 0)
         {
             return;
         }
