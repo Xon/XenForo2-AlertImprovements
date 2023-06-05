@@ -30,6 +30,11 @@ namespace SV\AlertImprovements\XF\Alert
 	class XFCP_User extends \XF\Alert\User {}
 }
 
+namespace SV\AlertImprovements\XF\ChangeLog
+{
+	class XFCP_User extends \XF\ChangeLog\User {}
+}
+
 namespace SV\AlertImprovements\XF\Entity
 {
 	class XFCP_User extends \XF\Entity\User {}

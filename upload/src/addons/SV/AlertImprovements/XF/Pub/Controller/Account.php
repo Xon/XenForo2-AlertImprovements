@@ -6,6 +6,7 @@
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\ControllerPlugin\AlertAction;
+use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\AlertImprovements\Repository\AlertSummarization;
@@ -134,12 +135,13 @@ class Account extends XFCP_Account
         $input = $this->filter(
             [
                 'option' => [
-                    'sv_alerts_popup_skips_mark_read' => 'bool',
-                    'sv_alerts_page_skips_summarize'  => 'bool',
-                    'sv_alerts_summarize_threshold'   => 'uint',
+                    'sv_alerts_popup_read_behavior'  => 'str',
+                    'sv_alerts_page_skips_summarize' => 'bool',
+                    'sv_alerts_summarize_threshold'  => 'uint',
                 ],
             ]
         );
+
         if (!(\XF::options()->svAlertsSummarize ?? false))
         {
             unset($input['option']['sv_alerts_page_skips_summarize']);
@@ -586,7 +588,7 @@ class Account extends XFCP_Account
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $option = $visitor->Option;
-        $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_skips_mark_read);
+        $skipMarkAsRead = Globals::isPrefetchRequest() || !empty($option->sv_alerts_popup_read_behavior);
         Globals::$skipMarkAlertsRead = true;
         Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts(1);
         Globals::$doAlertPopupRewrite = true;

@@ -1,1 +1,0 @@
-Alerts pop-up does not mark alerts as read

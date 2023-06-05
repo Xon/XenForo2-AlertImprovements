@@ -1,7 +1,13 @@
-<xf:checkboxrow>
-	<xf:option name="option[sv_alerts_popup_skips_mark_read]" checked="{{$user.Option.sv_alerts_popup_skips_mark_read}}">{{ phrase('sv_alerts_popup_skips_mark_read') }}</xf:option>
-	<xf:option name="option[sv_alerts_page_skips_summarize]" checked="{{$user.Option.sv_alerts_page_skips_summarize}}">{{ phrase('sv_alerts_page_skips_summarize') }}</xf:option>
+<xf:checkboxrow label="{{ phrase('svAlertImprov_alerts_page_options') }}">
+    <xf:option name="option[sv_alerts_page_skips_summarize]"
+               label="{{ phrase('sv_alerts_page_skips_summarize') }}"
+               checked="{{$user.Option.sv_alerts_page_skips_summarize}}" />
 </xf:checkboxrow>
+<xf:radiorow name="option[sv_alerts_popup_read_behavior]"
+             label="{{ phrase('svAlertImprov_alert_popup_options') }}"
+             value="{{ $user.Option.sv_alerts_popup_read_behavior }}">
+    <xf:options source="{{ $xf.app.em.getRepository('SV\AlertImprovements:AlertPreferences').getAlertPopupBehaviourPairs() }}" />
+</xf:radiorow>
 <xf:textboxrow name="option[sv_alerts_summarize_threshold]" value="{{$user.Option.sv_alerts_summarize_threshold}}" 
 			   type="number" min="0"
 			   readonly="{{ $xf.options.svAlertsSummarize ? '': true}}"

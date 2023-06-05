@@ -9,13 +9,11 @@
 					   />
 		</xf:checkboxrow>
 	</xf:if>
-	<xf:checkboxrow label="{{ phrase('svAlertImprov_alert_popup_options') }}">
-		<xf:option name="option[sv_alerts_popup_skips_mark_read]"
-				   label="{{ phrase('sv_alerts_popup_skips_mark_read') }}"
-				   hint="{{ phrase('sv_alerts_popup_skips_mark_read_hint') }}"
-				   checked="{$xf.visitor.Option.sv_alerts_popup_skips_mark_read}"
-				   />
-	</xf:checkboxrow>
+	<xf:radiorow name="option[sv_alerts_popup_read_behavior]"
+                 label="{{ phrase('svAlertImprov_alert_popup_options') }}"
+				 value="{{ $xf.visitor.Option.sv_alerts_popup_read_behavior }}">
+		<xf:options source="{{ $xf.app.em.getRepository('SV\AlertImprovements:AlertPreferences').getAlertPopupBehaviourPairs() }}" />
+	</xf:radiorow>
 	<xf:if is="$xf.options.svAlertsSummarize">
 		
 	<xf:numberboxrow name="option[sv_alerts_summarize_threshold]"

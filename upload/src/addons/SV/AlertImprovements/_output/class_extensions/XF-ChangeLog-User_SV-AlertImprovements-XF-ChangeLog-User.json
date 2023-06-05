@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\ChangeLog\\User",
+    "to_class": "SV\\AlertImprovements\\XF\\ChangeLog\\User",
+    "execute_order": 9,
+    "active": true
+}

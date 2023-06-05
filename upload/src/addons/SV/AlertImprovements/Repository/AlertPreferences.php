@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\Repository;
 
+use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
 use function array_fill_keys;
@@ -122,6 +123,11 @@ class AlertPreferences extends Repository
     public function getAllAlertPreferencesDefaults(array $types, array $optOutActions): array
     {
         return $this->setUpAlertPreferenceDefaults(array_fill_keys($types, $optOutActions), true);
+    }
+
+    public function getAlertPopupBehaviourPairs(): array
+    {
+        return PopUpReadBehavior::getPairs();
     }
 
     protected function getAlertRepo(): UserAlert

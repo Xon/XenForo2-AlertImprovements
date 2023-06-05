@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements;
 
+use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
@@ -11,15 +12,20 @@ use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
 use XF\Entity\AddOn as AddOnEntity;
+use XF\Entity\Option as OptionEntity;
 use XF\Entity\Template;
 use XF\PreEscaped;
 use XF\PrintableException;
 use XF\Util\Arr;
+use function array_keys;
 use function count;
 use function implode;
 use function json_decode;
 use function json_encode;
-use function min, max, microtime, array_keys, strpos;
+use function max;
+use function microtime;
+use function min;
+use function strpos;
 use function version_compare;
 
 /**
@@ -58,9 +64,9 @@ class Setup extends AbstractSetup
     public function installStep2(): void
     {
         $this->applyRegistrationDefaults([
-            'sv_alerts_popup_skips_mark_read' => '',
-            'sv_alerts_page_skips_summarize'  => 1,
-            'sv_alerts_summarize_threshold'   => 4,
+            'sv_alerts_popup_read_behavior'  => PopUpReadBehavior::PerUser,
+            'sv_alerts_page_skips_summarize' => 1,
+            'sv_alerts_summarize_threshold'  => 4,
         ]);
     }
 
@@ -77,7 +83,7 @@ class Setup extends AbstractSetup
     public function upgrade2050001Step3(): void
     {
         $this->applyRegistrationDefaults([
-            'sv_alerts_popup_skips_mark_read' => 0,
+            'sv_alerts_popup_read_behavior' => PopUpReadBehavior::PerUser,
         ]);
     }
 
@@ -348,9 +354,67 @@ class Setup extends AbstractSetup
         return $stepData;
     }
 
-    public function upgrade1683812805Step1(): void
+    public function upgrade1685991237Step1(): void
     {
         $this->installStep1();
+    }
+
+    public function upgrade1685991237Step2(): void
+    {
+        $sm = $this->schemaManager();
+        if ($sm->columnExists('xf_user_option', 'sv_alerts_popup_skips_mark_read'))
+        {
+            /** @noinspection SqlResolve */
+            $this->db()->query('
+                UPDATE xf_user_option
+                SET sv_alerts_popup_read_behavior = ?
+                WHERE sv_alerts_popup_skips_mark_read = 1
+            ', [PopUpReadBehavior::NeverMarkRead]);
+        }
+    }
+
+    public function upgrade1685991237Step3(): void
+    {
+        $this->schemaManager()->alterTable('xf_user_option', function (Alter $table) {
+            $table->dropColumns('sv_alerts_popup_skips_mark_read');
+        });
+    }
+
+    public function upgrade1685991237Step4(): void
+    {
+        $option = \XF::app()->finder('XF:Option')
+                     ->where('option_id', '=', 'registrationDefaults')
+                     ->fetchOne();
+        assert($option instanceof OptionEntity);
+        $registrationDefaults = $option->option_value;
+
+        $intVal = (int)($registrationDefaults['sv_alerts_popup_skips_mark_read'] ?? 0);
+        if ($intVal === 1)
+        {
+            $registrationDefaults['sv_alerts_popup_read_behavior'] = PopUpReadBehavior::NeverMarkRead;
+        }
+        else
+        {
+            $registrationDefaults['sv_alerts_popup_read_behavior'] = PopUpReadBehavior::PerUser;
+        }
+
+        $option->option_value = $registrationDefaults;
+        $option->saveIfChanged();
+    }
+
+    public function upgrade1685991237Step5(): void
+    {
+        $db = $this->db();
+        $perUser = $db->quote(PopUpReadBehavior::PerUser);
+        $neverMarkRead = $db->quote(PopUpReadBehavior::NeverMarkRead);
+
+        $db->query("
+            UPDATE xf_change_log
+            SET field = ?, 
+                old_value = (case when old_value = 0 then $perUser when old_value = 1 then $neverMarkRead else old_value end),
+                new_value = (case when new_value = 0 then $perUser when new_value = 1 then $neverMarkRead else new_value end)
+            WHERE field = ?
+        ", ['sv_alerts_popup_read_behavior', 'sv_alerts_popup_skips_mark_read']);
     }
 
     public function uninstallStep1(): void
@@ -426,7 +490,9 @@ class Setup extends AbstractSetup
         $tables = [];
 
         $tables['xf_user_option'] = function (Alter $table) {
-            $this->addOrChangeColumn($table, 'sv_alerts_popup_skips_mark_read', 'tinyint')->setDefault(0);
+            $this->addOrChangeColumn($table, 'sv_alerts_popup_read_behavior', 'enum')
+                 ->values(PopUpReadBehavior::get())
+                 ->setDefault(PopUpReadBehavior::PerUser);
             $this->addOrChangeColumn($table, 'sv_alerts_page_skips_summarize', 'tinyint')->setDefault(1);
             $this->addOrChangeColumn($table, 'sv_alerts_summarize_threshold', 'int')->setDefault(4);
             $this->addOrChangeColumn($table, 'sv_alert_pref', 'blob')->nullable()->setDefault(null);
@@ -480,6 +546,7 @@ class Setup extends AbstractSetup
             $table->dropColumns([
                 'sv_alert_pref',
                 'sv_alerts_popup_skips_mark_read',
+                'sv_alerts_popup_read_behavior',
                 'sv_alerts_page_skips_mark_read',
                 'sv_alerts_page_skips_summarize',
                 'sv_alerts_summarize_threshold',

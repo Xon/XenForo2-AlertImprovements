@@ -1,0 +1,1 @@
+Always mark alerts as read
