@@ -356,7 +356,7 @@ class AlertSummarization extends Repository
                         }
                     }
                 }
-                if (count($userAlertGrouping) === 0)
+                if (count($userAlertGrouping) < $summarizeThreshold)
                 {
                     continue;
                 }
