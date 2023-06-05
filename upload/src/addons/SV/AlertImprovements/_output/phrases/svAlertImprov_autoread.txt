@@ -1,1 +1,1 @@
-Alert pop-up read
+Pop-up auto-read
