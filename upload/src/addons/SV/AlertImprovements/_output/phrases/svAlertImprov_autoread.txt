@@ -1,1 +1,1 @@
-Alert bell marks as read
+Alert pop-up read
