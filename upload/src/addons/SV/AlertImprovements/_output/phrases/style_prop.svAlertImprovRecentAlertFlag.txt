@@ -1,0 +1,1 @@
+Show recent alert icon on alert

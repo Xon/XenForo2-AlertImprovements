@@ -1,13 +1,13 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Recent alert icon color",
+    "title": "Unread alert icon color",
     "description": "",
     "property_type": "value",
     "css_components": [],
     "value_type": "color",
     "value_parameters": "",
-    "depends_on": "svAlertImprovRecentAlertFlag",
-    "value_group": "RecentAlertIcon",
+    "depends_on": "svAlertImprovUnreadAlertFlag",
+    "value_group": "UnreadAlertIcon",
     "property_value": "DarkGoldenRod",
-    "display_order": 420
+    "display_order": 520
 }

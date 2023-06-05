@@ -1,13 +1,13 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Recent alert icon color",
+    "title": "Show recent alert icon on alert",
     "description": "",
     "property_type": "value",
     "css_components": [],
-    "value_type": "color",
+    "value_type": "boolean",
     "value_parameters": "",
-    "depends_on": "svAlertImprovRecentAlertFlag",
+    "depends_on": "",
     "value_group": "RecentAlertIcon",
-    "property_value": "DarkGoldenRod",
-    "display_order": 420
+    "property_value": 0,
+    "display_order": 400
 }

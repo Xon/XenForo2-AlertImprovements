@@ -59,12 +59,18 @@
 
 .alert
 {
-    .recent-indicator-icon,
+	<xf:if is="property('svAlertImprovUnreadAlertFlag')">
 	.unread-indicator-icon
+	{
+		color: @xf-svAlertImprovUnreadAlertIconColor;
+	}
+	</xf:if>
+	<xf:if is="property('svAlertImprovRecentAlertFlag')">
+	.recent-indicator-icon
 	{
 		color: @xf-svAlertImprovRecentAlertIconColor;
 	}
-	
+	</xf:if>
 	.contentRow-figure
 	{
 		&--selector

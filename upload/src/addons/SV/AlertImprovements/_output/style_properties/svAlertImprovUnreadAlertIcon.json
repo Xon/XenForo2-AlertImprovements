@@ -1,0 +1,13 @@
+{
+    "group_name": "svAlertImprovements",
+    "title": "Unread alert icon",
+    "description": "The icon users for the unread alerts",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "string",
+    "value_parameters": "",
+    "depends_on": "svAlertImprovUnreadAlertFlag",
+    "value_group": "UnreadAlertIcon",
+    "property_value": "fa fa-star-exclamation",
+    "display_order": 510
+}
