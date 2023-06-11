@@ -6,10 +6,6 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
-use XF\Mvc\Entity\Entity;
-use XF\Mvc\Entity\Structure;
-use function in_array;
-
 /**
  * Extends \XF\Entity\UserOption
  */
