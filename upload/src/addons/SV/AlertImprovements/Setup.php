@@ -70,6 +70,11 @@ class Setup extends AbstractSetup
         ]);
     }
 
+    public function installStep3(array $stepData): ?array
+    {
+        return $this->migrateAlertPreferences($stepData);
+    }
+
     public function upgrade2050001Step1(): void
     {
         $this->installStep1();
@@ -247,6 +252,11 @@ class Setup extends AbstractSetup
     }
 
     public function upgrade1683812804Step4(array $stepData): ?array
+    {
+        return $this->migrateAlertPreferences($stepData);
+    }
+
+    public function migrateAlertPreferences(array $stepData): ?array
     {
         $columns = [
             "alert_optout <> ''",
