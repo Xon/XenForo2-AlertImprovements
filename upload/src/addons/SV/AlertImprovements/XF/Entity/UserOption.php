@@ -16,7 +16,8 @@ use XF\Mvc\Entity\Structure;
  * @property string  $sv_alerts_popup_read_behavior
  * @property bool $sv_alerts_page_skips_summarize
  * @property int  $sv_alerts_summarize_threshold
- * @property ?array $sv_alert_pref
+ * @property array $sv_alert_pref
+ * @property ?array $sv_alert_pref_
  */
 class UserOption extends XFCP_UserOption
 {
@@ -44,6 +45,28 @@ class UserOption extends XFCP_UserOption
         $this->sv_alerts_summarize_threshold = (int)($defaults['sv_alerts_summarize_threshold'] ?? 4);
     }
 
+    protected function getSvAlertPref(): array
+    {
+        $alertPreferences = $this->sv_alert_pref_;
+        if ($alertPreferences === null)
+        {
+            /** @var AlertPreferences $alertPrefsRepo */
+            $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
+            $alertPreferences = $alertPrefsRepo->migrateAlertPreferencesForUser($this->user_id);
+
+            if (!$this->exists() && !$this->_writeRunning)
+            {
+                $this->sv_alert_pref = $alertPreferences;
+            }
+            else
+            {
+                $this->setAsSaved('sv_alert_pref', $alertPreferences);
+            }
+        }
+
+        return $alertPreferences;
+    }
+
     /**
      * @param Structure $structure
      * @return Structure
@@ -55,13 +78,13 @@ class UserOption extends XFCP_UserOption
         $structure->columns['sv_alerts_popup_read_behavior'] = ['type' => Entity::STR, 'default' => PopUpReadBehavior::PerUser, 'allowedValues' => PopUpReadBehavior::get()];
         $structure->columns['sv_alerts_page_skips_summarize'] = ['type' => Entity::BOOL, 'default' => true];
         $structure->columns['sv_alerts_summarize_threshold'] = ['type' => Entity::UINT, 'default' => 4];
-
         $structure->columns['sv_alert_pref'] = [
             'type' => self::JSON_ARRAY,
             'default' => null,
             'nullable' => true,
             'changeLog' => false,
         ];
+        $structure->getters['sv_alert_pref'] = ['getter' => 'getSvAlertPref', 'cache' => true];
 
         return $structure;
     }

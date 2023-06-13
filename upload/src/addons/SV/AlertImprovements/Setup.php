@@ -16,12 +16,9 @@ use XF\Entity\Option as OptionEntity;
 use XF\Entity\Template;
 use XF\PreEscaped;
 use XF\PrintableException;
-use XF\Util\Arr;
 use function array_keys;
 use function count;
 use function implode;
-use function json_decode;
-use function json_encode;
 use function max;
 use function microtime;
 use function min;
@@ -285,31 +282,6 @@ class Setup extends AbstractSetup
             );
         }
 
-        /** @var AlertPreferences $alertPrefsRepo */
-        $alertPrefsRepo = $this->app->repository('SV\AlertImprovements:AlertPreferences');
-        $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
-
-        $convertOptOut = function (string $type, ?string $column, array &$alertPrefs) use ($alertPrefsRepo, $optOutActionList) {
-            $column = $column ?? '';
-            if ($column === '')
-            {
-                return;
-            }
-            $optOutList = Arr::stringToArray($column, '/\s*,\s*/');
-            foreach ($optOutList as $optOut)
-            {
-                $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);
-                if ($parts === null)
-                {
-                    // bad data, just skips since it wouldn't do anything
-                    continue;
-                }
-                [$contentType, $action] = $parts;
-
-                $alertPrefs[$type][$contentType][$action] = false;
-            }
-        };
-
         $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
         $startTime = microtime(true);
 
@@ -324,36 +296,15 @@ class Setup extends AbstractSetup
             return null;
         }
 
+        $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
+        assert($alertPrefsRepo instanceof AlertPreferences);
+
         foreach ($userIds as $userId)
         {
             $userId = (int)$userId;
             $stepData['userId'] = $userId;
 
-            $db->beginTransaction();
-            $userOption = $db->fetchRow('
-                SELECT * 
-                FROM xf_user_option 
-                WHERE user_id = ? 
-                FOR UPDATE
-            ', [$userId]);
-
-            $alertPrefs = @json_decode($userOption['sv_alert_pref'] ?? '', true) ?: [];
-
-            $convertOptOut('alert', $userOption['alert_optout'] ?? '', $alertPrefs);
-            $convertOptOut('push', $userOption['push_optout'] ?? '', $alertPrefs);
-            $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $alertPrefs);
-            if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
-            {
-                $alertPrefs['autoRead']['post']['op_insert'] = true;
-            }
-
-            $db->query('
-                UPDATE xf_user_option
-                SET sv_alert_pref = ?
-                WHERE user_id = ?
-            ', [json_encode($alertPrefs), $userId]);
-
-            $db->commit();
+            $alertPrefsRepo->migrateAlertPreferencesForUser($userId);
 
             if (microtime(true) - $startTime >= $maxRunTime)
             {

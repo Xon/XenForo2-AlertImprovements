@@ -5,16 +5,74 @@ namespace SV\AlertImprovements\Repository;
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
+use XF\Util\Arr;
 use function array_fill_keys;
 use function array_shift;
 use function count;
 use function explode;
 use function implode;
+use function json_decode;
+use function json_encode;
 
 class AlertPreferences extends Repository
 {
     /** @var ?array */
     protected $alertOptOutActionList = null;
+
+    public function migrateAlertPreferencesForUser(int $userId): array
+    {
+        $optOutActionList = $this->getAlertOptOutActionList();
+
+        $convertOptOut = function (string $type, ?string $column, array &$alertPrefs) use ($optOutActionList) {
+            $column = $column ?? '';
+            if ($column === '')
+            {
+                return;
+            }
+            $optOutList = Arr::stringToArray($column, '/\s*,\s*/');
+            foreach ($optOutList as $optOut)
+            {
+                $parts = $this->convertStringyOptOut($optOutActionList, $optOut);
+                if ($parts === null)
+                {
+                    // bad data, just skips since it wouldn't do anything
+                    continue;
+                }
+                [$contentType, $action] = $parts;
+
+                $alertPrefs[$type][$contentType][$action] = false;
+            }
+        };
+
+        $db = $this->db();
+        $db->beginTransaction();
+        $userOption = $db->fetchRow('
+                SELECT * 
+                FROM xf_user_option 
+                WHERE user_id = ? 
+                FOR UPDATE
+            ', [$userId]);
+
+        $alertPrefs = @json_decode($userOption['sv_alert_pref'] ?? '', true) ?: [];
+
+        $convertOptOut('alert', $userOption['alert_optout'] ?? '', $alertPrefs);
+        $convertOptOut('push', $userOption['push_optout'] ?? '', $alertPrefs);
+        $convertOptOut('discord', $userOption['nf_discord_optout'] ?? '', $alertPrefs);
+        if (isset($userOption['sv_skip_auto_read_for_op']) && !$userOption['sv_skip_auto_read_for_op'])
+        {
+            $alertPrefs['autoRead']['post']['op_insert'] = true;
+        }
+
+        $db->query('
+                UPDATE xf_user_option
+                SET sv_alert_pref = ?
+                WHERE user_id = ?
+            ', [json_encode($alertPrefs), $userId]);
+
+        $db->commit();
+
+        return $alertPrefs;
+    }
 
     /**
      * @return array<string,array<string,bool>>
