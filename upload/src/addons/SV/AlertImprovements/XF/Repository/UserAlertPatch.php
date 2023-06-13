@@ -114,7 +114,11 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     {
         if ($cutOff === null)
         {
-            $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 4);
+            $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 0);
+            if ($viewedAlertExpiryDays <= 0)
+            {
+                return;
+            }
             $cutOff = \XF::$time - $viewedAlertExpiryDays * 86400;
         }
         \XF::app()->jobManager()->enqueueLater('sViewedAlertCleanup', \XF::$time + 1, ViewedAlertCleanup::class, [
@@ -126,7 +130,11 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     {
         if ($cutOff === null)
         {
-            $unviewedAlertExpiryDays = (int)(\XF::options()->svUnviewedAlertExpiryDays ?? 30);
+            $unviewedAlertExpiryDays = (int)(\XF::options()->svUnviewedAlertExpiryDays ?? 0);
+            if ($unviewedAlertExpiryDays <= 0)
+            {
+                return;
+            }
             $cutOff = \XF::$time - $unviewedAlertExpiryDays * 86400;
         }
         \XF::app()->jobManager()->enqueueLater('svUnviewedAlertCleanup', \XF::$time + 2*60, UnviewedAlertCleanup::class, [

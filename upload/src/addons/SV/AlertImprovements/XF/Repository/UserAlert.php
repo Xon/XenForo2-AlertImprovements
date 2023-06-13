@@ -42,11 +42,25 @@ class UserAlert extends XFCP_UserAlert
         {
             return [0, 0];
         }
-        $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 4);
-        $viewedCutOff = \XF::$time - $viewedAlertExpiryDays * 86400;
+        $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 0);
+        if ($viewedAlertExpiryDays >= 0)
+        {
+            $viewedCutOff = \XF::$time - $viewedAlertExpiryDays * 86400;
+        }
+        else
+        {
+            $viewedCutOff = 0;
+        }
 
-        $unviewedAlertExpiryDays = (int)(\XF::options()->svUnviewedAlertExpiryDays ?? 30);
-        $unviewedCutOff = \XF::$time - $unviewedAlertExpiryDays * 86400;
+        $unviewedAlertExpiryDays = (int)(\XF::options()->svUnviewedAlertExpiryDays ?? 0);
+        if ($viewedAlertExpiryDays >= 0)
+        {
+            $unviewedCutOff = \XF::$time - $unviewedAlertExpiryDays * 86400;
+        }
+        else
+        {
+            $unviewedCutOff = 0;
+        }
 
         return [$viewedCutOff, $unviewedCutOff];
     }
