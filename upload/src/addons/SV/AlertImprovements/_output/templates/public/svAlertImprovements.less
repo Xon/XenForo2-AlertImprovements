@@ -59,13 +59,13 @@
 
 .alert
 {
-	<xf:if is="property('svAlertImprovUnreadAlertFlag')">
+	<xf:if is="property('svAlertImprovUnreadAlertFlag') && property('svAlertImprovUnreadAlertIconColor')">
 	.unread-indicator-icon
 	{
 		color: @xf-svAlertImprovUnreadAlertIconColor;
 	}
 	</xf:if>
-	<xf:if is="property('svAlertImprovRecentAlertFlag')">
+	<xf:if is="property('svAlertImprovRecentAlertFlag') && property('svAlertImprovRecentAlertIconColor')">
 	.recent-indicator-icon
 	{
 		color: @xf-svAlertImprovRecentAlertIconColor;
