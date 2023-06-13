@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\Cli\Command\Rebuild;
 
+use SV\AlertImprovements\Job\AlertTotalRebuild;
 use Symfony\Component\Console\Input\InputOption;
 use XF\Cli\Command\Rebuild\AbstractRebuildCommand;
 
@@ -20,7 +21,7 @@ class RebuildAlertTotals extends AbstractRebuildCommand
 
     protected function getRebuildClass() : string
     {
-        return 'SV\AlertImprovements:AlertTotalRebuild';
+        return AlertTotalRebuild::class;
     }
 
     protected function configureOptions(): void

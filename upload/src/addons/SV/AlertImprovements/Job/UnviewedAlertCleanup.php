@@ -117,7 +117,7 @@ class UnviewedAlertCleanup extends AbstractJob
             $jm = \XF::app()->jobManager();
             if (!$jm->getUniqueJob('svAlertTotalRebuild'))
             {
-                \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', 'SV\AlertImprovements:AlertTotalRebuild', [
+                \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [
                     'pendingRebuilds' => true,
                 ], false);
             }

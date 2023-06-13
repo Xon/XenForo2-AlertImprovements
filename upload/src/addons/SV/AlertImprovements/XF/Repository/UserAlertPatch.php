@@ -5,6 +5,8 @@
 
 namespace SV\AlertImprovements\XF\Repository;
 
+use SV\AlertImprovements\Job\UnviewedAlertCleanup;
+use SV\AlertImprovements\Job\ViewedAlertCleanup;
 use SV\AlertImprovements\XF\Entity\UserOption;
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
@@ -115,7 +117,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 4);
             $cutOff = \XF::$time - $viewedAlertExpiryDays * 86400;
         }
-        \XF::app()->jobManager()->enqueueLater('sViewedAlertCleanup', \XF::$time + 1, 'SV\AlertImprovements:ViewedAlertCleanup', [
+        \XF::app()->jobManager()->enqueueLater('sViewedAlertCleanup', \XF::$time + 1, ViewedAlertCleanup::class, [
             'cutOff' => $cutOff,
         ], false);
     }
@@ -127,7 +129,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             $unviewedAlertExpiryDays = (int)(\XF::options()->svUnviewedAlertExpiryDays ?? 30);
             $cutOff = \XF::$time - $unviewedAlertExpiryDays * 86400;
         }
-        \XF::app()->jobManager()->enqueueLater('svUnviewedAlertCleanup', \XF::$time + 2*60, 'SV\AlertImprovements:UnviewedAlertCleanup', [
+        \XF::app()->jobManager()->enqueueLater('svUnviewedAlertCleanup', \XF::$time + 2*60, UnviewedAlertCleanup::class, [
             'cutOff' => $cutOff,
         ], false);
     }
