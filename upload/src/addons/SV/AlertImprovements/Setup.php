@@ -3,6 +3,8 @@
 namespace SV\AlertImprovements;
 
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
+use SV\AlertImprovements\Job\AlertTotalRebuild;
+use SV\AlertImprovements\Job\MigrateAlertPreferences;
 use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
@@ -65,11 +67,6 @@ class Setup extends AbstractSetup
             'sv_alerts_page_skips_summarize' => 1,
             'sv_alerts_summarize_threshold'  => 4,
         ]);
-    }
-
-    public function installStep3(array $stepData): ?array
-    {
-        return $this->migrateAlertPreferences($stepData);
     }
 
     public function upgrade2050001Step1(): void
@@ -248,73 +245,6 @@ class Setup extends AbstractSetup
         ');
     }
 
-    public function upgrade1683812804Step4(array $stepData): ?array
-    {
-        return $this->migrateAlertPreferences($stepData);
-    }
-
-    public function migrateAlertPreferences(array $stepData): ?array
-    {
-        $columns = [
-            "alert_optout <> ''",
-            "push_optout <> ''",
-        ];
-
-        if ($this->columnExists('xf_user_option', 'sv_skip_auto_read_for_op'))
-        {
-            $columns[] = 'sv_skip_auto_read_for_op = 0';
-        }
-
-        if ($this->columnExists('xf_user_option', 'nf_discord_optout'))
-        {
-            $columns[] = "nf_discord_optout <> ''";
-        }
-        $sqlWhere = '(('. implode(') OR (', $columns) .'))';
-
-        $db = $this->db();
-        $next = $stepData['userId'] ?? 0;
-        if (!isset($stepData['max']))
-        {
-            $stepData['max'] = (int)$db->fetchOne('
-                SELECT max(user_id) 
-                FROM xf_user_option 
-                WHERE ' . $sqlWhere
-            );
-        }
-
-        $maxRunTime = max(min(\XF::app()->config('jobMaxRunTime'), 4), 1);
-        $startTime = microtime(true);
-
-        $userIds = $db->fetchAllColumn('
-            SELECT user_id 
-            FROM xf_user_option 
-            WHERE user_id > ? AND ' . $sqlWhere .'
-            LIMIT 100
-        ', [$next]);
-        if (count($userIds) === 0)
-        {
-            return null;
-        }
-
-        $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
-        assert($alertPrefsRepo instanceof AlertPreferences);
-
-        foreach ($userIds as $userId)
-        {
-            $userId = (int)$userId;
-            $stepData['userId'] = $userId;
-
-            $alertPrefsRepo->migrateAlertPreferencesForUser($userId);
-
-            if (microtime(true) - $startTime >= $maxRunTime)
-            {
-                break;
-            }
-        }
-
-        return $stepData;
-    }
-
     public function upgrade1685991237Step1(): void
     {
         $this->installStep1();
@@ -410,6 +340,13 @@ class Setup extends AbstractSetup
         ");
     }
 
+    public function postInstall(array &$stateChanges): void
+    {
+        parent::postInstall($stateChanges);
+
+        \XF::app()->jobManager()->enqueueUnique('svMigrateAlertPreferences', MigrateAlertPreferences::class, [], false);
+    }
+
     public function postUpgrade($previousVersion, array &$stateChanges): void
     {
         $previousVersion = (int)$previousVersion;
@@ -417,7 +354,11 @@ class Setup extends AbstractSetup
 
         if ($previousVersion >= 2080000 && $previousVersion < 2080400)
         {
-            \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', 'SV\AlertImprovements:AlertTotalRebuild', [], true);
+            \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], true);
+        }
+        if ($previousVersion < 1683812804)
+        {
+            \XF::app()->jobManager()->enqueueUnique('svMigrateAlertPreferences', MigrateAlertPreferences::class, [], false);
         }
     }
 
