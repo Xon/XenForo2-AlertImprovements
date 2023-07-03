@@ -48,13 +48,13 @@ class UserOption extends XFCP_UserOption
     protected function getSvAlertPref(): array
     {
         $alertPreferences = $this->sv_alert_pref_;
-        if ($alertPreferences === null)
+        if ($alertPreferences === null && $this->exists())
         {
             /** @var AlertPreferences $alertPrefsRepo */
             $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
             $alertPreferences = $alertPrefsRepo->migrateAlertPreferencesForUser($this->user_id);
 
-            if (!$this->exists() && !$this->_writeRunning)
+            if (!$this->_writeRunning)
             {
                 $this->sv_alert_pref = $alertPreferences;
             }
