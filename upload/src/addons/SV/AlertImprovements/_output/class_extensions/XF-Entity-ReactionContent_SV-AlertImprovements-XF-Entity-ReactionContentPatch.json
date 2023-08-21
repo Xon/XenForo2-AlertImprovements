@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\Entity\\ReactionContent",
+    "to_class": "SV\\AlertImprovements\\XF\\Entity\\ReactionContentPatch",
+    "execute_order": 2147483647,
+    "active": true
+}

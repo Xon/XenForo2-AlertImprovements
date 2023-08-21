@@ -37,6 +37,7 @@ namespace SV\AlertImprovements\XF\ChangeLog
 
 namespace SV\AlertImprovements\XF\Entity
 {
+	class XFCP_ReactionContentPatch extends \XF\Entity\ReactionContent {}
 	class XFCP_User extends \XF\Entity\User {}
 	class XFCP_UserAlert extends \XF\Entity\UserAlert {}
 	class XFCP_UserOption extends \XF\Entity\UserOption {}
