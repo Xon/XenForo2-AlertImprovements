@@ -64,7 +64,7 @@ class UserOption extends XFCP_UserOption
             }
         }
 
-        return $alertPreferences;
+        return $alertPreferences ?? [];
     }
 
     /**
