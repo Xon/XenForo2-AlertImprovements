@@ -271,11 +271,10 @@ class AlertSummarization extends Repository
 
             if (!isset($groupedContentAlerts[$contentType][$action][$contentId]))
             {
-                $groupedContentAlerts[$contentType][$action][$contentId] = ['c' => 0, 'd' => []];
+                $groupedContentAlerts[$contentType][$action][$contentId] = ['c' => 0, 'd' => [], 'i' => $item];
             }
             $bucket = &$groupedContentAlerts[$contentType][$action][$contentId];
             $bucket['c'] += 1;
-            $bucket['i'] = $item;
             if ($contentType === 'user')
             {
                 $bucket['d'][$contentType][$contentId][$alertId] = $data;
@@ -290,11 +289,10 @@ class AlertSummarization extends Repository
                 $contentUserId = $item['user_id'];
                 if (!isset($groupedContentAlerts['user'][$action][$contentUserId]))
                 {
-                    $groupedContentAlerts['user'][$action][$contentUserId] = ['c' => 0, 'd' => []];
+                    $groupedContentAlerts['user'][$action][$contentUserId] = ['c' => 0, 'd' => [], 'i' => $item];
                 }
                 $bucket = &$groupedContentAlerts['user'][$action][$contentUserId];
                 $bucket['c'] += 1;
-                $bucket['i'] = $item;
                 $bucket['d'][$contentType][$contentId][$alertId] = $data;
                 unset($bucket);
             }
