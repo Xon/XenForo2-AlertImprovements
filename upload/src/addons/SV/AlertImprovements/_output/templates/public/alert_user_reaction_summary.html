@@ -1,7 +1,7 @@
 <xf:set var="$reactions">
 	<xf:macro template="svAlertImprov_macros" name="alert_reactions" arg-alert="{$alert}" />
 </xf:set>
-<xf:set var="$contentSummary" value="{{ $alert.hasOption('svAlertImprov') ? $alert.getReactedContentSummary(' ') : '' }}" />
+<xf:set var="$contentSummary" value="{{ $alert.hasOption('svAlertImprov') ? $alert.getReactedContentSummary(', ') : '' }}" />
 
 {{ phrase('sv_x_reacted_y_content_z_times', {
 	'name': username_link($user, false, {'defaultname': $alert.username}),
