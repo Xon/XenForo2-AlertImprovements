@@ -41,7 +41,7 @@ class UserOption extends XFCP_UserOption
 
         $defaults = $options->registrationDefaults;
         $this->sv_alerts_popup_read_behavior = (string)($defaults['sv_alerts_popup_read_behavior'] ?? PopUpReadBehavior::PerUser);
-        $this->sv_alerts_page_skips_summarize = (bool)($defaults['sv_alerts_page_skips_summarize'] ?? true);
+        $this->sv_alerts_page_skips_summarize = (bool)($defaults['sv_alerts_page_skips_summarize'] ?? false); // boolean values of false don't save
         $this->sv_alerts_summarize_threshold = (int)($defaults['sv_alerts_summarize_threshold'] ?? 4);
     }
 
