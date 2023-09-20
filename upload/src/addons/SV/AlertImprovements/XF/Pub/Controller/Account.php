@@ -6,7 +6,6 @@
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\ControllerPlugin\AlertAction;
-use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\AlertImprovements\Repository\AlertSummarization;
@@ -32,7 +31,6 @@ use function array_keys;
 use function array_slice, count, max, array_merge;
 use function array_values;
 use function assert;
-use function is_array;
 use function is_callable;
 
 /**
@@ -588,7 +586,6 @@ class Account extends XFCP_Account
     {
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        $option = $visitor->Option;
         $skipMarkAsRead = Globals::isPrefetchRequest();
         Globals::$skipMarkAlertsRead = true;
         Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts(1);
