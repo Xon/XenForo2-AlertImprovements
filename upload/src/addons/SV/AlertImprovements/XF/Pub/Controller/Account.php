@@ -161,12 +161,13 @@ class Account extends XFCP_Account
                 ]);
                 break;
             case 'defaults':
-                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor, true);
-                $form->setupEntityInput($userOptions, $patchedOptOuts);
+                $form->setupEntityInput($userOptions, [
+                    'sv_alert_pref' => [],
+                ]);
                 break;
             case 'custom':
             default:
-                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor, false);
+                $patchedOptOuts = $this->svGetAlertOptOutFromInputs($visitor);
                 $form->setupEntityInput($userOptions, $patchedOptOuts);
                 break;
         }
@@ -195,7 +196,7 @@ class Account extends XFCP_Account
         return $types;
     }
 
-    protected function svGetAlertOptOutFromInputs(ExtendedUserEntity $visitor, bool $resetAll): array
+    protected function svGetAlertOptOutFromInputs(ExtendedUserEntity $visitor): array
     {
         $types = $this->svGetOptOutsTypes();
 
@@ -228,7 +229,7 @@ class Account extends XFCP_Account
             $optOuts = [];
             /** @var array<bool> $inputs */
             $inputs = $this->filter($inputKey, 'array-bool');
-            $isShown = (!$resetAll && $isShownKey) ? $this->filter($isShownKey, 'array-bool') : null;
+            $isShown = $isShownKey ? $this->filter($isShownKey, 'array-bool') : null;
             foreach ($optOutActions as $optOut)
             {
                 $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);
@@ -242,7 +243,7 @@ class Account extends XFCP_Account
                 $wasShowed = $isShown === null || isset($isShown[$optOut]);
                 $defaultValue = $alertOptOutDefaults[$type][$contentType][$action] ?? true;
                 $value = $inputs[$optOut] ?? false;
-                if ($resetAll || ($reset[$optOut] ?? false))
+                if ($reset[$optOut] ?? false)
                 {
                     $value = $defaultValue;
                 }
