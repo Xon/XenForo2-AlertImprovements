@@ -21,6 +21,25 @@ use XF\Mvc\Entity\Structure;
  */
 class UserOption extends XFCP_UserOption
 {
+    public function isCustomizedAlertPreference(string $contentType, string $action): bool
+    {
+        $alertPreferences = $this->sv_alert_pref;
+        if ($alertPreferences['none'] ?? false)
+        {
+            return false;
+        }
+
+        foreach ($alertPreferences as $perTypeConfig)
+        {
+            if (isset($perTypeConfig[$contentType][$action]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function doesAutoReadAlert(string $contentType, string $action): bool
     {
         $alertPreferences = $this->sv_alert_pref;
