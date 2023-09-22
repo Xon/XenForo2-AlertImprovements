@@ -7,6 +7,8 @@ use XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
 use XF\Util\Arr;
 use function array_fill_keys;
+use function array_keys;
+use function array_replace_recursive;
 use function array_shift;
 use function count;
 use function explode;
@@ -158,11 +160,23 @@ class AlertPreferences extends Repository
 
     protected $optOutDefaults = null;
 
+    public function getGlobalAlertPreferenceDefaults(?array $alertTypes = null, ?array $svAlertPreferencesValue = null): array
+    {
+        $alertTypes = $alertTypes ?? $this->getAlertPreferenceTypes();
+        $alertActions = $this->getAlertOptOutActionList();
+
+        $globalDefaults = $this->getAllAlertPreferencesDefaults($alertTypes, $alertActions);
+        $alertOptOutDefaults = $svAlertPreferencesValue ?? \XF::options()->svAlertPreferences ?? [];
+        $alertOptOutDefaults = array_replace_recursive($globalDefaults, $alertOptOutDefaults);
+
+        return [$alertOptOutDefaults, $alertTypes, $alertActions];
+    }
+
     public function getAlertPreferenceDefault(string $type, string $contentType, string $action): bool
     {
         if ($this->optOutDefaults === null)
         {
-            $optOutDefaults = \XF::options()->svAlertPreferences ?? [];
+            [$optOutDefaults] = $this->getGlobalAlertPreferenceDefaults();
             $this->optOutDefaults = $this->setUpAlertPreferenceDefaults($optOutDefaults, false);
         }
 

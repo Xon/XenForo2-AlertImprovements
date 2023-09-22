@@ -15,29 +15,19 @@ class AlertPreferences extends AbstractOption
 {
     public static function renderOption(Option $option, array $htmlParams): string
     {
-        $alertPrefsRepo = AlertPreferencesRepo::get();
-        /** @var array<string> $optOutActions */
-        $alertActions = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertTypes = $alertPrefsRepo->getAlertPreferenceTypes();
-
-        $defaults = $alertPrefsRepo->getAllAlertPreferencesDefaults($alertTypes, $alertActions);
-        $optionValue = $option->option_value ?? [];
-        $optionValue = array_replace_recursive($defaults, $optionValue);
+        var_dump($option->option_value);
+        [$defaults, $alertTypes, $alertActions] = AlertPreferencesRepo::get()->getGlobalAlertPreferenceDefaults(null, $option->option_value ?? []);
 
         return self::getTemplate('admin:svAlertImprov_option_template_alert_preferences', $option, $htmlParams, [
             'alertActions' => $alertActions,
             'alertTypes'   => $alertTypes,
-            'optionValue'  => $optionValue,
+            'optionValue'  => $defaults,
         ]);
     }
 
     public static function verifyOption(array &$values, Option $option, string $optionId): bool
     {
-        $alertPrefsRepo = AlertPreferencesRepo::get();
-        /** @var array<string> $optOutActions */
-        $alertActions = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertTypes = $alertPrefsRepo->getAlertPreferenceTypes();
-        $allValues = $alertPrefsRepo->getAllAlertPreferencesDefaults($alertTypes, $alertActions);
+        [$allValues] = AlertPreferencesRepo::get()->getGlobalAlertPreferenceDefaults(null, []);
 
         $newOptionValue = $values;
         $optionValue = [];

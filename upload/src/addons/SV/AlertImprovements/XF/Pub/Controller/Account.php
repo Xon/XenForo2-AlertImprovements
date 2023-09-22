@@ -28,6 +28,7 @@ use XF\Service\FloodCheck;
 use function array_filter;
 use function array_key_exists;
 use function array_keys;
+use function array_replace_recursive;
 use function array_slice, count, max, array_merge;
 use function array_values;
 use function assert;
@@ -118,7 +119,6 @@ class Account extends XFCP_Account
             $reply->setParam('svAlertOptions', $alertOption);
         }
 
-
         return $reply;
     }
 
@@ -196,11 +196,9 @@ class Account extends XFCP_Account
 
     protected function svGetAlertOptOutFromInputs(ExtendedUserEntity $visitor): array
     {
-        $types = $this->svGetOptOutsTypes();
-
         $alertPrefsRepo = AlertPreferencesRepo::get();
-        $alertActions = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertOptOutDefaults = $alertPrefsRepo->getAllAlertPreferencesDefaults(array_keys($types), $alertActions);
+        $alertTypes = $this->svGetOptOutsTypes();
+        [$alertOptOutDefaults, , $alertActions] = $alertPrefsRepo->getGlobalAlertPreferenceDefaults(array_keys($alertTypes));
 
         $alertRepo = $this->repository('XF:UserAlert');
         assert($alertRepo instanceof ExtendedUserAlertRepo);
@@ -215,7 +213,7 @@ class Account extends XFCP_Account
         ];
         unset($entityInputs['sv_alert_pref']['none']);
 
-        foreach ($types as $type => $alertConfig)
+        foreach ($alertTypes as $type => $alertConfig)
         {
             [$oldOutputName, $inputKey, $isShownKey] = $alertConfig;
             if (!array_key_exists($type, $alertOptOutDefaults))
