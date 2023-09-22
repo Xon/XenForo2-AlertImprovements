@@ -2,6 +2,8 @@
 
 namespace SV\AlertImprovements\XF\ChangeLog;
 
+use XF\Phrase;
+
 /**
  * Extends \XF\ChangeLog\User
  */
@@ -16,7 +18,7 @@ class User extends XFCP_User
         return $map;
     }
 
-    public function svFormatAlertsPopUpReadBehavior(string $value): \XF\Phrase
+    public function svFormatAlertsPopUpReadBehavior(string $value): Phrase
     {
         return \XF::phrase('svAlertPopUpReadBehavior.'.$value);
     }

@@ -2,6 +2,8 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
+use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
+
 /**
  * Extends \XF\Entity\UserOption
  */
@@ -17,6 +19,6 @@ class UserOptionPatch2 extends XFCP_UserOptionPatch2
         }
 
         return $alertPreferences['discord'][$contentType][$action]
-               ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('discord', $contentType, $action);
+               ?? AlertPreferencesRepo::get()->getAlertPreferenceDefault('discord', $contentType, $action);
     }
 }

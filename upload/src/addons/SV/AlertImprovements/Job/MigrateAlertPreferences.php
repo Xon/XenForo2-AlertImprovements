@@ -2,10 +2,9 @@
 
 namespace SV\AlertImprovements\Job;
 
-use SV\AlertImprovements\Repository\AlertPreferences;
+use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 use XF\Job\AbstractRebuildJob;
 use function array_key_exists;
-use function assert;
 use function implode;
 
 class MigrateAlertPreferences extends AbstractRebuildJob
@@ -57,9 +56,7 @@ class MigrateAlertPreferences extends AbstractRebuildJob
      */
     protected function rebuildById($id): void
     {
-        $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
-        assert($alertPrefsRepo instanceof AlertPreferences);
-        $alertPrefsRepo->migrateAlertPreferencesForUser($id);
+        AlertPreferencesRepo::get()->migrateAlertPreferencesForUser($id);
     }
 
     protected function getStatusType()

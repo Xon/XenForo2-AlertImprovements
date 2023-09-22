@@ -6,6 +6,8 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
+use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
+
 /**
  * Extends \XF\Entity\UserOption
  */
@@ -21,7 +23,7 @@ class UserOptionPatch1 extends XFCP_UserOptionPatch1
         }
 
         return $alertPreferences['alert'][$contentType][$action]
-               ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('alert', $contentType, $action);
+               ?? AlertPreferencesRepo::get()->getAlertPreferenceDefault('alert', $contentType, $action);
     }
 
     public function doesReceivePush($contentType, $action)
@@ -36,7 +38,7 @@ class UserOptionPatch1 extends XFCP_UserOptionPatch1
         return ($this->app()->options()->enablePush ?? false)
                && $this->doesReceiveAlert($contentType, $action)
                && ($alertPreferences['push'][$contentType][$action]
-                   ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('push', $contentType, $action)
+                   ?? AlertPreferencesRepo::get()->getAlertPreferenceDefault('push', $contentType, $action)
                );
     }
 }

@@ -4,7 +4,7 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Globals;
-use SV\AlertImprovements\Repository\AlertSummarization;
+use SV\AlertImprovements\Repository\AlertSummarization as AlertSummarizationRepo;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
@@ -193,7 +193,7 @@ class UserAlert extends XFCP_UserAlert
             $finder->forceUnreadFirst();
         }
 
-        $skipSummarize = (Globals::$skipSummarize ?? false) || !$this->getAlertSummarizationRepo()->canSummarizeAlerts();
+        $skipSummarize = (Globals::$skipSummarize ?? false) || !AlertSummarizationRepo::get()->canSummarizeAlerts();
         if ($skipSummarize || $this->db()->inTransaction())
         {
             return $finder;
@@ -209,7 +209,7 @@ class UserAlert extends XFCP_UserAlert
                 return [];
             }
 
-            $this->getAlertSummarizationRepo()->summarizeAlertsForUser($user,  false, 0);
+            AlertSummarizationRepo::get()->summarizeAlertsForUser($user,  false, 0);
 
             return null;
         });
@@ -873,9 +873,11 @@ class UserAlert extends XFCP_UserAlert
         $this->db()->query('DELETE FROM xf_sv_user_alert_rebuild WHERE user_id = ?', [$userId]);
     }
 
-    protected function getAlertSummarizationRepo(): AlertSummarization
+    /**
+     * @deprecated
+     */
+    protected function getAlertSummarizationRepo(): AlertSummarizationRepo
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->repository('SV\AlertImprovements:AlertSummarization');
+        return AlertSummarizationRepo::get();
     }
 }

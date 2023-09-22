@@ -19,11 +19,17 @@ class AlertPreferences extends Repository
     /** @var ?array */
     protected $alertOptOutActionList = null;
 
+    public static function get(): self
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return \XF::repository('SV\AlertImprovements:AlertPreferences');
+    }
+
     public function migrateAlertPreferencesForUser(int $userId): array
     {
-        $optOutActionList = $this->getAlertOptOutActionList();
+        $alertActions = $this->getAlertOptOutActionList();
 
-        $convertOptOut = function (string $type, ?string $column, array &$alertPrefs) use ($optOutActionList) {
+        $convertOptOut = function (string $type, ?string $column, array &$alertPrefs) use ($alertActions) {
             $column = $column ?? '';
             if ($column === '')
             {
@@ -32,7 +38,7 @@ class AlertPreferences extends Repository
             $optOutList = Arr::stringToArray($column, '/\s*,\s*/');
             foreach ($optOutList as $optOut)
             {
-                $parts = $this->convertStringyOptOut($optOutActionList, $optOut);
+                $parts = $this->convertStringyOptOut($alertActions, $optOut);
                 if ($parts === null)
                 {
                     // bad data, just skips since it wouldn't do anything

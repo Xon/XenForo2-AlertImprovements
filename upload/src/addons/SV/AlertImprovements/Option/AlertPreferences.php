@@ -5,6 +5,7 @@
 
 namespace SV\AlertImprovements\Option;
 
+use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 use XF\Entity\Option;
 use XF\Option\AbstractOption;
 use function array_replace_recursive;
@@ -14,8 +15,7 @@ class AlertPreferences extends AbstractOption
 {
     public static function renderOption(Option $option, array $htmlParams): string
     {
-        /** @var \SV\AlertImprovements\Repository\AlertPreferences $alertPrefsRepo */
-        $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
+        $alertPrefsRepo = AlertPreferencesRepo::get();
         /** @var array<string> $optOutActions */
         $alertActions = $alertPrefsRepo->getAlertOptOutActionList();
         $alertTypes = $alertPrefsRepo->getAlertPreferenceTypes();
@@ -33,8 +33,7 @@ class AlertPreferences extends AbstractOption
 
     public static function verifyOption(array &$values, Option $option, string $optionId): bool
     {
-        /** @var \SV\AlertImprovements\Repository\AlertPreferences $alertPrefsRepo */
-        $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
+        $alertPrefsRepo = AlertPreferencesRepo::get();
         /** @var array<string> $optOutActions */
         $alertActions = $alertPrefsRepo->getAlertOptOutActionList();
         $alertTypes = $alertPrefsRepo->getAlertPreferenceTypes();

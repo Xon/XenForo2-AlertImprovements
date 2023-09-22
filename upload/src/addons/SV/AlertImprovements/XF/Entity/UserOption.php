@@ -6,7 +6,7 @@
 namespace SV\AlertImprovements\XF\Entity;
 
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
-use SV\AlertImprovements\Repository\AlertPreferences;
+use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Structure;
 
@@ -30,7 +30,7 @@ class UserOption extends XFCP_UserOption
         }
 
         return $alertPreferences['autoRead'][$contentType][$action]
-               ?? $this->getSvAlertPreferencesRepo()->getAlertPreferenceDefault('autoRead', $contentType, $action);
+               ?? AlertPreferencesRepo::get()->getAlertPreferenceDefault('autoRead', $contentType, $action);
     }
 
     protected function _setupDefaults()
@@ -50,8 +50,7 @@ class UserOption extends XFCP_UserOption
         $alertPreferences = $this->sv_alert_pref_;
         if ($alertPreferences === null && $this->exists())
         {
-            /** @var AlertPreferences $alertPrefsRepo */
-            $alertPrefsRepo = \XF::repository('SV\AlertImprovements:AlertPreferences');
+            $alertPrefsRepo = AlertPreferencesRepo::get();
             $alertPreferences = $alertPrefsRepo->migrateAlertPreferencesForUser($this->user_id);
 
             if (!$this->_writeRunning)
@@ -89,9 +88,11 @@ class UserOption extends XFCP_UserOption
         return $structure;
     }
 
-    public function getSvAlertPreferencesRepo(): AlertPreferences
+    /**
+     * @deprecated
+     */
+    public function getSvAlertPreferencesRepo(): AlertPreferencesRepo
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->repository('SV\AlertImprovements:AlertPreferences');
+        return AlertPreferencesRepo::get();
     }
 }

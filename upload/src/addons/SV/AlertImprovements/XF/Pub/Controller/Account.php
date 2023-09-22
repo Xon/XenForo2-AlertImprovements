@@ -7,8 +7,8 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\ControllerPlugin\AlertAction;
 use SV\AlertImprovements\Globals;
-use SV\AlertImprovements\Repository\AlertPreferences;
-use SV\AlertImprovements\Repository\AlertSummarization;
+use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
+use SV\AlertImprovements\Repository\AlertSummarization as AlertSummarizationRepo;
 use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use XF\Entity\User;
@@ -198,10 +198,9 @@ class Account extends XFCP_Account
     {
         $types = $this->svGetOptOutsTypes();
 
-        $alertPrefsRepo = $this->repository('SV\AlertImprovements:AlertPreferences');
-        assert($alertPrefsRepo instanceof AlertPreferences);
-        $optOutActionList = $alertPrefsRepo->getAlertOptOutActionList();
-        $alertOptOutDefaults = $alertPrefsRepo->getAllAlertPreferencesDefaults(array_keys($types), $optOutActionList);
+        $alertPrefsRepo = AlertPreferencesRepo::get();
+        $alertActions = $alertPrefsRepo->getAlertOptOutActionList();
+        $alertOptOutDefaults = $alertPrefsRepo->getAllAlertPreferencesDefaults(array_keys($types), $alertActions);
 
         $alertRepo = $this->repository('XF:UserAlert');
         assert($alertRepo instanceof ExtendedUserAlertRepo);
@@ -230,7 +229,7 @@ class Account extends XFCP_Account
             $isShown = $isShownKey ? $this->filter($isShownKey, 'array-bool') : null;
             foreach ($optOutActions as $optOut)
             {
-                $parts = $alertPrefsRepo->convertStringyOptOut($optOutActionList, $optOut);
+                $parts = $alertPrefsRepo->convertStringyOptOut($alertActions, $optOut);
                 if ($parts === null)
                 {
                     // bad data, just skips since it wouldn't do anything
@@ -301,7 +300,7 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
         assert($visitor instanceof ExtendedUserEntity);
         // summarize & mark as read as of now
-        $this->getAlertSummarizationRepo()->resummarizeAlertsForUser($visitor, \XF::$time);
+        AlertSummarizationRepo::get()->resummarizeAlertsForUser($visitor, \XF::$time);
 
         return $this->redirect($this->buildLink('account/alerts', null, ['show_only' => 'all']));
     }
@@ -470,7 +469,7 @@ class Account extends XFCP_Account
             $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
             $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
-            $this->getAlertSummarizationRepo()->insertUnsummarizedAlerts($alert);
+            AlertSummarizationRepo::get()->insertUnsummarizedAlerts($alert);
         }, \XF::phrase('svAlertImprov_unsummarize_alert'),
            \XF::phrase('svAlertImprov_unsummarize_alert'),
            \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_unsummarize_this_alert'),
@@ -795,9 +794,11 @@ class Account extends XFCP_Account
         return $alert;
     }
 
-    protected function getAlertSummarizationRepo(): AlertSummarization
+    /**
+     * @deprecated
+     */
+    protected function getAlertSummarizationRepo(): AlertSummarizationRepo
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->repository('SV\AlertImprovements:AlertSummarization');
+        return AlertSummarizationRepo::get();
     }
 }

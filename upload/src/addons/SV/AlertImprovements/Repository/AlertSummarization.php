@@ -25,7 +25,6 @@ use function assert;
 use function count;
 use function is_array;
 use function json_decode;
-use function max;
 use function strpos;
 
 class AlertSummarization extends Repository
@@ -34,6 +33,12 @@ class AlertSummarization extends Repository
     protected $updateAlertBatchSize = 1000;
     /** @var int */
     protected $minimumSummarizeThreshold = 2;
+
+    public static function get(): self
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return \XF::repository('SV\AlertImprovements:AlertSummarization');
+    }
 
     public function canSummarizeAlerts(): bool
     {
