@@ -15,7 +15,6 @@ class AlertPreferences extends AbstractOption
 {
     public static function renderOption(Option $option, array $htmlParams): string
     {
-        var_dump($option->option_value);
         [$defaults, $alertTypes, $alertActions] = AlertPreferencesRepo::get()->getGlobalAlertPreferenceDefaults(null, $option->option_value ?? []);
 
         return self::getTemplate('admin:svAlertImprov_option_template_alert_preferences', $option, $htmlParams, [
