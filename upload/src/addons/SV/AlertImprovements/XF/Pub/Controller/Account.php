@@ -128,27 +128,31 @@ class Account extends XFCP_Account
      */
     protected function preferencesSaveProcess(User $visitor)
     {
+        assert($visitor instanceof ExtendedUserEntity);
+        $userOptions = $visitor->getRelationOrDefault('Option');
+
         $form = parent::preferencesSaveProcess($visitor);
 
-        $input = $this->filter(
-            [
-                'option' => [
-                    'sv_alerts_popup_read_behavior'  => 'str',
-                    'sv_alerts_page_skips_summarize' => 'bool',
-                    'sv_alerts_summarize_threshold'  => 'uint',
-                ],
-            ]
-        );
-
-        if (!(\XF::options()->svAlertsSummarize ?? false))
+        if ($visitor->canCustomizeAdvAlertPreferences())
         {
-            unset($input['option']['sv_alerts_page_skips_summarize']);
-            unset($input['option']['sv_alerts_summarize_threshold']);
-        }
+            $input = $this->filter(
+                [
+                    'option' => [
+                        'sv_alerts_popup_read_behavior'  => 'str',
+                        'sv_alerts_page_skips_summarize' => 'bool',
+                        'sv_alerts_summarize_threshold'  => 'uint',
+                    ],
+                ]
+            );
 
-        assert( $visitor instanceof ExtendedUserEntity);
-        $userOptions = $visitor->getRelationOrDefault('Option');
-        $form->setupEntityInput($userOptions, $input['option']);
+            if (!(\XF::options()->svAlertsSummarize ?? false))
+            {
+                unset($input['option']['sv_alerts_page_skips_summarize']);
+                unset($input['option']['sv_alerts_summarize_threshold']);
+            }
+
+            $form->setupEntityInput($userOptions, $input['option']);
+        }
 
         $alertOptions = $this->filter('svAlertOptions', 'str');
         switch ($alertOptions)

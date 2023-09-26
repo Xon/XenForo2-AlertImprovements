@@ -5,7 +5,6 @@ namespace SV\AlertImprovements;
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Job\AlertTotalRebuild;
 use SV\AlertImprovements\Job\MigrateAlertPreferences;
-use SV\AlertImprovements\Repository\AlertPreferences;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
@@ -16,11 +15,11 @@ use XF\Db\Schema\Create;
 use XF\Entity\AddOn as AddOnEntity;
 use XF\Entity\Option as OptionEntity;
 use XF\Entity\Template;
+use XF\Entity\User as UserEntity;
+use XF\Job\PermissionRebuild;
 use XF\PreEscaped;
 use XF\PrintableException;
 use function array_keys;
-use function count;
-use function implode;
 use function max;
 use function microtime;
 use function min;
@@ -67,6 +66,11 @@ class Setup extends AbstractSetup
             'sv_alerts_page_skips_summarize' => 1,
             'sv_alerts_summarize_threshold'  => 4,
         ]);
+    }
+
+    public function installStep3(): void
+    {
+        $this->applyDefaultPermissions(0);
     }
 
     public function upgrade2050001Step1(): void
@@ -352,6 +356,11 @@ class Setup extends AbstractSetup
         $previousVersion = (int)$previousVersion;
         parent::postUpgrade($previousVersion, $stateChanges);
 
+        if ($this->applyDefaultPermissions($previousVersion))
+        {
+            \XF::app()->jobManager()->enqueueUnique('permissionRebuild', PermissionRebuild::class, [], true);
+        }
+
         if ($previousVersion >= 2080000 && $previousVersion < 2080400)
         {
             \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], true);
@@ -360,6 +369,24 @@ class Setup extends AbstractSetup
         {
             \XF::app()->jobManager()->enqueueUnique('svMigrateAlertPreferences', MigrateAlertPreferences::class, [], false);
         }
+    }
+
+    protected function applyDefaultPermissions(int $previousVersion = 0): bool
+    {
+        $applied = false;
+
+        if ($previousVersion < 1695694020)
+        {
+            $this->applyGlobalPermissionByGroup('general', 'svCustomizeAdvAlertPrefs', [
+                UserEntity::GROUP_REG,
+                UserEntity::GROUP_MOD,
+                UserEntity::GROUP_ADMIN,
+            ]);
+
+            $applied = true;
+        }
+
+        return $applied;
     }
 
     public function getTables(): array

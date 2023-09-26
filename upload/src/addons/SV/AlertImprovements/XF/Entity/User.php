@@ -15,6 +15,11 @@ use function is_callable;
  */
 class User extends XFCP_User
 {
+    public function canCustomizeAdvAlertPreferences(): bool
+    {
+        return $this->hasPermission('general', 'svCustomizeAdvAlertPrefs');
+    }
+
     /**
      * @param Structure $structure
      * @return Structure
