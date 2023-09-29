@@ -149,3 +149,22 @@
 		</div>
 	</div>
 </xf:macro>
+
+
+<xf:macro name="alerting_preferences"
+		  arg-svAlertOptions="!"
+		  >
+	<xf:radiorow label="{{ phrase('svAlertImprov_alerting_preferences') }}"
+				 name="svAlertOptions"
+				 value="{$svAlertOptions}">
+		<xf:option value="none" label="{{ phrase('svAlertImprov_alert_none') }}" />
+		<xf:option value="defaults" label="{{ phrase('svAlertImprov_alerts_use_defaults') }}" />	
+		<xf:option value="custom"
+				   label="{{ phrase('svAlertImprov_alerts_use_custom') }}" 
+				   data-xf-init="disabler"
+				   data-container=".js-customAlertPreferences"
+				   data-hide="true">
+			<xf:html><div class="formRow-explain js-customAlertPreferences">{{ phrase('svAlertImprov_alerting_preferences_explain') }}</div></xf:html>
+		</xf:option>
+	</xf:radiorow>
+</xf:macro>
