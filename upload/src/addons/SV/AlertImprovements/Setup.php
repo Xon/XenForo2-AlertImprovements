@@ -297,6 +297,13 @@ class Setup extends AbstractSetup
         $option->saveIfChanged();
     }
 
+    public function upgrade1695694021Step1(): void
+    {
+        $this->renamePhrases([
+            'svAlertImprov_alerts_page_and_summary' => 'svAlertImprov_alert_preferences_header',
+        ]);
+    }
+
     public function upgrade1685991237Step5(): void
     {
         $db = $this->db();
