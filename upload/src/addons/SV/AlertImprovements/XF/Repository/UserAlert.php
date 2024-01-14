@@ -289,6 +289,10 @@ class UserAlert extends XFCP_UserAlert
                 throw new \LogicException('Unknown PopUpReadBehavior value:'.$readBehavior);
         }
 
+        if ($alerts->count() === 0)
+        {
+            return;
+        }
         $this->markSpecificUserAlertsRead($alerts, $user, $readDate);
     }
 

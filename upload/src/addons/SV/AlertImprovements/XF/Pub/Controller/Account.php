@@ -18,7 +18,6 @@ use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\FormAction;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
-use XF\Mvc\Reply\View;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Mvc\Reply\View as ViewReply;
@@ -28,10 +27,10 @@ use XF\Service\FloodCheck;
 use function array_filter;
 use function array_key_exists;
 use function array_keys;
-use function array_replace_recursive;
 use function array_slice, count, max, array_merge;
 use function array_values;
 use function assert;
+use function is_array;
 use function is_callable;
 
 /**
@@ -473,8 +472,8 @@ class Account extends XFCP_Account
 
             AlertSummarizationRepo::get()->insertUnsummarizedAlerts($alert);
         }, \XF::phrase('svAlertImprov_unsummarize_alert'),
-           \XF::phrase('svAlertImprov_unsummarize_alert'),
-           \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_unsummarize_this_alert'),
+            \XF::phrase('svAlertImprov_unsummarize_alert'),
+            \XF::phrase('svAlertImprov_please_confirm_that_you_want_to_unsummarize_this_alert'),
             $this->buildLink('account/alert/unsummarize', $alert),
             ''
         );
@@ -548,7 +547,7 @@ class Account extends XFCP_Account
             Globals::$skipSummarize = true;
             Globals::$showUnreadOnly = false;
         }
-        if ($response instanceof View)
+        if ($response instanceof ViewReply)
         {
             $response->setParam('canResummarize', Globals::isResummarizeAlertsEnabled());
             /** @var AbstractCollection|ExtendedUserAlertEntity[] $alerts */
@@ -561,7 +560,7 @@ class Account extends XFCP_Account
 
                 // This condition is likely because of an unviewable alerts.
                 // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
-                if ($page === 1 && $showOnlyFilter === 'unread' && $alerts->count() === 0 && $hasUnreadAlerts)
+                if ($hasUnreadAlerts && $page === 1 && $showOnlyFilter === 'unread' && $alerts->count() === 0)
                 {
                     /** @var ExtendedUserAlertRepo $alertRepo */
                     $alertRepo = $this->repository('XF:UserAlert');
@@ -587,7 +586,7 @@ class Account extends XFCP_Account
     {
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        $skipMarkAsRead = Globals::isPrefetchRequest();
+        $hasUnreadAlerts = ($visitor->alerts_unread || $visitor->alerts_unviewed);
         Globals::$skipMarkAlertsRead = true;
         Globals::$skipSummarize = $this->hasRecentlySummarizedAlerts(1);
         Globals::$doAlertPopupRewrite = true;
@@ -604,39 +603,66 @@ class Account extends XFCP_Account
 
         if ($reply instanceof ViewReply)
         {
-            /** @var AbstractCollection|ExtendedUserAlertEntity[] $alerts */
             $alerts = $reply->getParam('alerts');
-            if ($alerts)
+            if (is_array($alerts))
             {
-                if (!$skipMarkAsRead)
+                $alerts = new ArrayCollection($alerts);
+                $reply->setParam('alerts', $alerts);
+            }
+            assert($alerts instanceof AbstractCollection);
+            if ($alerts->count() !== 0)
+            {
+                if (!Globals::isPrefetchRequest())
                 {
                     $alertRepo = $this->repository('XF:UserAlert');
                     assert($alertRepo instanceof ExtendedUserAlertRepo);
                     $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
                 }
 
-                $unreadAlertsAfterReadAlerts = \XF::options()->svUnreadAlertsAfterReadAlerts ?? false;
+                $alertsArr = $alerts->toArray();
+                /** @var array<int,ExtendedUserAlertEntity> $alertsArr */
+                $unreadAlertsAfterReadAlerts = (bool)(\XF::options()->svUnreadAlertsAfterReadAlerts ?? false);
                 if ($unreadAlertsAfterReadAlerts)
                 {
                     $unreadAlerts = [];
-                    /**
-                     * @var int $key
-                     * @var ExtendedUserAlertEntity $alert
-                     */
-                    foreach ($alerts as $key => $alert)
+                    foreach ($alertsArr as $key => $alert)
                     {
                         if ($alert->isUnreadInUi())
                         {
                             $unreadAlerts[$key] = $alert;
-                            unset($alerts[$key]);
+                            unset($alertsArr[$key]);
                         }
                     }
 
-                    if ($unreadAlerts)
+                    if (count($unreadAlerts) !== 0)
                     {
-                        $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+                        $hasUnreadAlerts = false;
+                    }
+                    $reply->setParam('unreadAlerts', new ArrayCollection($unreadAlerts));
+                    $reply->setParam('alerts', new ArrayCollection($alertsArr));
+                }
+                else if ($hasUnreadAlerts)
+                {
+                    // determine if this pop-up *should* have unread alerts but doesn't
+                    foreach ($alertsArr as $alert)
+                    {
+                        if ($alert->isUnreadInUi())
+                        {
+                            $hasUnreadAlerts = false;
+                            break;
+                        }
                     }
                 }
+            }
+
+            if ($hasUnreadAlerts)
+            {
+                // This condition is likely because of an unviewable alerts.
+                // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
+
+                /** @var ExtendedUserAlertRepo $alertRepo */
+                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo->markUserAlertsRead($visitor);
             }
 
             // just use svAlertImprov_account_alerts_popup
