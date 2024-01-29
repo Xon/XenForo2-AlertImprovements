@@ -733,19 +733,6 @@ class Account extends XFCP_Account
         });
     }
 
-
-    /**
-     * Forcing this to return 404 not found because we support marking alerts read via the "checkboxes"
-     * aka the inline moderation wrapper.
-     *
-     * @throws ExceptionReply
-     * @noinspection PhpMissingParentCallCommonInspection
-     */
-    public function actionAlertToggle()
-    {
-        throw $this->exception($this->notFound());
-    }
-
     /**
      * @throws ExceptionReply
      */

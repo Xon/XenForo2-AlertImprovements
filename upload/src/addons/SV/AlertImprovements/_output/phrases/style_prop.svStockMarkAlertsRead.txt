@@ -1,0 +1,1 @@
+Use stock UI for marking alerts as read

@@ -139,10 +139,21 @@
 					<xf:if is="$alert.is_summary && $alert.canUnsummarize()">
 						<li><a class="alert--unsummarize" data-xf-click="unsummarize-alert" href="{{ link('account/alert/unsummarize', $alert) }}">{{phrase('svAlertImprov_unsummarize_alert')}}</a></li>
 					</xf:if>
-					<xf:if is="$alert.view_date">
-						<li class="mark-read"><a class="alert--mark-unread" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', $alert) }}">{{ phrase('svAlertImprov_mark_unread') }}</a></li>
+					<xf:if is="property('svStockMarkAlertsRead')">
+						<span class="u-pullRight">
+							<a href="{{ link('account/alert-toggle', null, {'alert_id': $alert.alert_id}) }}"
+							   data-xf-init="tooltip" data-content="{{ $alert.isUnreadInUi() ? phrase('mark_read')|for_attr : phrase('mark_unread')|for_attr }}"
+							   data-read="{{ phrase('mark_read')|for_attr }}" data-unread="{{ phrase('mark_unread')|for_attr }}"
+							   class="js-alertToggle alertToggler"><xf:trim>
+								<xf:fa icon="fa-circle" class="alertToggler-icon" />
+								</xf:trim></a>
+						</span>
 					<xf:else />
-						<li class="mark-read"><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/read', $alert) }}">{{ phrase('svAlertImprov_mark_read') }}</a></li>
+						<xf:if is="$alert.view_date">
+							<li class="mark-read"><a class="alert--mark-unread" data-xf-click="mark-alert-unread" href="{{ link('account/alert/unread', $alert) }}">{{ phrase('svAlertImprov_mark_unread') }}</a></li>
+						<xf:else />
+							<li class="mark-read"><a class="alert--mark-read" data-xf-click="mark-alert-unread" href="{{ link('account/alert/read', $alert) }}">{{ phrase('svAlertImprov_mark_read') }}</a></li>
+						</xf:if>
 					</xf:if>
 				</ul>
 			</div>

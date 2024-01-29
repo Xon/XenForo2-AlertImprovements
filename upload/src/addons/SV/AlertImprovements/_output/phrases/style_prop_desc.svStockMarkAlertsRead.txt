@@ -1,0 +1,1 @@
+Instead of an explicit mark read/unread link, use a floating dot

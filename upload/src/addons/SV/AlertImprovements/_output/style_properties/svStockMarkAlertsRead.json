@@ -1,0 +1,13 @@
+{
+    "group_name": "svAlertImprovements",
+    "title": "Use stock UI for marking alerts as read",
+    "description": "Instead of an explicit mark read/unread link, use a floating dot",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "boolean",
+    "value_parameters": "",
+    "depends_on": "",
+    "value_group": "",
+    "property_value": 0,
+    "display_order": 20
+}
