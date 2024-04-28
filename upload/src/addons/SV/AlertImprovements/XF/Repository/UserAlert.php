@@ -297,7 +297,7 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function markSpecificUserAlertsRead(AbstractCollection $alerts, UserEntity $user, int $readDate = null)
+    protected function markSpecificUserAlertsRead(AbstractCollection $alerts, UserEntity $user, ?int $readDate = null)
     {
         $userId = (int)$user->user_id;
         if ($userId === 0 || $alerts->count() === 0)
@@ -341,7 +341,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int|null        $readDate
      * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, UserEntity $user = null, $readDate = null)
+    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, ?UserEntity $user = null, $readDate = null)
     {
         if (!is_array($contentIds))
         {
@@ -589,7 +589,7 @@ class UserAlert extends XFCP_UserAlert
      * @param int|null        $viewDate
      * @param bool            $respectAutoMarkRead
      */
-    public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, UserEntity $user = null, int $viewDate = null, bool $respectAutoMarkRead = false)
+    public function markAlertsReadForContentIds(string $contentType, array $contentIds, ?array $actions = null, int $maxXFVersion = 0, ?UserEntity $user = null, ?int $viewDate = null, bool $respectAutoMarkRead = false)
     {
         // do not mark alerts as read when prefetching is happening
         if (Globals::isPrefetchRequest())

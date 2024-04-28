@@ -23,7 +23,7 @@ class AlertAction extends AbstractPlugin
      * @param bool              $addAccountWrapper
      * @return AbstractReply
      */
-    public function doAction(UserAlert $alert, \Closure $actionCallback, $contentTitle, $buttonText, $actionText, string $confirmUrl, string $redirectMsg = null, string $returnUrl = null, string $template = null, array $params = [], bool $addAccountWrapper = true): AbstractReply
+    public function doAction(UserAlert $alert, \Closure $actionCallback, $contentTitle, $buttonText, $actionText, string $confirmUrl, ?string $redirectMsg = null, ?string $returnUrl = null, ?string $template = null, array $params = [], bool $addAccountWrapper = true): AbstractReply
     {
         if ($alert->hasErrors())
         {

@@ -29,7 +29,7 @@ class UserAlert extends XFCP_UserAlert
      */
     protected $shimCollectionViewable = false;
 
-    public function shimSource(\Closure $shimSource = null): self
+    public function shimSource(?\Closure $shimSource = null): self
     {
         $this->shimSource = $shimSource;
 

@@ -452,7 +452,7 @@ class Account extends XFCP_Account
         );
     }
 
-    protected function hasRecentlySummarizedAlerts(int $floodCheck = null): bool
+    protected function hasRecentlySummarizedAlerts(?int $floodCheck = null): bool
     {
         $options = \XF::options();
         if (!($options->svAlertsSummarize ?? false))
@@ -645,7 +645,7 @@ class Account extends XFCP_Account
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function markInaccessibleAlertsReadIfNeeded(AbstractCollection $displayedAlerts = null)
+    protected function markInaccessibleAlertsReadIfNeeded(?AbstractCollection $displayedAlerts = null)
     {
         // no-op this, as stock calls this stupidly often and loads all unread alerts without sanity checks...
     }
