@@ -72,10 +72,13 @@ class Account extends XFCP_Account
                     'inAlertsPopup'      => !$inlist,
                 ];
 
-                return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
+                $view = $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
+                $view->setJsonParam('message', \XF::phrase('all_alerts_marked_as_read'));
+
+                return $view;
             }
 
-            return $this->redirect($redirect, \XF::phrase('svAlertImprov_all_alerts_marked_as_read'));
+            return $this->redirect($redirect, \XF::phrase('all_alerts_marked_as_read'));
         }
 
         $viewParams = [
