@@ -100,8 +100,8 @@ class Account extends XFCP_Account
 
         if ($reply instanceof ViewReply)
         {
+            /** @var UserOption|null $userOption */
             $userOption = \XF::visitor()->Option ?? null;
-            assert($userOption instanceof UserOption);
             $alertPrefs = $userOption->sv_alert_pref;
 
             if ($alertPrefs === [] || $alertPrefs === null)
@@ -132,7 +132,7 @@ class Account extends XFCP_Account
      */
     protected function preferencesSaveProcess(User $visitor)
     {
-        assert($visitor instanceof ExtendedUserEntity);
+        /** @var ExtendedUserEntity $visitor */
         $userOptions = $visitor->getRelationOrDefault('Option');
 
         $form = parent::preferencesSaveProcess($visitor);
@@ -296,8 +296,8 @@ class Account extends XFCP_Account
         $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
         $this->assertNotFlooding('alertSummarize', $floodingLimit);
 
+        /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
-        assert($visitor instanceof ExtendedUserEntity);
         // summarize & mark as read as of now
         AlertSummarizationRepo::get()->resummarizeAlertsForUser($visitor, \XF::$time);
 
