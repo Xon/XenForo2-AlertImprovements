@@ -134,11 +134,6 @@ class Setup extends AbstractSetup
         $this->installStep1();
     }
 
-    /**
-     * @param array $stepParams
-     * @return array|null
-     * @throws PrintableException
-     */
     public function upgrade2081101Step1(array $stepParams): ?array
     {
         $templateRenames = [

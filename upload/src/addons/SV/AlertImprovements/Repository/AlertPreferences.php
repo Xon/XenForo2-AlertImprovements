@@ -8,7 +8,6 @@ use XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
 use XF\Util\Arr;
 use function array_fill_keys;
-use function array_keys;
 use function array_replace_recursive;
 use function array_shift;
 use function count;

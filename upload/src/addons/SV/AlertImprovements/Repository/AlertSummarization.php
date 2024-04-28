@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection PhpDocMissingThrowsInspection
+ */
 
 namespace SV\AlertImprovements\Repository;
 
@@ -14,7 +17,6 @@ use SV\StandardLib\Helper;
 use XF\Alert\AbstractHandler;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
-use XF\Db\Exception;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
@@ -142,10 +144,11 @@ class AlertSummarization extends Repository
 
     protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return Helper::finder(\XF\Finder\UserAlert::class)
-                    ->where('alerted_user_id', $userId)
-                    ->order('event_date', 'desc');
+        $finder = Helper::finder(\XF\Finder\UserAlert::class);
+        $finder->where('alerted_user_id', $userId)
+               ->order('event_date', 'desc');
+
+        return $finder;
     }
 
     public function summarizeAlertsForUser(ExtendedUserEntity $user, bool $ignoreReadState, int $summaryAlertViewDate): bool

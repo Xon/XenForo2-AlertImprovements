@@ -5,9 +5,6 @@
 
 namespace SV\AlertImprovements\XF\Admin\Controller;
 
-use XF\Mvc\FormAction;
-use XF\Mvc\Reply\Exception;
-
 /**
  * Class User
  *
