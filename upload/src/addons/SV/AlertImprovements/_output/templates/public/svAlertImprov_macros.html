@@ -32,6 +32,7 @@
 
 <xf:macro name="alerts_controls">
 	<xf:css src="svAlertImprovements.less" />
+	<xf:if is="$xf.versionId > 2030000"><xf:js src="js/vendor/jquery/jquery-slim.js" min="1" /></xf:if>
 	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
 	<xf:button href="{{ link('account/preferences') }}#alerts" class="button--link"><xf:trim>
 		{{ phrase('svAlertImprov_alert_preferences') }}
@@ -46,6 +47,7 @@
 
 <xf:macro name="alerts_popup_footer">
 	<xf:css src="svAlertImprovements.less" />
+	<xf:if is="$xf.versionId > 2030000"><xf:js src="js/vendor/jquery/jquery-slim.js" min="1" /></xf:if>
 	<xf:js addon="SV/AlertImprovements" src="sv/alerts/alerts.js" min="1" />
     <span class="menu-footer-main">
         <a href="{{ link('account/alerts', null, {'show_only':'all'}) }}">{{ phrase('show_all') }}</a>
