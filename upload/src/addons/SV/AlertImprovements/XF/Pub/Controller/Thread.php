@@ -7,8 +7,10 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\StandardLib\Helper;
 use XF\Entity\Thread as ThreadEntity;
 use XF\Mvc\Entity\AbstractCollection;
+use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
  * Class Thread
@@ -31,7 +33,7 @@ class Thread extends XFCP_Thread
          * @var int                $lastDate
          */
         /** @noinspection PhpUndefinedMethodInspection */
-        list ($contents, $lastDate) = parent::_getNextLivePosts($thread, $lastDate, $limit);
+        [$contents, $lastDate] = parent::_getNextLivePosts($thread, $lastDate, $limit);
 
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
@@ -39,7 +41,7 @@ class Thread extends XFCP_Thread
         if ($visitor->user_id && $visitor->alerts_unread)
         {
             /** @var UserAlert $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
+            $alertRepo = Helper::repository(UserAlertRepo::class);
             $alertRepo->markAlertsReadForContentIds('post', $alertRepo->getContentIdKeys($contents));
         }
 

@@ -5,7 +5,9 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
+use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Structure;
+use XF\Repository\UserAlert as UserAlertRepo;
 use function is_callable;
 
 /**
@@ -30,15 +32,14 @@ class User extends XFCP_User
 
         try
         {
-            /** @var \SV\AlertImprovements\XF\Repository\UserAlert $alertRepo */
-            $alertRepo = \XF::app()->repository('XF:UserAlert');
+            $alertRepo = Helper::repository(UserAlertRepo::class);
         }
         catch (\Exception $e)
         {
             // error because we are still deploying files/updates.
             $alertRepo = null;
         }
-        $userMaxAlertCount = $alertRepo && is_callable([$alertRepo, 'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
+        $userMaxAlertCount = $alertRepo !== null && is_callable([$alertRepo, 'getSvUserMaxAlertCount']) ? $alertRepo->getSvUserMaxAlertCount() : 65535;
 
         $structure->columns['alerts_unviewed']['max'] = $userMaxAlertCount;
         $structure->columns['alerts_unread']['max'] = $userMaxAlertCount;

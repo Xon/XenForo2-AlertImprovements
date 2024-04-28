@@ -7,12 +7,14 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\StandardLib\Helper;
 use XF\Entity\ConversationMaster;
 use XF\Entity\ConversationUser;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
+use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
  * Class Conversation
@@ -40,7 +42,7 @@ class Conversation extends XFCP_Conversation
             if ($visitor->user_id && $visitor->alerts_unread)
             {
                 /** @var UserAlert $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo = Helper::repository(UserAlertRepo::class);
                 $alertRepo->markAlertsReadForContentIds('conversation', [$conversation->conversation_id]);
             }
         }
@@ -89,7 +91,7 @@ class Conversation extends XFCP_Conversation
             if ($visitor->user_id && $visitor->alerts_unread)
             {
                 /** @var UserAlert $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo = Helper::repository(UserAlertRepo::class);
 
                 $alertRepo->markAlertsReadForContentIds('user', [$visitor->user_id], $actions);
             }
@@ -130,7 +132,7 @@ class Conversation extends XFCP_Conversation
         if ($visitor->user_id && $visitor->alerts_unread)
         {
             /** @var UserAlert $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
+            $alertRepo = Helper::repository(UserAlertRepo::class);
             $alertRepo->markAlertsReadForContentIds('conversation_message', $alertRepo->getContentIdKeys($contents));
         }
 

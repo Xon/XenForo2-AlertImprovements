@@ -5,6 +5,7 @@ namespace SV\AlertImprovements;
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\AlertImprovements\Job\AlertTotalRebuild;
 use SV\AlertImprovements\Job\MigrateAlertPreferences;
+use SV\StandardLib\Helper;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
@@ -158,7 +159,7 @@ class Setup extends AbstractSetup
             'svAlertsImprov_macros' => 'svAlertImprov_macros',
         ];
 
-        $finder = \XF::finder('XF:Template')
+        $finder = Helper::finder(\XF\Finder\Template::class)
                      ->where('title', '=', array_keys($templateRenames));
         $stepData = $stepParams[2] ?? [];
         if (!isset($stepData['max']))
@@ -277,10 +278,7 @@ class Setup extends AbstractSetup
 
     public function upgrade1685991237Step4(): void
     {
-        $option = \XF::app()->finder('XF:Option')
-                     ->where('option_id', '=', 'registrationDefaults')
-                     ->fetchOne();
-        assert($option instanceof OptionEntity);
+        $option = Helper::find(OptionEntity::class, 'registrationDefaults');
         $registrationDefaults = $option->option_value;
 
         $intVal = (int)($registrationDefaults['sv_alerts_popup_skips_mark_read'] ?? 0);

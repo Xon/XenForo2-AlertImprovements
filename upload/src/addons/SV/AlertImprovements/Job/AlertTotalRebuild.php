@@ -3,6 +3,7 @@
 namespace SV\AlertImprovements\Job;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\StandardLib\Helper;
 use XF\Db\AbstractAdapter;
 use XF\Job\AbstractRebuildJob;
 use XF\Phrase;
@@ -26,7 +27,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
     {
         if ($this->repo === null)
         {
-            $this->repo = \XF::repository('XF:UserAlert');
+            $this->repo = Helper::repository(\XF\Repository\UserAlert::class);
         }
 
         $this->defaultData = array_merge($this->jobDefaultData, $this->defaultData);

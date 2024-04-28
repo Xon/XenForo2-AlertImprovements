@@ -4,7 +4,9 @@ namespace SV\AlertImprovements\XF\Finder;
 
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
+use SV\StandardLib\Helper;
 use XF\Mvc\Entity\ArrayCollection;
+use XF\Repository\UserAlert as UserAlertRepo;
 
 class MarkReadAlertArrayCollection extends ArrayCollection
 {
@@ -29,7 +31,7 @@ class MarkReadAlertArrayCollection extends ArrayCollection
             if ($unviewableAlerts)
             {
                 /** @var ExtendedUserAlertRepo $alertRepo */
-                $alertRepo = \XF::repository('XF:UserAlert');
+                $alertRepo = Helper::repository(UserAlertRepo::class);
                 $alertRepo->markAlertIdsAsReadAndViewed(\XF::visitor(), $unviewableAlerts, \XF::$time, false);
             }
         }

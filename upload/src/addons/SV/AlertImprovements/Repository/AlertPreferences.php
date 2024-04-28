@@ -3,6 +3,7 @@
 namespace SV\AlertImprovements\Repository;
 
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
+use SV\StandardLib\Helper;
 use XF\Repository\UserAlert;
 use XF\Mvc\Entity\Repository;
 use XF\Util\Arr;
@@ -23,8 +24,7 @@ class AlertPreferences extends Repository
 
     public static function get(): self
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return \XF::repository('SV\AlertImprovements:AlertPreferences');
+        return Helper::repository(self::class);
     }
 
     public function migrateAlertPreferencesForUser(int $userId): array
@@ -92,7 +92,7 @@ class AlertPreferences extends Repository
             return $this->alertOptOutActionList;
         }
 
-        $handlers = $this->getAlertRepo()->getAlertHandlers();
+        $handlers = Helper::repository(UserAlert::class)->getAlertHandlers();
 
         $actions = [];
         foreach ($handlers AS $contentType => $handler)
@@ -206,11 +206,5 @@ class AlertPreferences extends Repository
     public function getAlertPopupBehaviourPairs(): array
     {
         return PopUpReadBehavior::getPairs();
-    }
-
-    protected function getAlertRepo(): UserAlert
-    {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->repository('XF:UserAlert');
     }
 }

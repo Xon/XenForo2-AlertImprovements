@@ -3,6 +3,7 @@
 namespace SV\AlertImprovements\XF\Finder;
 
 use SV\AlertImprovements\Globals;
+use SV\StandardLib\Helper;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
 use XF\Repository\UserAlert as UserAlertRepo;
@@ -162,8 +163,7 @@ class UserAlert extends XFCP_UserAlert
                 return $this;
             }
 
-            $alertRepo = $this->app()->repository('XF:UserAlert');
-            assert($alertRepo instanceof UserAlertRepo);
+            $alertRepo = Helper::repository(UserAlertRepo::class);
             $validContentTypes = array_keys($alertRepo->getAlertHandlers());
         }
 

@@ -10,6 +10,7 @@ use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use SV\ContentRatings\XF\Repository\Reaction;
 use SV\StandardLib\BypassAccessStatus;
+use SV\StandardLib\Helper;
 use XF\Alert\AbstractHandler;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
@@ -17,6 +18,7 @@ use XF\Db\Exception;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
+use XF\Repository\UserAlert as UserAlertRepo;
 use function array_fill_keys;
 use function array_key_exists;
 use function array_keys;
@@ -36,8 +38,7 @@ class AlertSummarization extends Repository
 
     public static function get(): self
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return \XF::repository('SV\AlertImprovements:AlertSummarization');
+        return Helper::repository(self::class);
     }
 
     public function canSummarizeAlerts(): bool
@@ -142,7 +143,7 @@ class AlertSummarization extends Repository
     protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
     {
         /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->finder('XF:UserAlert')
+        return Helper::finder(\XF\Finder\UserAlert::class)
                     ->where('alerted_user_id', $userId)
                     ->order('event_date', 'desc');
     }
@@ -407,7 +408,7 @@ class AlertSummarization extends Repository
      * @param array        $summaryData
      * @return bool
      * @throws DeadlockException
-     * @throws Exception
+     * @noinspection SqlResolve
      */
     protected function insertSummaryAlert(string $contentType, int $contentId, array $lastAlert, array $alertGrouping, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool
     {
@@ -681,7 +682,6 @@ class AlertSummarization extends Repository
 
     protected function getAlertRepo(): UserAlert
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->repository('XF:UserAlert');
+        return Helper::repository(UserAlertRepo::class);
     }
 }

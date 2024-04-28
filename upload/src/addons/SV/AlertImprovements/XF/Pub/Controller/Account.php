@@ -1,5 +1,7 @@
 <?php
 /**
+ * @noinspection PhpUnusedParameterInspection
+ * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpMissingReturnTypeInspection
  */
 
@@ -11,6 +13,7 @@ use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 use SV\AlertImprovements\Repository\AlertSummarization as AlertSummarizationRepo;
 use SV\AlertImprovements\XF\Entity\UserOption;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
+use SV\StandardLib\Helper;
 use XF\Entity\User;
 use XF\Entity\UserAlert;
 use XF\Mvc\Entity\AbstractCollection;
@@ -21,8 +24,7 @@ use XF\Mvc\Reply\AbstractReply;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Mvc\Reply\View as ViewReply;
-use XF\Mvc\Reply\Redirect as RedirectReply;
-use XF\Mvc\Reply\Exception as ExceptionReply;
+use XF\Repository\UserAlert as UserAlertRepo;
 use XF\Service\FloodCheck;
 use function array_filter;
 use function array_key_exists;
@@ -47,7 +49,7 @@ class Account extends XFCP_Account
         $visitor = \XF::visitor();
 
         /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
 
         $redirect = $this->getDynamicRedirect($this->buildLink('account/alerts'));
 
@@ -206,8 +208,7 @@ class Account extends XFCP_Account
         $alertTypes = $this->svGetOptOutsTypes();
         [$alertOptOutDefaults, , $alertActions] = $alertPrefsRepo->getGlobalAlertPreferenceDefaults(array_keys($alertTypes));
 
-        $alertRepo = $this->repository('XF:UserAlert');
-        assert($alertRepo instanceof ExtendedUserAlertRepo);
+        $alertRepo = Helper::repository(UserAlertRepo::class);
         /** @var array<string> $optOutActions */
         $optOutActions = array_keys($alertRepo->getAlertOptOutActions());
 
@@ -285,13 +286,7 @@ class Account extends XFCP_Account
         return $entityInputs;
     }
 
-    /**
-     * @param ParameterBag $params
-     * @return AbstractReply
-     * @throws ExceptionReply
-     * @noinspection PhpUnusedParameterInspection
-     */
-    public function actionSummarizeAlerts(ParameterBag $params)
+    public function actionSummarizeAlerts(ParameterBag $params): AbstractReply
     {
         if (!Globals::isResummarizeAlertsEnabled())
         {
@@ -309,11 +304,6 @@ class Account extends XFCP_Account
         return $this->redirect($this->buildLink('account/alerts', null, ['show_only' => 'all']));
     }
 
-    /**
-     * @param ParameterBag $params
-     * @return AbstractReply
-     * @throws ExceptionReply
-     */
     public function actionAlert(ParameterBag $params)
     {
         /** @var ExtendedUserEntity $visitor */
@@ -324,16 +314,14 @@ class Account extends XFCP_Account
         $page = $this->filterPage();
         $options = $this->options();
         $perPage = $options->alertsPerPage;
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
 
         if (!$skipMarkAsRead && $page === 1 && $alert->auto_read)
         {
             $alertRepo->markUserAlertRead($alert);
         }
 
-        /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
 
         Globals::$forSummarizedAlertView = true;
         try
@@ -369,11 +357,6 @@ class Account extends XFCP_Account
         return $this->addAccountWrapperParams($view, 'alerts');
     }
 
-    /**
-     * @param ParameterBag $params
-     * @return AbstractReply
-     * @throws ExceptionReply
-     */
     public function actionAlertRead(ParameterBag $params)
     {
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
@@ -383,9 +366,7 @@ class Account extends XFCP_Account
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $inlist = $this->filter('inlist', 'bool');
 
-            /** @var ExtendedUserAlertRepo $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
-
+            $alertRepo = Helper::repository(UserAlertRepo::class);
             $alertRepo->markUserAlertRead($alert, \XF::$time);
 
             $redirect = $this->filter('_xfRedirect', 'str');
@@ -410,11 +391,6 @@ class Account extends XFCP_Account
         );
     }
 
-    /**
-     * @param ParameterBag $params
-     * @return AbstractReply
-     * @throws ExceptionReply
-     */
     public function actionAlertUnread(ParameterBag $params)
     {
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
@@ -424,8 +400,7 @@ class Account extends XFCP_Account
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $inlist = $this->filter('inlist', 'bool');
 
-            /** @var ExtendedUserAlertRepo $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
+            $alertRepo = Helper::repository(UserAlertRepo::class);
 
             $alertRepo->markUserAlertUnread($alert, true);
 
@@ -449,11 +424,6 @@ class Account extends XFCP_Account
         );
     }
 
-    /**
-     * @param ParameterBag $params
-     * @return AbstractReply
-     * @throws ExceptionReply
-     */
     public function actionAlertUnsummarize(ParameterBag $params)
     {
         if (!Globals::isResummarizeAlertsEnabled())
@@ -506,8 +476,7 @@ class Account extends XFCP_Account
             return false;
         }
 
-        /** @var FloodCheck $floodChecker */
-        $floodChecker = $this->service('XF:FloodCheck');
+        $floodChecker = Helper::service(FloodCheck::class);
         $timeRemaining = $floodChecker->checkFlooding('alertSummarize', $visitor->user_id, $floodingLimit);
 
         return $timeRemaining > 0;
@@ -565,8 +534,7 @@ class Account extends XFCP_Account
                 // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
                 if ($hasUnreadAlerts && $page === 1 && $showOnlyFilter === 'unread' && $alerts->count() === 0)
                 {
-                    /** @var ExtendedUserAlertRepo $alertRepo */
-                    $alertRepo = $this->repository('XF:UserAlert');
+                    $alertRepo = Helper::repository(UserAlertRepo::class);
                     $alertRepo->markUserAlertsRead($visitor);
                 }
             }
@@ -617,8 +585,7 @@ class Account extends XFCP_Account
             {
                 if (!Globals::isPrefetchRequest())
                 {
-                    $alertRepo = $this->repository('XF:UserAlert');
-                    assert($alertRepo instanceof ExtendedUserAlertRepo);
+                    $alertRepo = Helper::repository(UserAlertRepo::class);
                     $alertRepo->autoMarkUserAlertsRead($alerts, $visitor);
                 }
 
@@ -663,8 +630,7 @@ class Account extends XFCP_Account
                 // This condition is likely because of an unviewable alerts.
                 // Rebuilding alert totals will likely not fix this, so big-hammer mark-all-as-read
 
-                /** @var ExtendedUserAlertRepo $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo = Helper::repository(UserAlertRepo::class);
                 $alertRepo->markUserAlertsRead($visitor);
             }
 
@@ -736,10 +702,7 @@ class Account extends XFCP_Account
         });
     }
 
-    /**
-     * @throws ExceptionReply
-     */
-    public function actionBulkUpdateAlerts() : RedirectReply
+    public function actionBulkUpdateAlerts() : AbstractReply
     {
         $this->assertPostOnly();
 
@@ -759,7 +722,7 @@ class Account extends XFCP_Account
         ]);
 
         /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
         switch ($this->filter('state', 'str'))
         {
             case 'read':
@@ -785,13 +748,12 @@ class Account extends XFCP_Account
      * @param null $with
      * @param null $phraseKey
      * @return ExtendedUserAlertEntity
-     * @throws ExceptionReply
      * @noinspection PhpMissingParentCallCommonInspection
      */
     protected function assertViewableAlert($id, $with = null, $phraseKey = null)
     {
         /** @var ExtendedUserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
         /** @var ExtendedUserAlertEntity $alert */
         $alert = $alertRepo->findAlertByIdsForUser(\XF::visitor()->user_id, $id)
                            ->with($with ?: [])

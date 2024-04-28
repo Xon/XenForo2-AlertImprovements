@@ -1,6 +1,8 @@
 <?php
 /** @noinspection PhpIncludeInspection */
 
+use SV\StandardLib\Helper;
+
 ignore_user_abort(true);
 
 $dir = dirname(__DIR__);
@@ -13,20 +15,16 @@ $userId = 7;
 $uniquePosts = 5;
 $reactionsPerPost = 20;
 
-$testUser = $app->find('XF:User', $userId);
-assert($testUser instanceof XF\Entity\User);
+$testUser = Helper::find(\XF\Entity\User::class, $userId);
 
-$reactionRepo = $app->repository('XF:Reaction');
-assert($reactionRepo instanceof \XF\Repository\Reaction);
+$reactionRepo = Helper::repository(\XF\Repository\Reaction::class);
 
-$userRepo = $app->repository('XF:User');
-assert($userRepo instanceof \XF\Repository\User);
+$userRepo =  Helper::repository(\XF\Repository\User::class);
 
-$reaction = $app->find('XF:Reaction', 1);
-assert($reaction instanceof \XF\Entity\Reaction);
+$reaction = Helper::find(\XF\Entity\Reaction::class, 1);;
 
 /** @var array<int,\XF\Entity\Post> $contents */
-$contents = $app->finder('XF:Post')
+$contents = Helper::finder(\XF\Finder\Post::class)
                 ->where('user_id', $userId)
                 ->where('message_state', 'visible')
                 ->where('Thread.discussion_state', 'visible')
@@ -36,7 +34,7 @@ $contents = $app->finder('XF:Post')
                 ->toArray();
 
 /** @var array<int,\XF\Entity\User> $users */
-$users = $app->finder('XF:User')
+$users = Helper::finder(\XF\Finder\User::class)
              ->where('user_id', '<>', $userId)
              ->where('is_banned', 0)
              ->where('user_state', 'valid')
@@ -55,8 +53,8 @@ foreach ($contents as $content)
     $reactionRepo->fastDeleteReactions($content->getEntityContentType(), $content->getEntityId());
 }
 
-$userAlertRepo = $app->repository('XF:UserAlert');
-assert($userAlertRepo instanceof \SV\AlertImprovements\XF\Repository\UserAlert);
+/** @var \SV\AlertImprovements\XF\Repository\UserAlert $userAlertRepo */
+$userAlertRepo = Helper::repository(\XF\Repository\UserAlert::class);
 $userAlertRepo->updateUnreadCountForUserId($userId);
 $userAlertRepo->updateUnviewedCountForUserId($userId);
 $userAlertRepo->refreshUserAlertCounters($testUser);

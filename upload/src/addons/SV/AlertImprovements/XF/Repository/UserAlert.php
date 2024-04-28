@@ -8,14 +8,14 @@ use SV\AlertImprovements\Repository\AlertSummarization as AlertSummarizationRepo
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
+use SV\StandardLib\Helper;
 use XF\Db\AbstractAdapter;
 use XF\Db\DeadlockException;
-use XF\Entity\User;
+use XF\Entity\User as UserEntity;
 use XF\Entity\UserAlert as UserAlertEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Finder;
 use function array_keys;
-use function assert;
 use function count;
 use function is_array;
 use function max;
@@ -65,7 +65,7 @@ class UserAlert extends XFCP_UserAlert
         return [$viewedCutOff, $unviewedCutOff];
     }
 
-    public function refreshUserAlertCounters(User $user)
+    public function refreshUserAlertCounters(UserEntity $user)
     {
         $row = $this->db()->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $user->user_id);
         if ($row)
@@ -87,7 +87,7 @@ class UserAlert extends XFCP_UserAlert
             $alertId = [$alertId];
         }
         /** @var ExtendedUserAlertFinder $finder */
-        $finder = $this->finder('XF:UserAlert')
+        $finder = Helper::finder(\XF\Finder\UserAlert::class)
                        ->where(['alert_id', $alertId]);
         if ($userId !== 0)
         {
@@ -131,8 +131,8 @@ class UserAlert extends XFCP_UserAlert
         {
             return $finder;
         }
-        $user = $this->app()->find('XF:User', $userId);
-        assert($user instanceof ExtendedUserEntity);
+        /** @var ExtendedUserEntity|null $user */
+        $user = Helper::find(UserEntity::class, $userId);
 
         $finder
             ->markUnviewableAsUnread()
@@ -216,12 +216,12 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User|ExtendedUserEntity $user
-     * @param null|int                $readDate
+     * @param UserEntity|ExtendedUserEntity $user
+     * @param null|int                      $readDate
      * @noinspection PhpDocMissingThrowsInspection
      * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function markUserAlertsRead(User $user, $readDate = null)
+    public function markUserAlertsRead(UserEntity $user, $readDate = null)
     {
         $userId = (int)$user->user_id;
         if ($userId === 0 || Globals::$skipMarkAlertsRead)
@@ -263,7 +263,7 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    public function autoMarkUserAlertsRead(AbstractCollection $alerts, User $user, $readDate = null)
+    public function autoMarkUserAlertsRead(AbstractCollection $alerts, UserEntity $user, $readDate = null)
     {
         if (Globals::$skipMarkAlertsRead)
         {
@@ -297,7 +297,7 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function markSpecificUserAlertsRead(AbstractCollection $alerts, User $user, int $readDate = null)
+    protected function markSpecificUserAlertsRead(AbstractCollection $alerts, UserEntity $user, int $readDate = null)
     {
         $userId = (int)$user->user_id;
         if ($userId === 0 || $alerts->count() === 0)
@@ -334,14 +334,14 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param string      $contentType
-     * @param int|int[]   $contentIds
-     * @param string|null $onlyActions
-     * @param User|null   $user
-     * @param int|null    $readDate
+     * @param string          $contentType
+     * @param int|int[]       $contentIds
+     * @param string|null     $onlyActions
+     * @param UserEntity|null $user
+     * @param int|null        $readDate
      * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, User $user = null, $readDate = null)
+    public function markUserAlertsReadForContent($contentType, $contentIds, $onlyActions = null, UserEntity $user = null, $readDate = null)
     {
         if (!is_array($contentIds))
         {
@@ -356,13 +356,13 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User|ExtendedUserEntity $user
-     * @param int[]                   $alertIds
-     * @param int                     $readDate
-     * @param bool                    $updateAlertEntities
+     * @param UserEntity|ExtendedUserEntity $user
+     * @param int[]                         $alertIds
+     * @param int                           $readDate
+     * @param bool                          $updateAlertEntities
      * @noinspection PhpDocMissingThrowsInspection
      */
-    public function markAlertIdsAsReadAndViewed(User $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
+    public function markAlertIdsAsReadAndViewed(UserEntity $user, array $alertIds, int $readDate, bool $updateAlertEntities = false)
     {
         if (count($alertIds) === 0)
         {
@@ -446,13 +446,13 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User|ExtendedUserEntity $user
-     * @param int[]                   $alertIds
-     * @param bool                    $disableAutoRead
-     * @param bool                    $updateAlertEntities
+     * @param UserEntity|ExtendedUserEntity $user
+     * @param int[]                         $alertIds
+     * @param bool                          $disableAutoRead
+     * @param bool                          $updateAlertEntities
      * @noinspection PhpDocMissingThrowsInspection
      */
-    public function markAlertIdsAsUnreadAndUnviewed(User $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
+    public function markAlertIdsAsUnreadAndUnviewed(UserEntity $user, array $alertIds, bool $disableAutoRead = false, bool $updateAlertEntities = false)
     {
         if (count($alertIds) === 0)
         {
@@ -581,15 +581,15 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param string        $contentType
-     * @param int[]         $contentIds
-     * @param string[]|null $actions
-     * @param int           $maxXFVersion
-     * @param User|null     $user
-     * @param int|null      $viewDate
-     * @param bool          $respectAutoMarkRead
+     * @param string          $contentType
+     * @param int[]           $contentIds
+     * @param string[]|null   $actions
+     * @param int             $maxXFVersion
+     * @param UserEntity|null $user
+     * @param int|null        $viewDate
+     * @param bool            $respectAutoMarkRead
      */
-    public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, User $user = null, int $viewDate = null, bool $respectAutoMarkRead = false)
+    public function markAlertsReadForContentIds(string $contentType, array $contentIds, array $actions = null, int $maxXFVersion = 0, UserEntity $user = null, int $viewDate = null, bool $respectAutoMarkRead = false)
     {
         // do not mark alerts as read when prefetching is happening
         if (Globals::isPrefetchRequest())
@@ -690,12 +690,12 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
+     * @param UserEntity $user
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
      * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function updateUnviewedCountForUser(User $user)
+    public function updateUnviewedCountForUser(UserEntity $user)
     {
         $userId = $user->user_id;
         $result = $this->updateUnviewedCountForUserId($userId);
@@ -714,12 +714,12 @@ class UserAlert extends XFCP_UserAlert
     }
 
     /**
-     * @param User $user
+     * @param UserEntity $user
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
      * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function updateUnreadCountForUser(User $user)
+    public function updateUnreadCountForUser(UserEntity $user)
     {
         $userId = (int)$user->user_id;
         $result = $this->updateUnreadCountForUserId($userId);

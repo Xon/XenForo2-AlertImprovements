@@ -15,11 +15,6 @@ use XF\Mvc\Reply\Exception;
  */
 class User extends XFCP_User
 {
-    /**
-     * @param \XF\Entity\User $user
-     * @return FormAction
-     * @throws Exception
-     */
     protected function userSaveProcess(\XF\Entity\User $user)
     {
         $form = parent::userSaveProcess($user);

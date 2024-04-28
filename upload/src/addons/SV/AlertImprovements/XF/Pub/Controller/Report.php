@@ -4,9 +4,11 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\StandardLib\Helper;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
+use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
  * Class Report
@@ -33,7 +35,7 @@ class Report extends XFCP_Report
             if ($visitor->user_id && $visitor->alerts_unread)
             {
                 /** @var UserAlert $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo = Helper::repository(UserAlertRepo::class);
                 $alertRepo->markAlertsReadForContentIds('report_comment', $alertRepo->getContentIdKeys($comments));
             }
         }

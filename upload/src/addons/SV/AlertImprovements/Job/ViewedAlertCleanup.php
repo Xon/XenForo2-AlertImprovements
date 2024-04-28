@@ -4,6 +4,7 @@ namespace SV\AlertImprovements\Job;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use SV\AlertImprovements\XF\Repository\UserAlertPatch;
+use SV\StandardLib\Helper;
 use XF\Db\DeadlockException;
 use XF\Db\Exception;
 use XF\Job\AbstractJob;
@@ -73,7 +74,7 @@ class ViewedAlertCleanup extends AbstractJob
         }
 
         /** @var UserAlertPatch|UserAlert $alertRepo */
-        $alertRepo = \XF::app()->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(\XF\Repository\UserAlert::class);
 
         if (empty($this->data['pruned']))
         {

@@ -8,10 +8,12 @@ namespace SV\AlertImprovements\XF\Repository;
 use SV\AlertImprovements\Job\UnviewedAlertCleanup;
 use SV\AlertImprovements\Job\ViewedAlertCleanup;
 use SV\AlertImprovements\XF\Entity\UserOption;
+use SV\StandardLib\Helper;
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
 use XF\Db\DeadlockException;
 use XF\Entity\User;
+use XF\Entity\UserOption as UserOptionEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Entity\UserAlert as UserAlertEntity;
 use function array_keys;
@@ -248,7 +250,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     public function patchAutoReadForInsertAlert(int $receiverId, string $contentType, string $action, array &$extra, array &$options = null)
     {
         /** @var UserOption|null $userOption */
-        $userOption = $this->em->find('XF:UserOption', $receiverId);
+        $userOption = Helper::find(UserOptionEntity::class, $receiverId);
         if ($userOption !== null)
         {
             $options['autoRead'] = $userOption->doesAutoReadAlert($contentType, $action);
