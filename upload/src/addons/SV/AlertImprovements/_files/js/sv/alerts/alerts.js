@@ -1,14 +1,7 @@
-/*
- * This file is part of a XenForo add-on.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 var SV = window.SV || {};
 SV.AlertImprovements = SV.AlertImprovements || {};
 
-(function($, window, document, _undefined) {
+(function($) {
     "use strict";
 
     SV.AlertImprovements.updateAlert = function($alert, $replacementHtml, notInList, inListSelector) {
@@ -71,7 +64,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             this.processing = true;
 
             var self = this,
-                $target = this.$target,
+                $target = $(this.target || this.$target.get(0)),
                 $alert = $target.closest('.js-alert'),
                 inList = $alert.find(this.options.inListSelector).length > 0;
 
@@ -93,7 +86,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            var $target = this.$target,
+            var $target = $(this.target || this.$target.get(0)),
                 $alert = $target.closest('.js-alert'),
                 notInList = !$alert.find(this.options.inListSelector).length,
                 inListSelector = this.options.inListSelector,
@@ -135,14 +128,19 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
             var self = this,
                 inListSelector = this.options.inListSelector,
-                $target = this.$target,
+                target = this.target || this.$target.get(0),
+                targetAttr = target.getAttribute('href'),
                 listAlertIdLookup = {},
                 listAlertIds = [],
                 popupAlertIdLookup = {},
                 popupAlertIds = [],
-                $alerts = XF.findRelativeIf(this.options.alertItemSelector, this.$target);
+                alerts = XF.findRelativeIf(this.options.alertItemSelector, target);
 
-            $alerts.each(function(){
+            if (this.target) {
+                alerts = $(alerts);
+            }
+
+            alerts.each(function(){
                 var $alert = $(this),
                     alertId = $alert.data('alertId'),
                     inList = $alert.find(inListSelector).length > 0;
@@ -162,7 +160,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             });
 
             if (listAlertIds.length) {
-                XF.ajax('POST', $target.attr('href'), {
+                XF.ajax('POST', targetAttr, {
                     inlist: 1,
                     alert_ids: listAlertIds
                 }, $.proxy(this, 'handleMarkAllReadAjaxList')).always(function () {
@@ -170,7 +168,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 });
             }
             if (popupAlertIds.length) {
-                XF.ajax('POST', $target.attr('href'), {
+                XF.ajax('POST', targetAttr, {
                     inlist: 0,
                     alert_ids: popupAlertIds
                 }, $.proxy(this, 'handleMarkAllReadAjaxPopup')).always(function () {
@@ -211,13 +209,17 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
             var $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>'),
                 inListSelector = this.options.inListSelector,
-                wasNotInList = !inlist;
+                wasNotInList = !inlist,
+                target = this.target || this.$target,
+                alerts = XF.findRelativeIf(this.options.alertItemSelector, target);
             // javascript load
             data.html.content = '<div/>';
-            XF.setupHtmlInsert(data.html, function ($html, data, onComplete) {
-            });
+            XF.setupHtmlInsert(data.html, function () { });
 
-            XF.findRelativeIf(this.options.alertItemSelector, this.$target).each(function () {
+            if (this.target) {
+                alerts = $(alerts);
+            }
+            alerts.each(function () {
                 SV.AlertImprovements.updateAlert($(this), $replacementHtml, wasNotInList, inListSelector);
             });
         }
@@ -249,9 +251,9 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 return;
             }
             this.processing = true;
-            var $target = this.$target;
+            var target = this.target || this.$target.get(0);
 
-            XF.ajax('POST', $target.attr('href'), {
+            XF.ajax('POST', target.getAttribute('href'), {
                 // todo: does anything need to be submitted?
             }, $.proxy(this, 'handleReloadAlertsPopupList')).always(function () {
                 self.processing = false;
@@ -267,7 +269,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            var $target = this.$target,
+            var $target = $(this.target || this.$target.get(0)),
                 $alert = $target.closest('.js-alert');
 
             var id = $alert.data('alertId');
@@ -290,7 +292,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
 
         init: function () {
             var options = this.options,
-                alerts = this.$target.find(options.classSelector);
+                alerts = $(this.target || this.$target.get(0)).find(options.classSelector);
             if (alerts.length === 0) {
                 return;
             }
@@ -325,7 +327,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             this.svAlertImprovementsTooltipAliasedInit();
 
             if (this.options.positionOver !== null) {
-                this.tooltip.setPositioner(XF.findRelativeIf(this.options.positionOver, this.$target));
+                this.tooltip.setPositioner(XF.findRelativeIf(this.options.positionOver, this.target || this.$target));
             }
         },
     });
@@ -334,4 +336,4 @@ SV.AlertImprovements = SV.AlertImprovements || {};
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
     XF.Click.register('unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
     XF.Element.register('fade-read-alerts', 'SV.AlertImprovements.FadeReadAlerts');
-} (jQuery, window, document));
+} (jQuery));
