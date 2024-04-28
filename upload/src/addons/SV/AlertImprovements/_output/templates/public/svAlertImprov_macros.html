@@ -142,6 +142,7 @@
 					<xf:if is="property('svStockMarkAlertsRead')">
 						<span class="u-pullRight">
 							<a href="{{ link('account/alert-toggle', null, {'alert_id': $alert.alert_id}) }}"
+							   data-xf-click="mark-alert-unread" 
 							   data-xf-init="tooltip" data-content="{{ $alert.isUnreadInUi() ? phrase('mark_read')|for_attr : phrase('mark_unread')|for_attr }}"
 							   data-read="{{ phrase('mark_read')|for_attr }}" data-unread="{{ phrase('mark_unread')|for_attr }}"
 							   class="js-alertToggle alertToggler"><xf:trim>
