@@ -1,5 +1,6 @@
 var SV = window.SV || {};
 SV.AlertImprovements = SV.AlertImprovements || {};
+SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
 (function($) {
     "use strict";
@@ -319,7 +320,7 @@ SV.AlertImprovements = SV.AlertImprovements || {};
             'init': 'svAlertImprovementsTooltipAliasedInit',
         },
 
-        options: $.extend({}, XF.Tooltip.prototype.options, {
+        options: SV.extendObject({}, XF.Tooltip.prototype.options, {
             positionOver: null,
         }),
 
