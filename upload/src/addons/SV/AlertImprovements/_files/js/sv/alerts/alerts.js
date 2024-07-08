@@ -135,7 +135,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 listAlertIds = [],
                 popupAlertIdLookup = {},
                 popupAlertIds = [],
-                alerts = XF.findRelativeIf(this.options.alertItemSelector, target);
+                alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
 
             if (this.target) {
                 alerts = $(alerts);
@@ -211,8 +211,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             var $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>'),
                 inListSelector = this.options.inListSelector,
                 wasNotInList = !inlist,
-                target = this.target || this.$target,
-                alerts = XF.findRelativeIf(this.options.alertItemSelector, target);
+                alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
             // javascript load
             data.html.content = '<div/>';
             XF.setupHtmlInsert(data.html, function () { });
