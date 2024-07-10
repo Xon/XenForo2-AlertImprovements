@@ -15,6 +15,7 @@ use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
 use XF\Mvc\Reply\View;
 use XF\Repository\UserAlert as UserAlertRepo;
+use function is_callable;
 
 /**
  * Class Conversation
@@ -65,7 +66,7 @@ class Conversation extends XFCP_Conversation
      */
     public function actionLabeled(ParameterBag $parameterBag)
     {
-        if (!\is_callable('parent::actionLabeled'))
+        if (!is_callable(parent::class.'::actionLabeled'))
         {
             return $this->notFound();
         }
