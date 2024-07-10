@@ -470,8 +470,8 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         },
     });
 
-    XF.Click.register('sv-mark-alerts-read', 'SV.AlertImprovements.BulkMarkRead');
-    XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
-    XF.Click.register('unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
+    XF.Event.register('click', 'sv-mark-alerts-read', 'SV.AlertImprovements.BulkMarkRead');
+    XF.Event.register('click', 'mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
+    XF.Event.register('click', 'unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
     XF.Element.register('fade-read-alerts', 'SV.AlertImprovements.FadeReadAlerts');
 })(window, document)
