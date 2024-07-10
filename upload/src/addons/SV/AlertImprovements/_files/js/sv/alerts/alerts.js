@@ -27,7 +27,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         if (id)
         {
             let $replacementAlert = $replacementHtml.querySelector("[data-alert-id='" + id + "']");
-            if (!!$replacementHtml)
+            if (!!$replacementHtml && !!$replacementAlert)
             {
                 if (notInList)
                 {
@@ -180,7 +180,22 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 listAlertIds = [],
                 popupAlertIdLookup = {},
                 popupAlertIds = [],
-                alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
+                alerts = XF.findRelativeIf(this.options.alertItemSelector, target);
+
+            if (!alerts)
+            {
+                return;
+            }
+
+            if (typeof XF.createElement !== "function")
+            {
+                if (!alerts.length)
+                {
+                    return;
+                }
+
+                alerts = alerts.get();
+            }
 
             alerts.forEach(($alert) => {
                 let alertId = $alert.getAttribute('data-alert-id'),
@@ -280,9 +295,24 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 wasNotInList = !inlist,
                 alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
 
+            if (!alerts)
+            {
+                return;
+            }
+
             // javascript load
             data.html.content = '<div/>';
             XF.setupHtmlInsert(data.html, () => {});
+
+            if (typeof XF.createElement !== "function")
+            {
+                if (!alerts.length)
+                {
+                    return;
+                }
+
+                alerts = alerts.get();
+            }
 
             alerts.forEach(($alert) => {
                 SV.AlertImprovements.updateAlert(
@@ -374,6 +404,16 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             if (!alerts)
             {
                 return;
+            }
+
+            if (typeof XF.createElement !== "function")
+            {
+                if (!alerts.length)
+                {
+                    return;
+                }
+
+                alerts = alerts.get();
             }
 
             options.transitionDuration = Math.max(0, options.transitionDuration | 0);
