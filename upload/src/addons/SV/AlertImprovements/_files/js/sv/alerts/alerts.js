@@ -1,37 +1,66 @@
 var SV = window.SV || {};
 SV.AlertImprovements = SV.AlertImprovements || {};
+SV.$ = SV.$ || window.jQuery || null;
 SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
-(function($) {
-    "use strict";
+;((window, document) =>
+{
+    'use strict';
+    var $ = SV.$;
 
-    SV.AlertImprovements.updateAlert = function($alert, $replacementHtml, notInList, inListSelector) {
-        var wasUnread = $alert.hasClass('is-unread');
+    SV.AlertImprovements.updateAlert = ($alert, $replacementHtml, notInList, inListSelector) => {
+        const wasUnread = $alert.classList.contains('is-unread');
 
-        $alert.removeClass('is-read');
-        if (wasUnread) {
-            $alert.addClass('is-recently-read').removeClass('is-unread');
-        } else {
-            $alert.removeClass('is-recently-read').addClass('is-unread');
+        $alert.classList.remove('is-read');
+        if (wasUnread)
+        {
+            $alert.classList.add('is-recently-read');
+            $alert.classList.remove('is-unread');
+        }
+        else
+        {
+            $alert.classList.remove('is-recently-read');
+            $alert.classList.add('is-unread');
         }
 
-        var id = $alert.data('alertId');
-        if (id) {
-            var $replacementAlert = $replacementHtml.find("[data-alert-id='" + id + "']");
-            if ($replacementAlert.length) {
-                if (notInList) {
-                    $replacementAlert.find(inListSelector).remove();
+        const id = $alert.getAttribute('data-alert-id');
+        if (id)
+        {
+            let $replacementAlert = $replacementHtml.querySelector("[data-alert-id='" + id + "']");
+            if (!!$replacementHtml)
+            {
+                if (notInList)
+                {
+                    for (const el of $replacementAlert.querySelectorAll(inListSelector))
+                    {
+                        el.remove();
+                    }
                 }
-                XF.setupHtmlInsert($replacementAlert, function ($html, data, onComplete) {
-                    $alert.empty();
-                    $alert.append($html.children());
+
+                if (typeof XF.createElement !== "function")
+                {
+                    $replacementAlert = $($replacementAlert)
+                }
+
+                XF.setupHtmlInsert($replacementAlert, ($html, data, onComplete) => {
+                    if (typeof XF.createElement !== "function")
+                    {
+                        $html = $html.get(0);
+                    }
+
+                    $alert.replaceChildren();
+                    $alert.append($html);
+
+                    onComplete();
                 });
             }
-        } else {
+        }
+        else
+        {
             // invalid alert, remove various per-alert links for it
-            $alert.find('.alert--unsummarize').remove();
-            $alert.find('.alert--mark-read').remove();
-            $alert.find('.alert--mark-unread').remove();
+            $alert.querySelector('.alert--unsummarize').remove();
+            $alert.querySelector('.alert--mark-read').remove();
+            $alert.querySelector('.alert--mark-unread').remove();
         }
     }
 
@@ -46,7 +75,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
         processing: null,
 
-        init: function()
+        init ()
         {
             this.processing = false;
         },
@@ -54,7 +83,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         /**
          * @param {Event} e
          */
-        click: function(e)
+        click (e)
         {
             e.preventDefault();
 
@@ -64,34 +93,51 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             }
             this.processing = true;
 
-            var self = this,
-                $target = $(this.target || this.$target.get(0)),
+            const $target = (this.target || this.$target.get(0)),
                 $alert = $target.closest('.js-alert'),
-                inList = $alert.find(this.options.inListSelector).length > 0;
+                inList = !!$alert.querySelector(this.options.inListSelector);
 
-            XF.ajax('POST', $target.attr('href'), {
-                inlist: inList ? 1 : 0
-            }, $.proxy(this, 'handleMarkReadAjax')).always(function ()
-            {
-                self.processing = false;
-            });
+            XF.ajax(
+                'POST',
+                $target.getAttribute('href'),
+                { inlist: inList ? 1 : 0 },
+                this.handleMarkReadAjax.bind(this)
+            );
         },
 
         /**
          * @param {Object} data
          */
-        handleMarkReadAjax: function(data)
+        handleMarkReadAjax (data)
         {
+            this.processing = false;
+
             if (data.message)
             {
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            var $target = $(this.target || this.$target.get(0)),
+            let $replacementHtml;
+            if (typeof XF.createElement === "function")
+            {
+                $replacementHtml = data.html && data.html.content
+                    ? XF.createElementFromString(data.html.content)
+                    : XF.createElementFromString('<div />')
+                ;
+            }
+            else // jQuery - XF 2.2
+            {
+                $replacementHtml = data.html && data.html.content
+                    ? SV.$(data.html.content).get(0)
+                    : SV.$('<div />').get(0)
+                ;
+            }
+
+            let $target = this.target || this.$target.get(0),
                 $alert = $target.closest('.js-alert'),
-                notInList = !$alert.find(this.options.inListSelector).length,
-                inListSelector = this.options.inListSelector,
-                $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>');
+                notInList = !(!!$alert.querySelector(this.options.inListSelector)),
+                inListSelector = this.options.inListSelector
+            ;
 
             SV.AlertImprovements.updateAlert($alert, $replacementHtml, notInList, inListSelector);
         },
@@ -109,7 +155,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
         processing: null,
 
-        init: function()
+        init ()
         {
             this.processing = false;
         },
@@ -117,7 +163,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         /**
          * @param {Event} e
          */
-        click: function(e)
+        click (e)
         {
             e.preventDefault();
 
@@ -127,8 +173,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             }
             this.processing = true;
 
-            var self = this,
-                inListSelector = this.options.inListSelector,
+            let inListSelector = this.options.inListSelector,
                 target = this.target || this.$target.get(0),
                 targetAttr = target.getAttribute('href'),
                 listAlertIdLookup = {},
@@ -137,22 +182,23 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 popupAlertIds = [],
                 alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
 
-            if (this.target) {
-                alerts = $(alerts);
-            }
-
-            alerts.each(function(){
-                var $alert = $(this),
-                    alertId = $alert.data('alertId'),
-                    inList = $alert.find(inListSelector).length > 0;
-                if (alertId) {
-                    if (inList) {
-                        if (!(alertId in listAlertIdLookup)) {
+            alerts.forEach(($alert) => {
+                let alertId = $alert.getAttribute('data-alert-id'),
+                    inList = !!$alert.querySelector(inListSelector);
+                if (alertId)
+                {
+                    if (inList)
+                    {
+                        if (!(alertId in listAlertIdLookup))
+                        {
                             listAlertIdLookup[alertId] = 1
                             listAlertIds.push(alertId);
                         }
-                    } else {
-                        if (!(alertId in popupAlertIdLookup)) {
+                    }
+                    else
+                    {
+                        if (!(alertId in popupAlertIdLookup))
+                        {
                             popupAlertIdLookup[alertId] = 1
                             popupAlertIds.push(alertId);
                         }
@@ -160,23 +206,27 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 }
             });
 
-            if (listAlertIds.length) {
-                XF.ajax('POST', targetAttr, {
-                    inlist: 1,
-                    alert_ids: listAlertIds
-                }, $.proxy(this, 'handleMarkAllReadAjaxList')).always(function () {
-                    self.processing = false;
-                });
+            if (listAlertIds.length)
+            {
+                XF.ajax(
+                    'POST',
+                    targetAttr,
+                    { inlist: 1, alert_ids: listAlertIds},
+                    this.handleMarkAllReadAjaxList.bind(this)
+                );
             }
-            if (popupAlertIds.length) {
-                XF.ajax('POST', targetAttr, {
-                    inlist: 0,
-                    alert_ids: popupAlertIds
-                }, $.proxy(this, 'handleMarkAllReadAjaxPopup')).always(function () {
-                    self.processing = false;
-                });
+            if (popupAlertIds.length)
+            {
+                XF.ajax(
+                    'POST',
+                    targetAttr,
+                    { inlist: 0, alert_ids: popupAlertIds},
+                    this.handleMarkAllReadAjaxPopup.bind(this)
+                );
             }
-            if (!listAlertIds.length && !popupAlertIds.length) {
+
+            if (!listAlertIds.length && !popupAlertIds.length)
+            {
                 this.processing = false;
             }
         },
@@ -184,16 +234,18 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         /**
          * @param {Object} data
          */
-        handleMarkAllReadAjaxList: function(data)
+        handleMarkAllReadAjaxList (data)
         {
+            this.processing = false;
             this.handleMarkAllReadAjax(data, true);
         },
 
         /**
          * @param {Object} data
          */
-        handleMarkAllReadAjaxPopup: function(data)
+        handleMarkAllReadAjaxPopup (data)
         {
+            this.processing = false;
             this.handleMarkAllReadAjax(data, false);
         },
 
@@ -201,26 +253,44 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
          * @param {Object} data
          * @param {boolean} inlist
          */
-        handleMarkAllReadAjax: function(data, inlist)
+        handleMarkAllReadAjax (data, inlist)
         {
             if (data.message)
             {
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            var $replacementHtml = data.html && data.html.content ? $(data.html.content) : $('<div/>'),
-                inListSelector = this.options.inListSelector,
+            let $replacementHtml;
+            if (typeof XF.createElement === "function")
+            {
+                $replacementHtml = data.html && data.html.content
+                    ? XF.createElementFromString(data.html.content)
+                    : XF.createElementFromString('<div />')
+                ;
+            }
+            else // jQuery - XF 2.2
+            {
+                $replacementHtml = data.html && data.html.content
+                    ? SV.$(data.html.content).get(0)
+                    : SV.$('<div />').get(0)
+                ;
+            }
+
+            let inListSelector = this.options.inListSelector,
                 wasNotInList = !inlist,
                 alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
+
             // javascript load
             data.html.content = '<div/>';
-            XF.setupHtmlInsert(data.html, function () { });
+            XF.setupHtmlInsert(data.html, () => {});
 
-            if (this.target) {
-                alerts = $(alerts);
-            }
-            alerts.each(function () {
-                SV.AlertImprovements.updateAlert($(this), $replacementHtml, wasNotInList, inListSelector);
+            alerts.forEach(($alert) => {
+                SV.AlertImprovements.updateAlert(
+                    $alert,
+                    $replacementHtml,
+                    wasNotInList,
+                    inListSelector
+                );
             });
         }
     });
@@ -236,7 +306,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
         processing: null,
 
-        init: function()
+        init ()
         {
             this.processing = false;
         },
@@ -244,40 +314,46 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         /**
          * @param {Event} e
          */
-        click: function(e) {
+        click (e)
+        {
             e.preventDefault();
 
-            if (this.processing) {
+            if (this.processing)
+            {
                 return;
             }
             this.processing = true;
-            var target = this.target || this.$target.get(0);
+            const target = this.target || this.$target.get(0);
 
-            XF.ajax('POST', target.getAttribute('href'), {
+            XF.ajax(
+                'POST',
+                target.getAttribute('href'),
                 // todo: does anything need to be submitted?
-            }, $.proxy(this, 'handleReloadAlertsPopupList')).always(function () {
-                self.processing = false;
-            });
+                {},
+                this.handleReloadAlertsPopupList.bind(this)
+            );
         },
 
         /**
          * @param {Object} data
          */
-        handleReloadAlertsPopupList: function(data) {
+        handleReloadAlertsPopupList (data)
+        {
+            this.processing = false;
+
             if (data.message)
             {
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            var $target = $(this.target || this.$target.get(0)),
+            const $target = this.target || this.$target.get(0),
                 $alert = $target.closest('.js-alert');
 
-            var id = $alert.data('alertId');
-            if (id) {
-                $(".js-alert[data-alert-id='" + id + "']").remove();
+            const id = $alert.getAttribute('data-alert-id');
+            if (id)
+            {
+                document.querySelector(".js-alert[data-alert-id='" + id + "']").remove();
             }
-
-            //var $menu = $(this.options.alertPopupSelector);
         }
     });
 
@@ -290,26 +366,44 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             transitionDelay: 2,
         },
 
-        init: function () {
-            var options = this.options,
-                alerts = $(this.target || this.$target.get(0)).find(options.classSelector);
-            if (alerts.length === 0) {
+        init ()
+        {
+            let options = this.options,
+                alerts = (this.target || this.$target.get(0)).querySelector(options.classSelector)
+            ;
+            if (!alerts)
+            {
                 return;
             }
+
             options.transitionDuration = Math.max(0, options.transitionDuration | 0);
             options.transitionDelay = Math.max(0, options.transitionDelay | 0);
-            if (options.transitionDuration) {
-                setTimeout(function()
-                {
-                    alerts
-                        .css({'transition-duration': options.transitionDuration + 's'})
-                        .removeClassTransitioned(options.classToRemove)
-                        .addClassTransitioned(options.classToAdd);
+            if (options.transitionDuration)
+            {
+                setTimeout(() => {
+                    alerts.forEach(($alert) => {
+                        $alert.style.transitionDuration = Math.max(0, options.transitionDuration | 0) + 's';
+                    });
+
+                    if (typeof XF.Transition !== "undefined")
+                    {
+                        XF.Transition.removeClassTransitioned(alerts, options.classToRemove);
+                        XF.Transition.addClassTransitioned(alerts, options.classToAdd);
+                    }
+                    else // jQuery - XF 2.2
+                    {
+                        alerts
+                            .removeClassTransitioned(options.classToRemove)
+                            .addClassTransitioned(options.classToAdd);
+                    }
                 }, options.transitionDelay * 1000);
-            } else {
-                alerts
-                    .addRemove(options.classToRemove)
-                    .addClass(options.classToAdd)
+            }
+            else
+            {
+                alerts.forEach(($alert) => {
+                    $alert.classList.add(options.classToAdd);
+                    $alert.classList.remove(options.classToRemove);
+                });
             }
         }
     });
@@ -323,11 +417,15 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             positionOver: null,
         }),
 
-        init: function() {
+        init ()
+        {
             this.svAlertImprovementsTooltipAliasedInit();
 
-            if (this.options.positionOver !== null) {
-                this.tooltip.setPositioner(XF.findRelativeIf(this.options.positionOver, this.target || this.$target));
+            if (this.options.positionOver !== null)
+            {
+                this.tooltip.setPositioner(
+                    XF.findRelativeIf(this.options.positionOver, this.target || this.$target)
+                );
             }
         },
     });
@@ -336,4 +434,4 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
     XF.Click.register('mark-alert-unread', 'SV.AlertImprovements.AlertToggler');
     XF.Click.register('unsummarize-alert', 'SV.AlertImprovements.AlertUnsummarize');
     XF.Element.register('fade-read-alerts', 'SV.AlertImprovements.FadeReadAlerts');
-} (jQuery));
+})(window, document)
