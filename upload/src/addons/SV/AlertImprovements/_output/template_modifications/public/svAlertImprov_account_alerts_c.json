@@ -3,7 +3,7 @@
     "description": "Patch alert row macro usage",
     "execution_order": 6398,
     "enabled": true,
-    "action": "str_replace",
-    "find": "<xf:macro template=\"alert_macros\" name=\"row\"",
-    "replace": "<xf:macro template=\"svAlertImprov_macros\" name=\"alert_row\" arg-showSelectCheckbox=\"{{ true }}\" arg-inAlertsPopup=\"{{ false }}\""
+    "action": "preg_replace",
+    "find": "#<xf:macro (?:template=\"alert_macros\" name=\"row\"|id=\"alert_macros::row\")#si",
+    "replace": "<xf:macro name=\"svAlertImprov_macros::alert_row\" arg-showSelectCheckbox=\"{{ true }}\" arg-inAlertsPopup=\"{{ false }}\""
 }
