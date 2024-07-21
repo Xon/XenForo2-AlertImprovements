@@ -8,48 +8,53 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
     'use strict';
     var $ = SV.$;
 
-    SV.AlertImprovements.updateAlert = ($alert, $replacementHtml, notInList, inListSelector) => {
-        const wasUnread = $alert.classList.contains('is-unread');
+    SV.AlertImprovements.invalidSelectorsToRemove = [
+        '.alert--unsummarize',
+        '.alert--mark-read',
+        '.alert--mark-unread',
+    ];
+    SV.AlertImprovements.updateAlert = (alert, replacementHtml, notInList, inListSelector) => {
+        const wasUnread = alert.classList.contains('is-unread');
 
-        $alert.classList.remove('is-read');
+        alert.classList.remove('is-read');
         if (wasUnread)
         {
-            $alert.classList.add('is-recently-read');
-            $alert.classList.remove('is-unread');
+            alert.classList.add('is-recently-read');
+            alert.classList.remove('is-unread');
         }
         else
         {
-            $alert.classList.remove('is-recently-read');
-            $alert.classList.add('is-unread');
+            alert.classList.remove('is-recently-read');
+            alert.classList.add('is-unread');
         }
 
-        const id = $alert.getAttribute('data-alert-id');
+        const id = alert.getAttribute('data-alert-id');
         if (id)
         {
-            let $replacementAlert = $replacementHtml.querySelector("[data-alert-id='" + id + "']");
-            if (!!$replacementHtml && !!$replacementAlert)
+            let replacementAlert = replacementHtml.querySelector("[data-alert-id='" + id + "']");
+            if (!!replacementHtml && !!replacementAlert)
             {
                 if (notInList)
                 {
-                    for (const el of $replacementAlert.querySelectorAll(inListSelector))
+                    for (const el of replacementAlert.querySelectorAll(inListSelector))
                     {
                         el.remove();
                     }
                 }
 
-                if (typeof XF.createElement !== "function")
+                if (typeof XF.createElement !== "function") // XF 2.2
                 {
-                    $replacementAlert = $($replacementAlert)
+                    replacementAlert = $(replacementAlert);
                 }
 
-                XF.setupHtmlInsert($replacementAlert, ($html, data, onComplete) => {
+                XF.setupHtmlInsert(replacementAlert, (html, data, onComplete) => {
                     if (typeof XF.createElement !== "function")
                     {
-                        $html = $html.get(0);
+                        html = html.get(0);
                     }
 
-                    $alert.replaceChildren();
-                    $alert.append($html);
+                    alert.replaceChildren();
+                    alert.append(html);
 
                     onComplete();
                 });
@@ -58,9 +63,12 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         else
         {
             // invalid alert, remove various per-alert links for it
-            $alert.querySelector('.alert--unsummarize').remove();
-            $alert.querySelector('.alert--mark-read').remove();
-            $alert.querySelector('.alert--mark-unread').remove();
+            SV.AlertImprovements.invalidSelectorsToRemove.forEach((selector) => {
+                let tmp = alert.querySelector(selector);
+                if (tmp) {
+                    tmp.remove();
+                }
+            });
         }
     }
 
@@ -93,13 +101,13 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             }
             this.processing = true;
 
-            const $target = (this.target || this.$target.get(0)),
-                $alert = $target.closest('.js-alert'),
-                inList = !!$alert.querySelector(this.options.inListSelector);
+            const target = (this.target || this.$target.get(0)),
+                alert = target.closest('.js-alert'),
+                inList = !!alert.querySelector(this.options.inListSelector);
 
             XF.ajax(
                 'POST',
-                $target.getAttribute('href'),
+                target.getAttribute('href'),
                 { inlist: inList ? 1 : 0 },
                 this.handleMarkReadAjax.bind(this)
             );
@@ -117,29 +125,29 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            let $replacementHtml;
+            let replacementHtml;
             if (typeof XF.createElement === "function")
             {
-                $replacementHtml = data.html && data.html.content
+                replacementHtml = data.html && data.html.content
                     ? XF.createElementFromString(data.html.content)
                     : XF.createElementFromString('<div />')
                 ;
             }
             else // jQuery - XF 2.2
             {
-                $replacementHtml = data.html && data.html.content
+                replacementHtml = data.html && data.html.content
                     ? SV.$(data.html.content).get(0)
                     : SV.$('<div />').get(0)
                 ;
             }
 
-            let $target = this.target || this.$target.get(0),
-                $alert = $target.closest('.js-alert'),
-                notInList = !(!!$alert.querySelector(this.options.inListSelector)),
+            const target = this.target || this.$target.get(0),
+                alert = target.closest('.js-alert'),
+                notInList = !(!!alert.querySelector(this.options.inListSelector)),
                 inListSelector = this.options.inListSelector
             ;
 
-            SV.AlertImprovements.updateAlert($alert, $replacementHtml, notInList, inListSelector);
+            SV.AlertImprovements.updateAlert(alert, replacementHtml, notInList, inListSelector);
         },
     });
 
@@ -173,33 +181,30 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             }
             this.processing = true;
 
-            let inListSelector = this.options.inListSelector,
+            const inListSelector = this.options.inListSelector,
                 target = this.target || this.$target.get(0),
-                targetAttr = target.getAttribute('href'),
+                targetAttr = target.getAttribute('href');
+            let
                 listAlertIdLookup = {},
                 listAlertIds = [],
                 popupAlertIdLookup = {},
                 popupAlertIds = [],
                 alerts = XF.findRelativeIf(this.options.alertItemSelector, target);
 
-            if (!alerts)
+            if (!alerts || !alerts.length)
             {
+                this.processing = false;
                 return;
             }
 
             if (typeof XF.createElement !== "function")
             {
-                if (!alerts.length)
-                {
-                    return;
-                }
-
                 alerts = alerts.get();
             }
 
-            alerts.forEach(($alert) => {
-                let alertId = $alert.getAttribute('data-alert-id'),
-                    inList = !!$alert.querySelector(inListSelector);
+            alerts.forEach((alert) => {
+                let alertId = alert.getAttribute('data-alert-id'),
+                    inList = !!alert.querySelector(inListSelector);
                 if (alertId)
                 {
                     if (inList)
@@ -275,27 +280,9 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            let $replacementHtml;
-            if (typeof XF.createElement === "function")
-            {
-                $replacementHtml = data.html && data.html.content
-                    ? XF.createElementFromString(data.html.content)
-                    : XF.createElementFromString('<div />')
-                ;
-            }
-            else // jQuery - XF 2.2
-            {
-                $replacementHtml = data.html && data.html.content
-                    ? SV.$(data.html.content).get(0)
-                    : SV.$('<div />').get(0)
-                ;
-            }
+            let alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
 
-            let inListSelector = this.options.inListSelector,
-                wasNotInList = !inlist,
-                alerts = XF.findRelativeIf(this.options.alertItemSelector, this.target || this.$target);
-
-            if (!alerts)
+            if (!alerts || !alerts.length)
             {
                 return;
             }
@@ -304,20 +291,30 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             data.html.content = '<div/>';
             XF.setupHtmlInsert(data.html, () => {});
 
-            if (typeof XF.createElement !== "function")
+            let replacementHtml;
+            if (typeof XF.createElement === "function")
             {
-                if (!alerts.length)
-                {
-                    return;
-                }
-
+                replacementHtml = data.html && data.html.content
+                    ? XF.createElementFromString(data.html.content)
+                    : XF.createElementFromString('<div />')
+                ;
+            }
+            else // jQuery - XF 2.2
+            {
+                replacementHtml = data.html && data.html.content
+                    ? SV.$(data.html.content).get(0)
+                    : SV.$('<div />').get(0)
+                ;
                 alerts = alerts.get();
             }
 
-            alerts.forEach(($alert) => {
+            const inListSelector = this.options.inListSelector,
+                wasNotInList = !inlist;
+
+            alerts.forEach((alert) => {
                 SV.AlertImprovements.updateAlert(
-                    $alert,
-                    $replacementHtml,
+                    alert,
+                    replacementHtml,
                     wasNotInList,
                     inListSelector
                 );
@@ -376,13 +373,15 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 XF.flashMessage(data.message, this.options.successMessageFlashTimeOut);
             }
 
-            const $target = this.target || this.$target.get(0),
-                $alert = $target.closest('.js-alert');
-
-            const id = $alert.getAttribute('data-alert-id');
+            const target = this.target || this.$target.get(0),
+                alert = target.closest('.js-alert'),
+                id = alert.getAttribute('data-alert-id');
             if (id)
             {
-                document.querySelector(".js-alert[data-alert-id='" + id + "']").remove();
+                const alerts = document.querySelectorAll(".js-alert[data-alert-id='" + id + "']");
+                alerts.forEach((alert) => {
+                    alert.remove();
+                });
             }
         }
     });
@@ -398,21 +397,20 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
         init ()
         {
-            let options = this.options,
-                alerts = (this.target || this.$target.get(0)).querySelectorAll(options.classSelector)
-            ;
+            const options = this.options,
+                transitionDuration = Math.max(0, options.transitionDuration | 0),
+                transitionDelay = Math.max(0, options.transitionDelay | 0),
+                alerts = (this.target || this.$target.get(0)).querySelectorAll(options.classSelector);
             if (!alerts || !alerts.length)
             {
                 return;
             }
 
-            options.transitionDuration = Math.max(0, options.transitionDuration | 0);
-            options.transitionDelay = Math.max(0, options.transitionDelay | 0);
-            if (options.transitionDuration)
+            if (transitionDuration)
             {
                 setTimeout(() => {
                     alerts.forEach((alert) => {
-                        alert.style.transitionDuration = options.transitionDuration + 's';
+                        alert.style.transitionDuration = transitionDuration + 's';
                     });
                     if (typeof XF.Transition !== "undefined")
                     {
@@ -425,7 +423,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                             .removeClassTransitioned(options.classToRemove)
                             .addClassTransitioned(options.classToAdd);
                     }
-                }, options.transitionDelay * 1000);
+                }, transitionDelay * 1000);
             }
             else
             {
@@ -434,7 +432,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                     alert.classList.remove(options.classToRemove);
                 });
             }
-        }
+        },
     });
 
     XF.Element.extend('tooltip', {
