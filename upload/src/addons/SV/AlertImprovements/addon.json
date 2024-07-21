@@ -2,7 +2,7 @@
     "legacy_addon_id": "SV_AlertImprovements",
     "title": "Alert Improvements",
     "description": "A collection of improvements to the XenForo 2 Alerts system.",
-    "version_string": "2.11.0",
+    "version_string": "2.11.1",
     "version_id": 1721451796,
     "dev": "Xon",
     "dev_url": "https://atelieraphelion.com/",
