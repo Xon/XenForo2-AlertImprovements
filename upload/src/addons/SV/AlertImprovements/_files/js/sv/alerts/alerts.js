@@ -399,21 +399,11 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         init ()
         {
             let options = this.options,
-                alerts = (this.target || this.$target.get(0)).querySelector(options.classSelector)
+                alerts = (this.target || this.$target.get(0)).querySelectorAll(options.classSelector)
             ;
-            if (!alerts)
+            if (!alerts || !alerts.length)
             {
                 return;
-            }
-
-            if (typeof XF.createElement !== "function")
-            {
-                if (!alerts.length)
-                {
-                    return;
-                }
-
-                alerts = alerts.get();
             }
 
             options.transitionDuration = Math.max(0, options.transitionDuration | 0);
@@ -421,10 +411,9 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             if (options.transitionDuration)
             {
                 setTimeout(() => {
-                    alerts.forEach(($alert) => {
-                        $alert.style.transitionDuration = Math.max(0, options.transitionDuration | 0) + 's';
+                    alerts.forEach((alert) => {
+                        alert.style.transitionDuration = options.transitionDuration + 's';
                     });
-
                     if (typeof XF.Transition !== "undefined")
                     {
                         XF.Transition.removeClassTransitioned(alerts, options.classToRemove);
@@ -432,7 +421,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                     }
                     else // jQuery - XF 2.2
                     {
-                        alerts
+                        $(alerts)
                             .removeClassTransitioned(options.classToRemove)
                             .addClassTransitioned(options.classToAdd);
                     }
@@ -440,9 +429,9 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             }
             else
             {
-                alerts.forEach(($alert) => {
-                    $alert.classList.add(options.classToAdd);
-                    $alert.classList.remove(options.classToRemove);
+                alerts.forEach((alert) => {
+                    alert.classList.add(options.classToAdd);
+                    alert.classList.remove(options.classToRemove);
                 });
             }
         }
