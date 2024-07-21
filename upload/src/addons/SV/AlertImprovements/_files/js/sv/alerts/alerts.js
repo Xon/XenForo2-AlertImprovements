@@ -411,18 +411,18 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 setTimeout(() => {
                     alerts.forEach((alert) => {
                         alert.style.transitionDuration = transitionDuration + 's';
+                        if (typeof XF.Transition !== "undefined")
+                        {
+                            XF.Transition.removeClassTransitioned(alert, options.classToRemove);
+                            XF.Transition.addClassTransitioned(alert, options.classToAdd);
+                        }
+                        else // jQuery - XF 2.2
+                        {
+                            $(alert)
+                                .removeClassTransitioned(options.classToRemove)
+                                .addClassTransitioned(options.classToAdd);
+                        }
                     });
-                    if (typeof XF.Transition !== "undefined")
-                    {
-                        XF.Transition.removeClassTransitioned(alerts, options.classToRemove);
-                        XF.Transition.addClassTransitioned(alerts, options.classToAdd);
-                    }
-                    else // jQuery - XF 2.2
-                    {
-                        $(alerts)
-                            .removeClassTransitioned(options.classToRemove)
-                            .addClassTransitioned(options.classToAdd);
-                    }
                 }, transitionDelay * 1000);
             }
             else
