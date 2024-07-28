@@ -35,7 +35,7 @@ class UserOptionPatch1 extends XFCP_UserOptionPatch1
             return false;
         }
 
-        return ($this->app()->options()->enablePush ?? false)
+        return (\XF::app()->options()->enablePush ?? false)
                && $this->doesReceiveAlert($contentType, $action)
                && ($alertPreferences['push'][$contentType][$action]
                    ?? AlertPreferencesRepo::get()->getAlertPreferenceDefault('push', $contentType, $action)

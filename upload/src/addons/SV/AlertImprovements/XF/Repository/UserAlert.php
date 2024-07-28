@@ -435,7 +435,7 @@ class UserAlert extends XFCP_UserAlert
             foreach ($alertIds as $alertId)
             {
                 /** @var UserAlertEntity $alert */
-                $alert = $em->findCached('XF:UserAlert', $alertId);
+                $alert = \SV\StandardLib\Helper::findCached(\XF\Entity\UserAlert::class, $alertId);
                 if ($alert)
                 {
                     $alert->setAsSaved('view_date', $readDate);
@@ -544,7 +544,7 @@ class UserAlert extends XFCP_UserAlert
             foreach ($alertIds as $alertId)
             {
                 /** @var UserAlertEntity $alert */
-                $alert = $em->findCached('XF:UserAlert', $alertId);
+                $alert = \SV\StandardLib\Helper::findCached(\XF\Entity\UserAlert::class, $alertId);
                 if ($alert)
                 {
                     $alert->setAsSaved('view_date', 0);

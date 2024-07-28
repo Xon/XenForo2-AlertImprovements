@@ -362,7 +362,7 @@ class Account extends XFCP_Account
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
 
         /** @var AlertAction $alertAction */
-        $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
+        $alertAction = \SV\StandardLib\Helper::plugin($this,\SV\AlertImprovements\ControllerPlugin\AlertAction::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $inlist = $this->filter('inlist', 'bool');
 
@@ -396,7 +396,7 @@ class Account extends XFCP_Account
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
 
         /** @var AlertAction $alertAction */
-        $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
+        $alertAction = \SV\StandardLib\Helper::plugin($this,\SV\AlertImprovements\ControllerPlugin\AlertAction::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $inlist = $this->filter('inlist', 'bool');
 
@@ -438,7 +438,7 @@ class Account extends XFCP_Account
         }
 
         /** @var AlertAction $alertAction */
-        $alertAction = $this->plugin('SV\AlertImprovements:AlertAction');
+        $alertAction = \SV\StandardLib\Helper::plugin($this,\SV\AlertImprovements\ControllerPlugin\AlertAction::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
             $this->assertNotFlooding('alertSummarize', $floodingLimit);

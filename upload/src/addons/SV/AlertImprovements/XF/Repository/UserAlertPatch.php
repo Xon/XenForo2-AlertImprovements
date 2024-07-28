@@ -151,8 +151,8 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      */
     public function addContentToAlerts($alerts)
     {
-        $app = $this->app();
-        $em = $app->em();
+        $app = \XF::app();
+        $em = \XF::app()->em();
 
         /** @var array<int, UserAlertEntity> $alerts */
         /** @var array<int, array<int,int[]>> $contentMap */
@@ -161,7 +161,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         foreach ($alerts AS $alertId => $alert)
         {
             $userId = $alert->user_id;
-            if ($userId !== 0 && !$em->findCached('XF:User', $userId))
+            if ($userId !== 0 && !\SV\StandardLib\Helper::findCached(\XF\Entity\User::class, $userId))
             {
                 $userIds[$userId] = $userId;
             }
@@ -175,7 +175,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             foreach ($contentIds as $contentId => $alertIds)
             {
-                $entity = $em->findCached('XF:User', $contentId);
+                $entity = \SV\StandardLib\Helper::findCached(\XF\Entity\User::class, $contentId);
                 if (!$entity)
                 {
                     $userIds[$contentId] = $contentId;
@@ -185,7 +185,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
 
         if (count($userIds) !== 0)
         {
-            $em->getFinder('XF:User')
+            \SV\StandardLib\Helper::finder(\XF\Finder\User::class)
                ->whereIds($userIds)
                ->fetch();
         }
@@ -205,7 +205,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
 
             foreach ($contentIds as $contentId => $alertIds)
             {
-                $entity = $em->findCached($entityName, $contentId);
+                $entity = \SV\StandardLib\Helper::findCached($entityName, $contentId);
                 if (!$entity)
                 {
                     continue;

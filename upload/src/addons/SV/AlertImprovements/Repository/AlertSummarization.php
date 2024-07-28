@@ -442,7 +442,7 @@ class AlertSummarization extends Repository
             $visitor = null;
         }
         /** @var ExtendedUserAlertEntity $alert */
-        $alert = $this->em->create('XF:UserAlert');
+        $alert = \SV\StandardLib\Helper::createEntity(\XF\Entity\UserAlert::class);
         $alert->setupSummaryAlert($summaryAlert);
 
         $db = $this->db();
@@ -564,13 +564,13 @@ class AlertSummarization extends Repository
             if (isset($addOns['SV/ContentRatings']))
             {
                 /** @var Reaction $reactionRepo */
-                $reactionRepo = $this->app()->repository('XF:Reaction');
+                $reactionRepo = \SV\StandardLib\Helper::repository(\XF\Repository\Reaction::class);
                 $reactions = $reactionRepo->getReactionsAsEntities();
                 $reactionIds = $reactions->keys();
             }
             else
             {
-                $reactions = $this->app()->get('reactions');
+                $reactions = \XF::app()->get('reactions');
                 $reactionIds = ($reactions instanceof AbstractCollection)
                     ? $reactions->keys()
                     : array_keys($reactions);

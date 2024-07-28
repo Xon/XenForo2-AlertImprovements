@@ -118,7 +118,7 @@ class UserAlert extends XFCP_UserAlert
                     return $output;
                 }
 
-                return $this->em->getBasicCollection($output);
+                return \XF::app()->em()->getBasicCollection($output);
             }
         }
 

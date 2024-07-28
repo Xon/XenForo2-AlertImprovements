@@ -9,13 +9,6 @@ namespace SV\AlertImprovements\SV\ReportImprovements\Alert
 	class XFCP_ReportComment extends \SV\ReportImprovements\Alert\ReportComment {}
 }
 
-namespace SV\AlertImprovements\XFMG\Alert
-{
-	class XFCP_Album extends \XFMG\Alert\Album {}
-	class XFCP_Comment extends \XFMG\Alert\Comment {}
-	class XFCP_Media extends \XFMG\Alert\Media {}
-}
-
 namespace SV\AlertImprovements\XF\Admin\Controller
 {
 	class XFCP_User extends \XF\Admin\Controller\User {}
@@ -64,4 +57,11 @@ namespace SV\AlertImprovements\XF\Repository
 	class XFCP_UserAlert extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertAutoReadPatch extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertPatch extends \XF\Repository\UserAlert {}
+}
+
+namespace SV\AlertImprovements\XFMG\Alert
+{
+	class XFCP_Album extends \XFMG\Alert\Album {}
+	class XFCP_Comment extends \XFMG\Alert\Comment {}
+	class XFCP_Media extends \XFMG\Alert\Media {}
 }
