@@ -12,8 +12,9 @@ use SV\StandardLib\Helper;
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
 use XF\Db\DeadlockException;
-use XF\Entity\User;
+use XF\Entity\User as UserEntity;
 use XF\Entity\UserOption as UserOptionEntity;
+use XF\Finder\User as UserFinder;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Entity\UserAlert as UserAlertEntity;
 use function array_keys;
@@ -27,10 +28,10 @@ use function max;
 class UserAlertPatch extends XFCP_UserAlertPatch
 {
     /**
-     * @param User     $user
-     * @param null|int $viewDate
+     * @param UserEntity $user
+     * @param null|int   $viewDate
      */
-    public function markUserAlertsViewed(User $user, $viewDate = null)
+    public function markUserAlertsViewed(UserEntity $user, $viewDate = null)
     {
         $this->markUserAlertsRead($user, $viewDate);
     }
@@ -152,7 +153,6 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     public function addContentToAlerts($alerts)
     {
         $app = \XF::app();
-        $em = \XF::em();
 
         /** @var array<int, UserAlertEntity> $alerts */
         /** @var array<int, array<int,int[]>> $contentMap */
@@ -161,7 +161,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         foreach ($alerts AS $alertId => $alert)
         {
             $userId = $alert->user_id;
-            if ($userId !== 0 && !\SV\StandardLib\Helper::findCached(\XF\Entity\User::class, $userId))
+            if ($userId !== 0 && !Helper::findCached(UserEntity::class, $userId))
             {
                 $userIds[$userId] = $userId;
             }
@@ -175,7 +175,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
         {
             foreach ($contentIds as $contentId => $alertIds)
             {
-                $entity = \SV\StandardLib\Helper::findCached(\XF\Entity\User::class, $contentId);
+                $entity = Helper::findCached(UserEntity::class, $contentId);
                 if (!$entity)
                 {
                     $userIds[$contentId] = $contentId;
@@ -185,7 +185,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
 
         if (count($userIds) !== 0)
         {
-            \SV\StandardLib\Helper::finder(\XF\Finder\User::class)
+            Helper::finder(UserFinder::class)
                ->whereIds($userIds)
                ->fetch();
         }
@@ -205,7 +205,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
 
             foreach ($contentIds as $contentId => $alertIds)
             {
-                $entity = \SV\StandardLib\Helper::findCached($entityName, $contentId);
+                $entity = Helper::findCached($entityName, $contentId);
                 if (!$entity)
                 {
                     continue;

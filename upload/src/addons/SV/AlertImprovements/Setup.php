@@ -19,7 +19,6 @@ use XF\Entity\Template;
 use XF\Entity\User as UserEntity;
 use XF\Job\PermissionRebuild;
 use XF\PreEscaped;
-use XF\PrintableException;
 use function array_keys;
 use function max;
 use function microtime;

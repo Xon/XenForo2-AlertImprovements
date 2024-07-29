@@ -2,8 +2,6 @@
 
 namespace SV\AlertImprovements;
 
-use SV\AlertImprovements\XF\Entity\UserAlert as Alerts;
-
 /**
  * Interface ISummarizeAlert
  *

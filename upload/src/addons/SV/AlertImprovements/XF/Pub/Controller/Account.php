@@ -7,7 +7,7 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
-use SV\AlertImprovements\ControllerPlugin\AlertAction;
+use SV\AlertImprovements\ControllerPlugin\AlertAction as AlertActionPlugin;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 use SV\AlertImprovements\Repository\AlertSummarization as AlertSummarizationRepo;
@@ -361,8 +361,7 @@ class Account extends XFCP_Account
     {
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
 
-        /** @var AlertAction $alertAction */
-        $alertAction = \SV\StandardLib\Helper::plugin($this,\SV\AlertImprovements\ControllerPlugin\AlertAction::class);
+        $alertAction = Helper::plugin($this, AlertActionPlugin::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $inlist = $this->filter('inlist', 'bool');
 
@@ -395,8 +394,8 @@ class Account extends XFCP_Account
     {
         $alert = $this->assertViewableAlert((int)$params->get('alert_id'));
 
-        /** @var AlertAction $alertAction */
-        $alertAction = \SV\StandardLib\Helper::plugin($this,\SV\AlertImprovements\ControllerPlugin\AlertAction::class);
+        /** @var AlertActionPlugin $alertAction */
+        $alertAction = Helper::plugin($this, AlertActionPlugin::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $inlist = $this->filter('inlist', 'bool');
 
@@ -437,8 +436,8 @@ class Account extends XFCP_Account
             return $this->notFound();
         }
 
-        /** @var AlertAction $alertAction */
-        $alertAction = \SV\StandardLib\Helper::plugin($this,\SV\AlertImprovements\ControllerPlugin\AlertAction::class);
+        /** @var AlertActionPlugin $alertAction */
+        $alertAction = Helper::plugin($this, AlertActionPlugin::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
             $floodingLimit = max(1, $options->svAlertsSummarizeFlood ?? 1);
             $this->assertNotFlooding('alertSummarize', $floodingLimit);
