@@ -71,7 +71,7 @@ class AlertSummarization extends Repository
     {
         $userId = (int)$user->user_id;
         // reaction summary alerts really can't be merged, so wipe all summary alerts, and then try again
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
+        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($userId) {
             // polyfill for a lack of a ... operator in php7.2
             $merge = function (array $a, array $b): array {
                 foreach ($b as $i) {
@@ -159,7 +159,7 @@ class AlertSummarization extends Repository
             return false;
         }
 
-        assert(!$this->db()->inTransaction());
+        assert(!\XF::db()->inTransaction());
         // build the list of handlers at once, and exclude based
         $handlers = $this->getAlertHandlersForConsolidation();
         // nothing to be done
@@ -245,7 +245,7 @@ class AlertSummarization extends Repository
                 'extra_data'
             ],
         ]);
-        $stmt = $this->db()->query($query);
+        $stmt = \XF::db()->query($query);
 
         // collect alerts into groupings by content/id
         $groupedContentAlerts = [];
@@ -445,7 +445,7 @@ class AlertSummarization extends Repository
         $alert = \SV\StandardLib\Helper::createEntity(\XF\Entity\UserAlert::class);
         $alert->setupSummaryAlert($summaryAlert);
 
-        $db = $this->db();
+        $db = \XF::db();
         $db->query('drop temporary table if exists xf_sv_user_alert_to_summarize');
         $db->query('create temporary table xf_sv_user_alert_to_summarize (
             `alert_id` bigint primary key
@@ -627,7 +627,7 @@ class AlertSummarization extends Repository
             return;
         }
 
-        $this->db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
+        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
             $summaryId = $summaryAlert->alert_id;
             $userId = $user->user_id;
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);

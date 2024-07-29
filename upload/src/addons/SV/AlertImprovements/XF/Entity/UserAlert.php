@@ -196,7 +196,7 @@ class UserAlert extends XFCP_UserAlert
     protected function _postDelete()
     {
         parent::_postDelete();
-        $this->db()->query('DELETE FROM xf_sv_user_alert_summary WHERE alert_id  = ?', $this->alert_id);
+        \XF::db()->query('DELETE FROM xf_sv_user_alert_summary WHERE alert_id  = ?', $this->alert_id);
     }
 
     protected function _saveToSource()
@@ -209,7 +209,7 @@ class UserAlert extends XFCP_UserAlert
             $userId = $this->alerted_user_id;
             if ($userId !== 0)
             {
-                $this->db()->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+                \XF::db()->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
             }
         }
 

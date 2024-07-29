@@ -47,7 +47,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             return false;
         }
 
-        $db = $this->db();
+        $db = \XF::db();
         try
         {
             do
@@ -84,7 +84,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
             return false;
         }
 
-        $db = $this->db();
+        $db = \XF::db();
         try
         {
             do
@@ -152,7 +152,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     public function addContentToAlerts($alerts)
     {
         $app = \XF::app();
-        $em = \XF::app()->em();
+        $em = \XF::em();
 
         /** @var array<int, UserAlertEntity> $alerts */
         /** @var array<int, array<int,int[]>> $contentMap */

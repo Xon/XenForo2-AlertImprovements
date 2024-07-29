@@ -67,7 +67,7 @@ class UserAlert extends XFCP_UserAlert
 
     public function refreshUserAlertCounters(UserEntity $user)
     {
-        $row = $this->db()->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $user->user_id);
+        $row = \XF::db()->fetchRow('SELECT alerts_unviewed, alerts_unread FROM xf_user WHERE user_id = ?', $user->user_id);
         if ($row)
         {
             $user->setAsSaved('alerts_unviewed', $row['alerts_unviewed']);
@@ -194,7 +194,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $skipSummarize = (Globals::$skipSummarize ?? false) || !AlertSummarizationRepo::get()->canSummarizeAlerts();
-        if ($skipSummarize || $this->db()->inTransaction())
+        if ($skipSummarize || \XF::db()->inTransaction())
         {
             return $finder;
         }
@@ -234,7 +234,7 @@ class UserAlert extends XFCP_UserAlert
             $readDate = \XF::$time;
         }
 
-        $db = $this->db();
+        $db = \XF::db();
         $db->executeTransaction(function () use ($db, $readDate, $userId) {
             if (Globals::isSkippingExpiredAlerts())
             {
@@ -370,7 +370,7 @@ class UserAlert extends XFCP_UserAlert
         }
 
         $userId = (int)$user->user_id;
-        $db = $this->db();
+        $db = \XF::db();
         if ($db->inTransaction())
         {
             // Only enforce table lock ordering if this function was called inside a transaction
@@ -461,7 +461,7 @@ class UserAlert extends XFCP_UserAlert
 
         $disableAutoReadSql = $disableAutoRead ? ', auto_read = 0 ' : '';
         $userId = (int)$user->user_id;
-        $db = $this->db();
+        $db = \XF::db();
         if ($db->inTransaction())
         {
             // Only enforce table lock ordering if this function was called inside a transaction
@@ -616,7 +616,7 @@ class UserAlert extends XFCP_UserAlert
 
         $viewDate = $viewDate ?: \XF::$time;
 
-        $db = $this->db();
+        $db = \XF::db();
 
         $actionFilter = $actions ? ' AND action in (' . $db->quote($actions) . ') ' : '';
         $autoMarkReadFilter = $respectAutoMarkRead ? ' AND auto_read = 1 ' : '';
@@ -727,7 +727,7 @@ class UserAlert extends XFCP_UserAlert
         if ($result)
         {
             // this doesn't need to be in a transaction as it is an advisory read
-            $count = $this->db()->fetchOne('
+            $count = \XF::db()->fetchOne('
                 SELECT alerts_unread 
                 FROM xf_user 
                 WHERE user_id = ?
@@ -864,7 +864,7 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $this->db()->query('INSERT IGNORE xf_sv_user_alert_rebuild (user_id, rebuild_date) values (?, unix_timestamp())', [$userId]);
+        \XF::db()->query('INSERT IGNORE xf_sv_user_alert_rebuild (user_id, rebuild_date) values (?, unix_timestamp())', [$userId]);
     }
 
     public function cleanupPendingAlertRebuild(int $userId)
@@ -874,7 +874,7 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        $this->db()->query('DELETE FROM xf_sv_user_alert_rebuild WHERE user_id = ?', [$userId]);
+        \XF::db()->query('DELETE FROM xf_sv_user_alert_rebuild WHERE user_id = ?', [$userId]);
     }
 
     /**

@@ -37,7 +37,7 @@ class ReactionContentPatch extends XFCP_ReactionContentPatch
         }
         $userIds = array_unique($userIds);
         sort($userIds);
-        $db = $this->db();
+        $db = \XF::db();
         $db->fetchAllColumn('SELECT user_id FROM xf_user WHERE user_id in (' . $db->quote($userIds) . ') ORDER BY user_id FOR UPDATE ');
     }
 

@@ -37,7 +37,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
 
     protected function getNextIds($start, $batch): array
     {
-        $db = \XF::app()->db();
+        $db = \XF::db();
 
         if (empty($this->data['pendingRebuilds']))
         {

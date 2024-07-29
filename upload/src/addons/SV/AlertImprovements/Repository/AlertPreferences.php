@@ -51,7 +51,7 @@ class AlertPreferences extends Repository
             }
         };
 
-        $db = $this->db();
+        $db = \XF::db();
         $db->beginTransaction();
         $userOption = $db->fetchRow('
                 SELECT * 
