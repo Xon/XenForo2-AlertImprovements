@@ -154,6 +154,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         },
 
         processing: null,
+        confirmOverlay: null,
 
         init ()
         {
@@ -172,6 +173,11 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 return;
             }
             this.processing = true;
+
+            if (this.confirmOverlay) {
+                this.confirmOverlay.destroy();
+                this.confirmOverlay = null;
+            }
 
 
             const target = this.target || this.$target.get(0),
@@ -209,11 +215,59 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
         },
 
         /**
+         * @param {Event} e
+         * @param {object | undefined} data
+         */
+        handleOverlayConfirm (e, data) {
+            data = data || e.data;
+            e.preventDefault();
+
+            if (this.confirmOverlay) {
+                this.confirmOverlay.close();
+            }
+
+            this.handleMarkAllReadAjax(data);
+        },
+
+        handleOverlayClose (e, data) {
+            data = data || e.data;
+            e.preventDefault();
+
+            if (this.confirmOverlay) {
+                this.confirmOverlay.destroy();
+                this.confirmOverlay = null;
+            }
+        },
+
+        /**
          * @param {Object} data
          */
         handleMarkAllReadAjax (data)
         {
             this.processing = false;
+
+            if ('unconfirmed' in data && data.unconfirmed) {
+
+                XF.setupHtmlInsert(data.html, (html, container) =>
+                {
+                    const overlay = XF.getOverlayHtml({
+                        html,
+                        title: container.h1 || container.title,
+                    })
+                    this.confirmOverlay = XF.showOverlay(overlay);
+                    /** @type HTMLElement **/
+                    const overlayContainer = this.confirmOverlay.container || this.confirmOverlay.$container.get(0);
+                    const form = overlayContainer.querySelector('form');
+                    if (xf22) {
+                        $(form).on('ajax-submit:response', this.handleOverlayConfirm.bind(this));
+                        $(overlayContainer).on('overlay:hiding', this.handleOverlayClose.bind(this));
+                    } else {
+                        XF.on(form, 'ajax-submit:response', this.handleOverlayConfirm.bind(this))
+                        XF.on(overlayContainer, 'overlay:hiding', this.handleOverlayClose.bind(this));
+                    }
+                });
+                return;
+            }
 
             if (data.message)
             {

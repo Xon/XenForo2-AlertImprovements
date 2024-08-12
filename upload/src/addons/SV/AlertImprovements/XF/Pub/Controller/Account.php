@@ -58,8 +58,7 @@ class Account extends XFCP_Account
         /** @var int[] $popupAlertIds */
         $popupAlertIds = $this->filter('popup_alert_ids', 'array-uint');
 
-
-        if ($this->isPost())// && )
+        if ($this->isPost() && $this->filter('confirm', 'bool'))
         {
             $alertRepo->markUserAlertsRead($visitor);
 
@@ -129,6 +128,8 @@ class Account extends XFCP_Account
             'svAlertImprov_account_alerts_mark_read',
             $viewParams
         );
+        $view->setJsonParam('unconfirmed', 1);
+
         return $this->addAccountWrapperParams($view, 'alerts');
     }
 
