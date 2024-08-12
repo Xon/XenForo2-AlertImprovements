@@ -53,38 +53,76 @@ class Account extends XFCP_Account
 
         $redirect = $this->getDynamicRedirect($this->buildLink('account/alerts'));
 
-        if ($this->isPost())
+        /** @var int[] $listAlertIds */
+        $listAlertIds = $this->filter('list_alert_ids', 'array-uint');
+        /** @var int[] $popupAlertIds */
+        $popupAlertIds = $this->filter('popup_alert_ids', 'array-uint');
+
+
+        if ($this->isPost())// && )
         {
             $alertRepo->markUserAlertsRead($visitor);
 
-            $inlist = $this->filter('inlist', 'bool');
-            $alertIds = $this->filter('alert_ids', 'array-uint');
-            if ($alertIds)
+            $alertIds = [];
+            foreach ($listAlertIds as $alertId)
             {
-                /** @var UserAlert[]|AbstractCollection $alerts */
-                $alerts = $alertRepo->findAlertByIdsForUser($visitor->user_id, $alertIds)
-                                    ->limit(\XF::options()->alertsPerPage * 2)
-                                    ->fetch();
-                $alertRepo->addContentToAlerts($alerts);
-                $alerts = $alerts->filterViewable();
-
-                $viewParams = [
-                    'alerts'             => $alerts,
-                    'showSelectCheckbox' => $inlist,
-                    'inAlertsPopup'      => !$inlist,
-                ];
-
-                $view = $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
-                $view->setJsonParam('message', \XF::phrase('all_alerts_marked_as_read'));
-
-                return $view;
+                $alertIds[$alertId] = $alertId;
+            }
+            foreach ($popupAlertIds as $alertId)
+            {
+                $alertIds[$alertId] = $alertId;
+            }
+            if (count($alertIds) === 0)
+            {
+                return $this->redirect($redirect, \XF::phrase('all_alerts_marked_as_read'));
             }
 
-            return $this->redirect($redirect, \XF::phrase('all_alerts_marked_as_read'));
+            /** @var UserAlert[]|AbstractCollection $alerts */
+            $alerts = $alertRepo->findAlertByIdsForUser($visitor->user_id, $alertIds)
+                                ->limit(\XF::options()->alertsPerPage * 2)
+                                ->fetch();
+            $alertRepo->addContentToAlerts($alerts);
+            $alerts = $alerts->filterViewable()->toArray();
+            if (count($alerts) === 0)
+            {
+                return $this->redirect($redirect, \XF::phrase('all_alerts_marked_as_read'));
+            }
+
+            $listAlerts = [];
+            foreach ($listAlertIds as $alertId)
+            {
+                $alert = $alerts[$alertId] ?? null;
+                if ($alert !== null)
+                {
+                    $listAlerts[$alertId] = $alert;
+                }
+            }
+
+            $popupAlerts = [];
+            foreach ($popupAlertIds as $alertId)
+            {
+                $alert = $alerts[$alertId] ?? null;
+                if ($alert !== null)
+                {
+                    $popupAlerts[$alertId] = $alert;
+                }
+            }
+
+            $viewParams = [
+                'listAlerts'  => $listAlerts,
+                'popupAlerts' => $popupAlerts,
+            ];
+
+            $view = $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
+            $view->setJsonParam('message', \XF::phrase('all_alerts_marked_as_read'));
+
+            return $view;
         }
 
         $viewParams = [
             'redirect' => $redirect,
+            'listAlertIds' => $listAlertIds,
+            'popupAlertIds' => $popupAlertIds,
         ];
         $view = $this->view(
             'SV\AlertImprovements\XF:Account\AlertsMarkRead',
@@ -363,7 +401,8 @@ class Account extends XFCP_Account
 
         $alertAction = Helper::plugin($this, AlertActionPlugin::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
-            $inlist = $this->filter('inlist', 'bool');
+            $inlist = $this->filter('list', 'bool');
+            $inPopup = $this->filter('popup', 'bool');
 
             $alertRepo = Helper::repository(UserAlertRepo::class);
             $alertRepo->markUserAlertRead($alert, \XF::$time);
@@ -377,9 +416,8 @@ class Account extends XFCP_Account
             $alert->setOption('force_unread_in_ui', true);
 
             $viewParams = [
-                'alerts'             => new ArrayCollection([$alert]),
-                'showSelectCheckbox' => $inlist,
-                'inAlertsPopup'      => !$inlist,
+                'listAlerts' => $inlist ? [$alert] : [],
+                'popupAlerts' => $inPopup ? [$alert] : [],
             ];
 
             return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);
@@ -397,7 +435,8 @@ class Account extends XFCP_Account
         /** @var AlertActionPlugin $alertAction */
         $alertAction = Helper::plugin($this, AlertActionPlugin::class);
         return $alertAction->doAction($alert, function(ExtendedUserAlertEntity $alert) {
-            $inlist = $this->filter('inlist', 'bool');
+            $inlist = $this->filter('list', 'bool');
+            $inPopup = $this->filter('popup', 'bool');
 
             $alertRepo = Helper::repository(UserAlertRepo::class);
 
@@ -410,9 +449,8 @@ class Account extends XFCP_Account
             }
 
             $viewParams = [
-                'alerts'             => new ArrayCollection([$alert]),
-                'showSelectCheckbox' => $inlist,
-                'inAlertsPopup'      => !$inlist,
+                'listAlerts' => $inlist ? [$alert] : [],
+                'popupAlerts' => $inPopup ? [$alert] : [],
             ];
 
             return $this->view('XF:Account\Alert', 'svAlertImprov_alerts', $viewParams);

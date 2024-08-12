@@ -104,7 +104,7 @@
 		  arg-showSelectCheckbox="{{ false }}"
 		  arg-inAlertsPopup="{{ false }}"
 		  >
-	<div class="contentRow">
+	<div class="contentRow" data-pop-up="{{ $inAlertsPopup ? '1' : '0' }}">
 		<xf:if is="$showSelectCheckbox">
 			<div class="contentRow-figure contentRow-figure--selector">
 				<xf:checkbox standalone="true">

@@ -13,5 +13,13 @@
 		<xf:submitrow submit="{{ phrase('mark_read') }}" rowtype="simple" />
 	</div>
 
+	<xf:foreach loop="$listAlertIds" value="$alertId">
+		<xf:hiddenval name="list_alert_ids[]" value="{$alertId}" />
+	</xf:foreach>
+	<xf:foreach loop="$popupAlertIds" value="$alertId">
+		<xf:hiddenval name="popup_alert_ids[]" value="{$alertId}" />
+	</xf:foreach>
+
+	<xf:hiddenval name="confirm" value="1" />
 	<xf:redirect url="{$redirect}" />
 </xf:form>

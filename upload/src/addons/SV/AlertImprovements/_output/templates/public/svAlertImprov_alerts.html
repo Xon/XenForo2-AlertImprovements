@@ -1,11 +1,21 @@
 <div>
-<xf:foreach loop="$alerts" value="$alert">
+<xf:foreach loop="$listAlerts" value="$alert">
 	<div data-alert-id="{$alert.alert_id}">
 		<xf:macro template="svAlertImprov_macros"
 				  name="alert_row"
 				  arg-alert="{$alert}"
-				  arg-showSelectCheckbox="{$showSelectCheckbox}"
-				  arg-inAlertsPopup="{$inAlertsPopup}"
+				  arg-showSelectCheckbox="{{ true }}"
+				  arg-inAlertsPopup="{{ false }}"
+				  />
+	</div>
+</xf:foreach>
+<xf:foreach loop="$popupAlerts" value="$alert">
+	<div data-alert-id="{$alert.alert_id}">
+		<xf:macro template="svAlertImprov_macros"
+				  name="alert_row"
+				  arg-alert="{$alert}"
+				  arg-showSelectCheckbox="{{ false }}"
+				  arg-inAlertsPopup="{{ true }}"
 				  />
 	</div>
 </xf:foreach>
