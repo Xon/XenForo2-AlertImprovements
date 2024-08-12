@@ -223,7 +223,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             e.preventDefault();
 
             if (this.confirmOverlay) {
-                this.confirmOverlay.close();
+                this.confirmOverlay.hide();
             }
 
             this.handleMarkAllReadAjax(data);
@@ -260,10 +260,10 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                     const form = overlayContainer.querySelector('form');
                     if (xf22) {
                         $(form).on('ajax-submit:response', this.handleOverlayConfirm.bind(this));
-                        $(overlayContainer).on('overlay:hiding', this.handleOverlayClose.bind(this));
+                        $(overlayContainer).on('overlay:hidden', this.handleOverlayClose.bind(this));
                     } else {
                         XF.on(form, 'ajax-submit:response', this.handleOverlayConfirm.bind(this))
-                        XF.on(overlayContainer, 'overlay:hiding', this.handleOverlayClose.bind(this));
+                        XF.on(overlayContainer, 'overlay:hidden', this.handleOverlayClose.bind(this));
                     }
                 });
                 return;
