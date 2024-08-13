@@ -36,7 +36,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
             alert.classList.add('is-unread');
         }
 
-        const id = alert.dataset.alertId | 0;
+        const id = alert.dataset.alertId;
         if (id && replacementHtml) {
             alert.replaceChildren(replacementHtml);
         } else if (canRemove) {
@@ -76,7 +76,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
             const target = (this.target || this.$target.get(0)),
                 alert = target.closest('.js-alert'),
-                alertId = alert.dataset.alertId | 0;
+                alertId = alert.dataset.alertId;
             if (!alertId) {
                 return;
             }
@@ -107,7 +107,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
             const target = (this.target || this.$target.get(0)),
                 alert = target.closest('.js-alert'),
-                alertId = alert.dataset.alertId | 0;
+                alertId = alert.dataset.alertId;
             if (!alertId) {
                 return;
             }
@@ -188,13 +188,13 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 popupAlerts = document.querySelectorAll(".js-alert.is-unread[data-alert-id] > [data-pop-up='1']");
 
             listAlerts.forEach((alert) => {
-                const alertId = alert.parentElement.dataset.alertId | 0;
+                const alertId = alert.parentElement.dataset.alertId;
                 if (alertId) {
                     listAlertIds.push(alertId);
                 }
             });
             popupAlerts.forEach((alert) => {
-                const alertId = alert.parentElement.dataset.alertId | 0;
+                const alertId = alert.parentElement.dataset.alertId;
                 if (alertId) {
                     popupAlertIds.push(alertId);
                 }
@@ -294,7 +294,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 let alertsById = [];
                 const inListAlerts = html.querySelectorAll("[data-alert-id] > [data-pop-up='0']");
                 inListAlerts.forEach((alert) => {
-                    const alertId = alert.parentElement.dataset.alertId | 0;
+                    const alertId = alert.parentElement.dataset.alertId ;
                     if (alertId) {
                         alertsById[alertId] = alert;
                     }
@@ -303,14 +303,14 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 const inListAlertsToUpdate = document.querySelectorAll(".js-alert.is-unread[data-alert-id] > [data-pop-up='0']");
                 inListAlertsToUpdate.forEach((el) => {
                     const alert = el.parentElement;
-                    const alertId = alert.dataset.alertId | 0;
+                    const alertId = alert.dataset.alertId ;
                     SV.AlertImprovements.updateAlert(alert, alertsById[alertId]);
                 });
 
                 alertsById = [];
                 const inPopupAlerts = html.querySelectorAll("[data-alert-id] > [data-pop-up='1']");
                 inPopupAlerts.forEach((alert) => {
-                    const alertId = alert.parentElement.dataset.alertId | 0;
+                    const alertId = alert.parentElement.dataset.alertId ;
                     if (alertId) {
                         alertsById[alertId] = alert;
                     }
@@ -319,7 +319,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 const inPopupAlertsToUpdate = document.querySelectorAll(".js-alert.is-unread[data-alert-id] > [data-pop-up='1']");
                 inPopupAlertsToUpdate.forEach((el) => {
                     const alert = el.parentElement;
-                    const alertId = alert.dataset.alertId | 0;
+                    const alertId = alert.dataset.alertId ;
                     SV.AlertImprovements.updateAlert(alert, alertsById[alertId]);
                 });
 
@@ -381,7 +381,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
             const target = this.target || this.$target.get(0),
                 alert = target.closest('.js-alert'),
-                id = alert.dataset.alertId | 0;
+                id = alert.dataset.alertId ;
             if (id)
             {
                 const alerts = document.querySelectorAll(".js-alert[data-alert-id='" + id + "']");
