@@ -308,7 +308,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 });
 
                 alertsById = [];
-                const inPopupAlerts = html.querySelectorAll(".js-alert.is-unread[data-alert-id] > [data-pop-up='1']");
+                const inPopupAlerts = html.querySelectorAll("[data-alert-id] > [data-pop-up='1']");
                 inPopupAlerts.forEach((alert) => {
                     const alertId = alert.parentElement.dataset.alertId | 0;
                     if (alertId) {
@@ -316,7 +316,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                     }
                 });
 
-                const inPopupAlertsToUpdate = document.querySelectorAll("[data-alert-id] > [data-pop-up='1']");
+                const inPopupAlertsToUpdate = document.querySelectorAll(".js-alert.is-unread[data-alert-id] > [data-pop-up='1']");
                 inPopupAlertsToUpdate.forEach((el) => {
                     const alert = el.parentElement;
                     const alertId = alert.dataset.alertId | 0;
