@@ -11,7 +11,7 @@ use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Structure;
 
 /**
- * Extends \XF\Entity\UserOption
+ * @extends \XF\Entity\UserOption
  *
  * @property string  $sv_alerts_popup_read_behavior
  * @property bool $sv_alerts_page_skips_summarize

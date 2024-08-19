@@ -18,9 +18,7 @@ use XF\Repository\UserAlert as UserAlertRepo;
 use function is_callable;
 
 /**
- * Class Conversation
- *
- * @package SV\AlertImprovements\XF\Pub\Controller
+ * @extends \XF\Pub\Controller\Account
  */
 class Conversation extends XFCP_Conversation
 {

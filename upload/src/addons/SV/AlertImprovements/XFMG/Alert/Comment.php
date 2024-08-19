@@ -6,7 +6,7 @@ use SV\AlertImprovements\ISummarizeAlert;
 use SV\AlertImprovements\XF\Alert\SummarizeAlertTrait;
 
 /**
- * Extends \XFMG\Alert\Comment
+ * @extends \XFMG\Alert\Comment
  */
 class Comment extends XFCP_Comment implements ISummarizeAlert
 {

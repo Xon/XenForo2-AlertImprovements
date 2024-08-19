@@ -11,7 +11,7 @@ use XF\Repository\UserAlert as UserAlertRepo;
 use function is_callable;
 
 /**
- * Extends \XF\Entity\User
+ * @extends \XF\Entity\User
  *
  * @property-read UserOption $Option
  */

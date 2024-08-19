@@ -5,9 +5,7 @@ namespace SV\AlertImprovements\XF\Alert;
 use SV\AlertImprovements\ISummarizeAlert;
 
 /**
- * Class Post
- *
- * @package SV\AlertImprovements\XF\Alert
+ * @extends \XF\Alert\Post
  */
 class Post extends XFCP_Post implements ISummarizeAlert
 {

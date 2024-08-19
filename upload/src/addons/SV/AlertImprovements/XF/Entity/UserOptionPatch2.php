@@ -5,7 +5,7 @@ namespace SV\AlertImprovements\XF\Entity;
 use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 
 /**
- * Extends \XF\Entity\UserOption
+ * @extends \XF\Entity\UserOption
  */
 class UserOptionPatch2 extends XFCP_UserOptionPatch2
 {

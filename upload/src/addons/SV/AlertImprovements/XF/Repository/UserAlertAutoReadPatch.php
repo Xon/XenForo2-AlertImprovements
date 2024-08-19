@@ -6,6 +6,9 @@
 
 namespace SV\AlertImprovements\XF\Repository;
 
+/**
+ * @extends \XF\Repository\UserAlert
+ */
 class UserAlertAutoReadPatch extends XFCP_UserAlertAutoReadPatch
 {
     public function insertAlert($receiverId, $senderId, $senderName, $contentType, $contentId, $action, array $extra = [], array $options = [])

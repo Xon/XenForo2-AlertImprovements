@@ -10,7 +10,7 @@ use XF\Mvc\Reply\View;
 use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
- * Extends \XF\Pub\Controller\Post
+ * @extends \XF\Pub\Controller\Post
  */
 class Post extends XFCP_Post
 {

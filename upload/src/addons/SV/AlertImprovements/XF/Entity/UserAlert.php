@@ -12,7 +12,7 @@ use function array_key_exists, is_array, preg_match, implode, trim, mb_strtolowe
 use function assert;
 
 /**
- * Class UserAlert
+ * @extends \XF\Entity\UserAlert
  * COLUMNS
  *
  * @property int            $summerize_id

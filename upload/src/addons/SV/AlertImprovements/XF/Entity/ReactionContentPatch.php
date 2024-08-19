@@ -2,13 +2,13 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
-
+use XF\Entity\ReactionContent;
 use function array_filter;
 use function array_unique;
 use function sort;
 
 /**
- * Extends \XF\Entity\ReactionContent
+ * @extends ReactionContent
  */
 class ReactionContentPatch extends XFCP_ReactionContentPatch
 {

@@ -6,7 +6,7 @@ use SV\AlertImprovements\ISummarizeAlert;
 use SV\AlertImprovements\XF\Alert\SummarizeAlertTrait;
 
 /**
- * Extends \XFMG\Alert\Album
+ * @extends \XFMG\Alert\Album
  */
 class Album extends XFCP_Album implements ISummarizeAlert
 {

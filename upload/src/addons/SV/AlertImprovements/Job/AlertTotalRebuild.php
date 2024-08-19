@@ -9,11 +9,6 @@ use XF\Job\AbstractRebuildJob;
 use XF\Phrase;
 use function array_merge;
 
-/**
- * Class Cache
- *
- * @package SV\AlertImprovements\Job
- */
 class AlertTotalRebuild extends AbstractRebuildJob
 {
     /** @var UserAlert */

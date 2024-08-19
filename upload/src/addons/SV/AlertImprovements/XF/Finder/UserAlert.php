@@ -14,9 +14,7 @@ use function count;
 use function implode;
 
 /**
- * Class UserAlert
- *
- * @package SV\AlertImprovements\XF\Finder
+ * @extends \XF\Finder\UserAlert
  */
 class UserAlert extends XFCP_UserAlert
 {

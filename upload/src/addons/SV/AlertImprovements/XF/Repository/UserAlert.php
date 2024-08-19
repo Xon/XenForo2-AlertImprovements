@@ -22,9 +22,7 @@ use function max;
 use function min;
 
 /**
- * Class UserAlert
- *
- * @package SV\AlertImprovements\XF\Repository
+ * @extends \XF\Repository\UserAlert
  */
 class UserAlert extends XFCP_UserAlert
 {

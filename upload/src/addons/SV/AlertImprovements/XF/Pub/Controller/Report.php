@@ -11,9 +11,7 @@ use XF\Mvc\Reply\View;
 use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
- * Class Report
- *
- * @package SV\AlertImprovements\XF\Pub\Controller
+ * @extends \XF\Pub\Controller\Report
  */
 class Report extends XFCP_Report
 {

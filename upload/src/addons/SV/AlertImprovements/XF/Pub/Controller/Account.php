@@ -36,9 +36,7 @@ use function is_array;
 use function is_callable;
 
 /**
- * Class Account
- *
- * @package SV\AlertImprovements\XF\Pub\Controller
+ * @extends \XF\Pub\Controller\Account
  */
 class Account extends XFCP_Account
 {

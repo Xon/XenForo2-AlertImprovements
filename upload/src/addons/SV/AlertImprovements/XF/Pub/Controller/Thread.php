@@ -13,9 +13,7 @@ use XF\Mvc\Entity\AbstractCollection;
 use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
- * Class Thread
- *
- * @package SV\AlertImprovements\XF\Pub\Controller
+ * @extends \XF\Pub\Controller\Thread
  */
 class Thread extends XFCP_Thread
 {

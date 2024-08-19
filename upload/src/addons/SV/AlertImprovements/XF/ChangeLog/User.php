@@ -5,7 +5,7 @@ namespace SV\AlertImprovements\XF\ChangeLog;
 use XF\Phrase;
 
 /**
- * Extends \XF\ChangeLog\User
+ * @extends \XF\ChangeLog\User
  */
 class User extends XFCP_User
 {

@@ -5,9 +5,7 @@ namespace SV\AlertImprovements\XF\Alert;
 use SV\AlertImprovements\ISummarizeAlert;
 
 /**
- * Class User
- *
- * @package SV\AlertImprovements\XF\Alert
+ * @extends \XF\Alert\User
  */
 class User extends XFCP_User implements ISummarizeAlert
 {

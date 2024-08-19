@@ -21,9 +21,7 @@ use function array_keys;
 use function max;
 
 /**
- * Class UserAlert
- *
- * @package SV\AlertImprovements\XF\Repository
+ * @extends \XF\Repository\UserAlert
  */
 class UserAlertPatch extends XFCP_UserAlertPatch
 {
