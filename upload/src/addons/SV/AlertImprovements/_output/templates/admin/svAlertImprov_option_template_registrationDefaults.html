@@ -1,4 +1,9 @@
 <xf:checkboxrow label="{{ phrase('svAlertImprov_alerts_page_options') }}">
+	<xf:if is="$xf.options.svMarkReadPromptOptout">
+    <xf:option name="{$inputName}[sv_prompt_on_mark_read]"
+               label="{{ phrase('sv_prompt_on_mark_read') }}"
+               checked="{{$option.option_value.sv_prompt_on_mark_read}}" />
+	</xf:if>
     <xf:option name="{$inputName}[sv_alerts_page_skips_summarize]"
                label="{{ phrase('sv_alerts_page_skips_summarize') }}"
                checked="{{$option.option_value.sv_alerts_page_skips_summarize}}" />

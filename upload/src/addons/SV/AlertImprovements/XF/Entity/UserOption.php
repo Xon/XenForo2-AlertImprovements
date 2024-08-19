@@ -13,6 +13,7 @@ use XF\Mvc\Entity\Structure;
 /**
  * @extends \XF\Entity\UserOption
  *
+ * @property bool $sv_prompt_on_mark_read
  * @property string  $sv_alerts_popup_read_behavior
  * @property bool $sv_alerts_page_skips_summarize
  * @property int  $sv_alerts_summarize_threshold
@@ -59,6 +60,7 @@ class UserOption extends XFCP_UserOption
         $options = \XF::options();
 
         $defaults = $options->registrationDefaults;
+        $this->sv_prompt_on_mark_read = (string)($defaults['sv_prompt_on_mark_read'] ?? true);
         $this->sv_alerts_popup_read_behavior = (string)($defaults['sv_alerts_popup_read_behavior'] ?? PopUpReadBehavior::PerUser);
         $this->sv_alerts_page_skips_summarize = (bool)($defaults['sv_alerts_page_skips_summarize'] ?? false); // boolean values of false don't save
         $this->sv_alerts_summarize_threshold = (int)($defaults['sv_alerts_summarize_threshold'] ?? 4);
@@ -93,6 +95,7 @@ class UserOption extends XFCP_UserOption
     {
         $structure = parent::getStructure($structure);
 
+        $structure->columns['sv_prompt_on_mark_read'] = ['type' => Entity::BOOL, 'default' => true];
         $structure->columns['sv_alerts_popup_read_behavior'] = ['type' => Entity::STR, 'default' => PopUpReadBehavior::PerUser, 'allowedValues' => PopUpReadBehavior::get()];
         $structure->columns['sv_alerts_page_skips_summarize'] = ['type' => Entity::BOOL, 'default' => true];
         $structure->columns['sv_alerts_summarize_threshold'] = ['type' => Entity::UINT, 'default' => 4];

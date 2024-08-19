@@ -26,11 +26,6 @@ use function min;
 use function strpos;
 use function version_compare;
 
-/**
- * Class Setup
- *
- * @package SV\AlertImprovements
- */
 class Setup extends AbstractSetup
 {
     use InstallerHelper {
@@ -41,6 +36,11 @@ class Setup extends AbstractSetup
     use StepRunnerUninstallTrait;
 
     public function installStep1(): void
+    {
+        $this->applySchemaChanges();
+    }
+
+    public function applySchemaChanges(): void
     {
         $sm = $this->schemaManager();
 
@@ -62,6 +62,7 @@ class Setup extends AbstractSetup
     public function installStep2(): void
     {
         $this->applyRegistrationDefaults([
+            'sv_prompt_on_mark_read'         => 1,
             'sv_alerts_popup_read_behavior'  => PopUpReadBehavior::PerUser,
             'sv_alerts_page_skips_summarize' => 1,
             'sv_alerts_summarize_threshold'  => 4,
@@ -75,7 +76,7 @@ class Setup extends AbstractSetup
 
     public function upgrade2050001Step1(): void
     {
-        $this->installStep1();
+        $this->applySchemaChanges();
     }
 
     public function upgrade2050001Step2(): void
@@ -118,7 +119,7 @@ class Setup extends AbstractSetup
 
     public function upgrade2080002Step1(): void
     {
-        $this->installStep1();
+        $this->applySchemaChanges();
     }
 
     public function upgrade2080100Step1(): void
@@ -130,7 +131,7 @@ class Setup extends AbstractSetup
 
     public function upgrade2080606Step1(): void
     {
-        $this->installStep1();
+        $this->applySchemaChanges();
     }
 
     public function upgrade2081101Step1(array $stepParams): ?array
@@ -226,7 +227,7 @@ class Setup extends AbstractSetup
 
     public function upgrade1683812804Step1(): void
     {
-        $this->installStep1();
+        $this->applySchemaChanges();
     }
 
     public function upgrade1683812804Step2(): void
@@ -246,7 +247,7 @@ class Setup extends AbstractSetup
 
     public function upgrade1685991237Step1(): void
     {
-        $this->installStep1();
+        $this->applySchemaChanges();
     }
 
     public function upgrade1685991237Step2(): void
@@ -309,6 +310,18 @@ class Setup extends AbstractSetup
                 new_value = (case when new_value = 0 then $perUser when new_value = 1 then $neverMarkRead else new_value end)
             WHERE field = ?
         ", ['sv_alerts_popup_read_behavior', 'sv_alerts_popup_skips_mark_read']);
+    }
+
+    public function upgrade1723557306Step1(): void // 2.12.2
+    {
+        $this->applySchemaChanges();
+    }
+
+    public function upgrade1723557306Step2(): void // 2.12.2
+    {
+        $this->applyRegistrationDefaults([
+            'sv_prompt_on_mark_read'         => 1,
+        ]);
     }
 
     public function uninstallStep1(): void
@@ -418,6 +431,7 @@ class Setup extends AbstractSetup
         $tables = [];
 
         $tables['xf_user_option'] = function (Alter $table) {
+            $this->addOrChangeColumn($table, 'sv_prompt_on_mark_read', 'tinyint')->setDefault(1);
             $this->addOrChangeColumn($table, 'sv_alerts_popup_read_behavior', 'enum')
                  ->values(PopUpReadBehavior::get())
                  ->setDefault(PopUpReadBehavior::PerUser);

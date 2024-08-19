@@ -13,7 +13,7 @@ use function is_callable;
 /**
  * @extends \XF\Entity\User
  *
- * @property-read UserOption $Option
+ * @property-read UserOption|null $Option
  */
 class User extends XFCP_User
 {

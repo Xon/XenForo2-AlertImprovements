@@ -1,0 +1,1 @@
+Display a confirmation dialog if the "mark read" feature is used to mark all alerts as read

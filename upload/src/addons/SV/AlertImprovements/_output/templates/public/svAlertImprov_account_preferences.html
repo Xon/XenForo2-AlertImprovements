@@ -1,13 +1,20 @@
 <h2 class="block-formSectionHeader" id="alerts"><span class="block-formSectionHeader-aligner">{{ phrase('svAlertImprov_alert_preferences_header') }}</span></h2>
 <xf:if is="$xf.visitor.canCustomizeAdvAlertPreferences()">
 	<div class="block-body">
-		<xf:if is="$xf.options.svAlertsSummarize">
+		<xf:if is="$xf.options.svAlertsSummarize || $xf.options.svMarkReadPromptOptout">
 			<xf:checkboxrow label="{{ phrase('svAlertImprov_alerts_page_options') }}">
+				<xf:if is="$xf.options.svMarkReadPromptOptout">
+					<xf:option name="option[sv_prompt_on_mark_read]"
+							   label="{{ phrase('sv_prompt_on_mark_read') }}"
+							   checked="{{$xf.visitor.Option.sv_prompt_on_mark_read}}" />
+				</xf:if>
+				<xf:if is="$xf.options.svAlertsSummarize">
 				<xf:option name="option[sv_alerts_page_skips_summarize]"
 						   label="{{ phrase('sv_alerts_page_skips_summarize') }}"
 						   hint="{{ phrase('sv_alerts_page_skips_summarize_hint') }}"
 						   checked="{$xf.visitor.Option.sv_alerts_page_skips_summarize}"
 						   />
+				</xf:if>
 			</xf:checkboxrow>
 		</xf:if>
 		<xf:radiorow name="option[sv_alerts_popup_read_behavior]"

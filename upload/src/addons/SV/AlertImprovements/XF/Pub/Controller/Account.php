@@ -56,7 +56,27 @@ class Account extends XFCP_Account
         /** @var int[] $popupAlertIds */
         $popupAlertIds = $this->filter('popup_alert_ids', 'array-uint');
 
-        if ($this->isPost() && $this->filter('confirm', 'bool'))
+        $confirmed = false;
+        if ($this->isPost())
+        {
+            $confirmed = $this->filter('confirm', 'bool');
+            if ((\XF::options()->svMarkReadPromptOptout ?? true))
+            {
+                $option = $visitor->Option;
+                if ($this->filter('prompt_opt_out', 'bool'))
+                {
+                    $option->sv_prompt_on_mark_read = false;
+                    $option->saveIfChanged();
+                }
+
+                if (!$option->sv_prompt_on_mark_read)
+                {
+                    $confirmed = true;
+                }
+            }
+        }
+
+        if ($confirmed)
         {
             $alertRepo->markUserAlertsRead($visitor);
 
@@ -179,12 +199,18 @@ class Account extends XFCP_Account
             $input = $this->filter(
                 [
                     'option' => [
+                        'sv_prompt_on_mark_read'         => 'bool',
                         'sv_alerts_popup_read_behavior'  => 'str',
                         'sv_alerts_page_skips_summarize' => 'bool',
                         'sv_alerts_summarize_threshold'  => 'uint',
                     ],
                 ]
             );
+
+            if (!(\XF::options()->svMarkReadPromptOptout ?? true))
+            {
+                unset($input['option']['sv_prompt_on_mark_read']);
+            }
 
             if (!(\XF::options()->svAlertsSummarize ?? false))
             {

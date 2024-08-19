@@ -1,0 +1,1 @@
+Allow users to opt-out of the prompt to confirm mark all alerts as read.
