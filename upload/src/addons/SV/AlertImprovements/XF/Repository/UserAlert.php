@@ -40,7 +40,9 @@ class UserAlert extends XFCP_UserAlert
         {
             return [0, 0];
         }
-        $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 0);
+        // todo require StandardLib v1.22.0+ before unwrapping this
+        /** @noinspection PhpCastIsUnnecessaryInspection */
+        $viewedAlertExpiryDays = (int)(\XF::options()->alertExpiryDays ?? 0);
         if ($viewedAlertExpiryDays >= 0)
         {
             $viewedCutOff = \XF::$time - $viewedAlertExpiryDays * 86400;

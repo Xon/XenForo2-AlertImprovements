@@ -375,7 +375,7 @@ class Account extends XFCP_Account
 
         $skipMarkAsRead = $this->filter('skip_mark_read', 'bool');
         $page = $this->filterPage();
-        $options = $this->options();
+        $options = \XF::options();
         $perPage = $options->alertsPerPage;
         $alertRepo = Helper::repository(UserAlertRepo::class);
 
@@ -555,7 +555,7 @@ class Account extends XFCP_Account
         $showOnlyFilter = $this->filter('show_only', '?str');
         $skipSummarize = $this->filter('skip_summarize', '?bool');
         $page = $this->filterPage();
-        $options = $this->options();
+        $options = \XF::options();
         if ($page > 1 || !empty($option->sv_alerts_page_skips_summarize))
         {
             $skipSummarize = true;
@@ -771,7 +771,7 @@ class Account extends XFCP_Account
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $alertIds = $this->filter('alert_ids', 'array-uint');
-        $alertIds = array_slice($alertIds, 0, $this->options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
+        $alertIds = array_slice($alertIds, 0, \XF::options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
         if (!count($alertIds))
         {
             throw $this->exception($this->error(\XF::phrase('svAlertImprov_please_select_at_least_one_alert_to_update')));

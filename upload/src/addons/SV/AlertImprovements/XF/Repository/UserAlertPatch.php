@@ -115,7 +115,9 @@ class UserAlertPatch extends XFCP_UserAlertPatch
     {
         if ($cutOff === null)
         {
-            $viewedAlertExpiryDays = (int)($this->options()->alertExpiryDays ?? 0);
+            // todo require StandardLib v1.22.0+ before unwrapping this
+            /** @noinspection PhpCastIsUnnecessaryInspection */
+            $viewedAlertExpiryDays = (int)(\XF::options()->alertExpiryDays ?? 0);
             if ($viewedAlertExpiryDays <= 0)
             {
                 return;
