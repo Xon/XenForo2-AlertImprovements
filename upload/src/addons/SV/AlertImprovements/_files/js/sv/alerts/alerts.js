@@ -200,12 +200,6 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
                 }
             });
 
-            if (listAlertIds.length === 0 && popupAlertIds.length === 0)
-            {
-                this.processing = false;
-                return;
-            }
-
             XF.ajax(
                 'POST',
                 targetAttr,
