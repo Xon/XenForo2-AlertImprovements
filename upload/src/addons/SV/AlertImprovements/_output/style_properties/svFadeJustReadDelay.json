@@ -6,6 +6,7 @@
     "css_components": [],
     "value_type": "number",
     "value_parameters": "min=0\nstep=any\ndata-step=0.1\nunits={{ phrase('units_seconds') }}",
+    "has_variations": false,
     "depends_on": "svFadeJustReadToRead",
     "value_group": "JustReadAlerts",
     "property_value": "2.5",

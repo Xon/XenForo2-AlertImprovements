@@ -6,6 +6,7 @@
     "css_components": [],
     "value_type": "color",
     "value_parameters": "",
+    "has_variations": false,
     "depends_on": "svAlertImprovRecentAlertFlag",
     "value_group": "RecentAlertIcon",
     "property_value": "DarkGoldenRod",

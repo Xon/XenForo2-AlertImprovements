@@ -1,12 +1,23 @@
 <?php
 
-/** @noinspection PhpIllegalPsrClassPathInspection */
 // ################## THIS IS A GENERATED FILE ##################
 // DO NOT EDIT DIRECTLY. EDIT THE CLASS EXTENSIONS IN THE CONTROL PANEL.
+
+/**
+ * @noinspection PhpMultipleClassesDeclarationsInOneFile
+ * @noinspection PhpIllegalPsrClassPathInspection
+ */
 
 namespace SV\AlertImprovements\SV\ReportImprovements\Alert
 {
 	class XFCP_ReportComment extends \SV\ReportImprovements\Alert\ReportComment {}
+}
+
+namespace SV\AlertImprovements\XFMG\Alert
+{
+	class XFCP_Album extends \XFMG\Alert\Album {}
+	class XFCP_Comment extends \XFMG\Alert\Comment {}
+	class XFCP_Media extends \XFMG\Alert\Media {}
 }
 
 namespace SV\AlertImprovements\XF\Admin\Controller
@@ -57,11 +68,4 @@ namespace SV\AlertImprovements\XF\Repository
 	class XFCP_UserAlert extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertAutoReadPatch extends \XF\Repository\UserAlert {}
 	class XFCP_UserAlertPatch extends \XF\Repository\UserAlert {}
-}
-
-namespace SV\AlertImprovements\XFMG\Alert
-{
-	class XFCP_Album extends \XFMG\Alert\Album {}
-	class XFCP_Comment extends \XFMG\Alert\Comment {}
-	class XFCP_Media extends \XFMG\Alert\Media {}
 }

@@ -6,6 +6,7 @@
     "css_components": [],
     "value_type": "string",
     "value_parameters": "",
+    "has_variations": false,
     "depends_on": "svAlertImprovUnreadAlertFlag",
     "value_group": "UnreadAlertIcon",
     "property_value": "fa fa-star-exclamation",
