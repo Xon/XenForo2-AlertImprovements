@@ -771,8 +771,8 @@ class Account extends XFCP_Account
         /** @var ExtendedUserEntity $visitor */
         $visitor = \XF::visitor();
         $alertIds = $this->filter('alert_ids', 'array-uint');
-        $alertIds = array_slice($alertIds, 0, \XF::options()->alertsPerPage); // in case some genius passes a very long list of alert ids :>
-        if (!count($alertIds))
+        $alertIds = array_slice($alertIds, 0, 2 * \XF::options()->alertsPerPage + 25); // in case some genius passes a very long list of alert ids :>
+        if (count($alertIds) === 0)
         {
             throw $this->exception($this->error(\XF::phrase('svAlertImprov_please_select_at_least_one_alert_to_update')));
         }
