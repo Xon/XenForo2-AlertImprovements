@@ -4,7 +4,7 @@ namespace SV\AlertImprovements\Repository;
 
 use SV\AlertImprovements\Enum\PopUpReadBehavior;
 use SV\StandardLib\Helper;
-use XF\Repository\UserAlert;
+use XF\Repository\UserAlert as UserAlertRepo;
 use XF\Mvc\Entity\Repository;
 use XF\Util\Arr;
 use function array_fill_keys;
@@ -91,7 +91,7 @@ class AlertPreferences extends Repository
             return $this->alertOptOutActionList;
         }
 
-        $handlers = Helper::repository(UserAlert::class)->getAlertHandlers();
+        $handlers = Helper::repository(UserAlertRepo::class)->getAlertHandlers();
 
         $actions = [];
         foreach ($handlers AS $contentType => $handler)

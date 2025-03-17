@@ -6,7 +6,6 @@ use SV\AlertImprovements\XF\Repository\UserAlert;
 use SV\AlertImprovements\XF\Repository\UserAlertPatch;
 use SV\StandardLib\Helper;
 use XF\Db\DeadlockException;
-use XF\Db\Exception;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
 use function max;
@@ -25,7 +24,7 @@ class UnviewedAlertCleanup extends AbstractJob
     /**
      * @param float $maxRunTime
      * @return JobResult
-     * @throws Exception
+     * @noinspection PhpDocMissingThrowsInspection
      */
     public function run($maxRunTime): JobResult
     {

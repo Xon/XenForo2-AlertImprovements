@@ -15,8 +15,9 @@ use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
 use XF\Entity\AddOn as AddOnEntity;
 use XF\Entity\Option as OptionEntity;
-use XF\Entity\Template;
+use XF\Entity\Template as TemplateEntity;
 use XF\Entity\User as UserEntity;
+use XF\Finder\Template as TemplateFinder;
 use XF\Job\PermissionRebuild;
 use XF\PreEscaped;
 use function array_keys;
@@ -154,7 +155,7 @@ class Setup extends AbstractSetup
             'svAlertsImprov_macros' => 'svAlertImprov_macros',
         ];
 
-        $finder = Helper::finder(\XF\Finder\Template::class)
+        $finder = Helper::finder(TemplateFinder::class)
                      ->where('title', '=', array_keys($templateRenames));
         $stepData = $stepParams[2] ?? [];
         if (!isset($stepData['max']))
@@ -172,7 +173,7 @@ class Setup extends AbstractSetup
         $startTime = microtime(true);
         foreach($templates as $template)
         {
-            /** @var Template $template*/
+            /** @var TemplateEntity $template*/
             if (empty($templateRenames[$template->title]))
             {
                 continue;

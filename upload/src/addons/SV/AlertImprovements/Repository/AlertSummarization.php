@@ -16,7 +16,6 @@ use SV\StandardLib\BypassAccessStatus;
 use SV\StandardLib\Helper;
 use XF\Alert\AbstractHandler;
 use XF\Db\AbstractAdapter;
-use XF\Db\DeadlockException;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
@@ -411,7 +410,6 @@ class AlertSummarization extends Repository
      * @param int          $summaryAlertViewDate
      * @param array        $summaryData
      * @return bool
-     * @throws DeadlockException
      * @noinspection SqlResolve
      */
     protected function insertSummaryAlert(string $contentType, int $contentId, array $lastAlert, array $alertGrouping, int $senderUserId, int $summaryAlertViewDate, array $summaryData): bool

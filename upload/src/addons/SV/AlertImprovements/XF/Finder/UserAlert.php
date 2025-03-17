@@ -7,6 +7,7 @@ use SV\StandardLib\Helper;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\Entity;
 use XF\Repository\UserAlert as UserAlertRepo;
+use Closure;
 use function array_keys;
 use function array_search;
 use function array_unshift;
@@ -19,7 +20,7 @@ use function implode;
 class UserAlert extends XFCP_UserAlert
 {
     /**
-     * @var \Closure|null
+     * @var Closure|null
      */
     protected $shimSource;
     /**
@@ -27,7 +28,7 @@ class UserAlert extends XFCP_UserAlert
      */
     protected $shimCollectionViewable = false;
 
-    public function shimSource(?\Closure $shimSource = null): self
+    public function shimSource(?Closure $shimSource = null): self
     {
         $this->shimSource = $shimSource;
 

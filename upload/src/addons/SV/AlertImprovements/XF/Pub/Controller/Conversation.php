@@ -8,12 +8,12 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use SV\StandardLib\Helper;
-use XF\Entity\ConversationMaster;
-use XF\Entity\ConversationUser;
+use XF\Entity\ConversationMaster as ConversationMasterEntity;
+use XF\Entity\ConversationUser as ConversationUserEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
-use XF\Mvc\Reply\View;
+use XF\Mvc\Reply\View as ViewReply;
 use XF\Repository\UserAlert as UserAlertRepo;
 use function is_callable;
 
@@ -30,11 +30,11 @@ class Conversation extends XFCP_Conversation
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof View &&
+        if ($reply instanceof ViewReply &&
             ($reply->getParam('messages')) &&
             ($conversation = $reply->getParam('conversation')))
         {
-            /** @var ConversationMaster $conversation */
+            /** @var ConversationMasterEntity $conversation */
             /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
@@ -80,10 +80,10 @@ class Conversation extends XFCP_Conversation
      */
     protected function markConvEssInboxAlertsAsRead(AbstractReply $reply, array $actions = ['conversation_kick', 'inbox_full'])
     {
-        if ($reply instanceof View && $this->isConvEssActive())
+        if ($reply instanceof ViewReply && $this->isConvEssActive())
         {
             /** @var AbstractCollection $messages */
-            /** @var ConversationMaster $conversation */
+            /** @var ConversationMasterEntity $conversation */
             /** @var ExtendedUserEntity $visitor */
             $visitor = \XF::visitor();
 
@@ -110,13 +110,13 @@ class Conversation extends XFCP_Conversation
     }
 
     /**
-     * @param ConversationUser $convUser
-     * @param int              $lastDate
-     * @param int              $limit
+     * @param ConversationUserEntity $convUser
+     * @param int                    $lastDate
+     * @param int                    $limit
      * @return array
      * @noinspection PhpMissingParamTypeInspection
      */
-    protected function _getNextLivePosts(ConversationUser $convUser, $lastDate, $limit = 3)
+    protected function _getNextLivePosts(ConversationUserEntity $convUser, $lastDate, $limit = 3)
     {
         /**
          * @var AbstractCollection $contents

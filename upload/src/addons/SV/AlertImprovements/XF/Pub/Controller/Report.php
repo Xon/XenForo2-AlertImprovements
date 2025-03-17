@@ -7,7 +7,7 @@ use SV\AlertImprovements\XF\Repository\UserAlert;
 use SV\StandardLib\Helper;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
-use XF\Mvc\Reply\View;
+use XF\Mvc\Reply\View as ViewReply;
 use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
@@ -23,7 +23,7 @@ class Report extends XFCP_Report
     {
         $reply = parent::actionView($params);
 
-        if ($reply instanceof View &&
+        if ($reply instanceof ViewReply &&
             ($reply->getParam('report')) &&
             ($comments = $reply->getParam('comments')))
         {

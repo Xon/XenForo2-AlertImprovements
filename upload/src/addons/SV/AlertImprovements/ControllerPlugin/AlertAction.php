@@ -2,6 +2,7 @@
 
 namespace SV\AlertImprovements\ControllerPlugin;
 
+use Closure;
 use SV\AlertImprovements\XF\Entity\UserAlert;
 use XF\ControllerPlugin\AbstractPlugin;
 use XF\Mvc\Reply\AbstractReply;
@@ -11,7 +12,7 @@ class AlertAction extends AbstractPlugin
 {
     /**
      * @param UserAlert         $alert
-     * @param \Closure          $actionCallback
+     * @param Closure          $actionCallback
      * @param Phrase|string $contentTitle
      * @param Phrase|string $buttonText
      * @param Phrase|string $actionText
@@ -23,7 +24,7 @@ class AlertAction extends AbstractPlugin
      * @param bool              $addAccountWrapper
      * @return AbstractReply
      */
-    public function doAction(UserAlert $alert, \Closure $actionCallback, $contentTitle, $buttonText, $actionText, string $confirmUrl, ?string $redirectMsg = null, ?string $returnUrl = null, ?string $template = null, array $params = [], bool $addAccountWrapper = true): AbstractReply
+    public function doAction(UserAlert $alert, Closure $actionCallback, $contentTitle, $buttonText, $actionText, string $confirmUrl, ?string $redirectMsg = null, ?string $returnUrl = null, ?string $template = null, array $params = [], bool $addAccountWrapper = true): AbstractReply
     {
         if ($alert->hasErrors())
         {

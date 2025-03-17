@@ -4,9 +4,10 @@ namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Repository\UserAlert;
 use SV\StandardLib\Helper;
+use XF\Entity\Post as PostEntity;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\AbstractReply;
-use XF\Mvc\Reply\View;
+use XF\Mvc\Reply\View as ViewReply;
 use XF\Repository\UserAlert as UserAlertRepo;
 
 /**
@@ -23,10 +24,10 @@ class Post extends XFCP_Post
         $reply = parent::actionEdit($params);
 
         if ($this->isPost() &&
-            $reply instanceof View &&
+            $reply instanceof ViewReply &&
             ($post = $reply->getParam('post')))
         {
-            /** @var \XF\Entity\Post $post */
+            /** @var PostEntity $post */
             $visitor = \XF::visitor();
 
             if ($visitor->user_id && $visitor->alerts_unread)

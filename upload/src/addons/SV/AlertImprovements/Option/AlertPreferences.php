@@ -6,14 +6,14 @@
 namespace SV\AlertImprovements\Option;
 
 use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
-use XF\Entity\Option;
+use XF\Entity\Option as OptionEntity;
 use XF\Option\AbstractOption;
 use function array_replace_recursive;
 use function count;
 
 class AlertPreferences extends AbstractOption
 {
-    public static function renderOption(Option $option, array $htmlParams): string
+    public static function renderOption(OptionEntity $option, array $htmlParams): string
     {
         [$defaults, $alertTypes, $alertActions] = AlertPreferencesRepo::get()->getGlobalAlertPreferenceDefaults(null, $option->option_value ?? []);
 
@@ -24,7 +24,7 @@ class AlertPreferences extends AbstractOption
         ]);
     }
 
-    public static function verifyOption(array &$values, Option $option, string $optionId): bool
+    public static function verifyOption(array &$values, OptionEntity $option, string $optionId): bool
     {
         [$allValues] = AlertPreferencesRepo::get()->getGlobalAlertPreferenceDefaults(null, []);
 

@@ -11,11 +11,11 @@ use SV\AlertImprovements\ControllerPlugin\AlertAction as AlertActionPlugin;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\Repository\AlertPreferences as AlertPreferencesRepo;
 use SV\AlertImprovements\Repository\AlertSummarization as AlertSummarizationRepo;
-use SV\AlertImprovements\XF\Entity\UserOption;
+use SV\AlertImprovements\XF\Entity\UserOption as ExtendedUserOptionEntity;
 use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use SV\StandardLib\Helper;
-use XF\Entity\User;
-use XF\Entity\UserAlert;
+use XF\Entity\User as UserEntity;
+use XF\Entity\UserAlert as UserAlertEntity;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\FormAction;
@@ -25,7 +25,7 @@ use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use XF\Mvc\Reply\View as ViewReply;
 use XF\Repository\UserAlert as UserAlertRepo;
-use XF\Service\FloodCheck;
+use XF\Service\FloodCheck as FloodCheckService;
 use function array_filter;
 use function array_key_exists;
 use function array_keys;
@@ -94,7 +94,7 @@ class Account extends XFCP_Account
                 return $this->redirect($redirect, \XF::phrase('all_alerts_marked_as_read'));
             }
 
-            /** @var UserAlert[]|AbstractCollection $alerts */
+            /** @var UserAlertEntity[]|AbstractCollection $alerts */
             $alerts = $alertRepo->findAlertByIdsForUser($visitor->user_id, $alertIds)
                                 ->limit(\XF::options()->alertsPerPage * 2)
                                 ->fetch();
@@ -157,7 +157,7 @@ class Account extends XFCP_Account
 
         if ($reply instanceof ViewReply)
         {
-            /** @var UserOption|null $userOption */
+            /** @var ExtendedUserOptionEntity|null $userOption */
             $userOption = \XF::visitor()->Option ?? null;
             $alertPrefs = $userOption->sv_alert_pref;
 
@@ -184,10 +184,10 @@ class Account extends XFCP_Account
     }
 
     /**
-     * @param User $visitor
+     * @param UserEntity $visitor
      * @return FormAction
      */
-    protected function preferencesSaveProcess(User $visitor)
+    protected function preferencesSaveProcess(UserEntity $visitor)
     {
         /** @var ExtendedUserEntity $visitor */
         $userOptions = $visitor->getRelationOrDefault('Option');
@@ -538,7 +538,7 @@ class Account extends XFCP_Account
             return false;
         }
 
-        $floodChecker = Helper::service(FloodCheck::class);
+        $floodChecker = Helper::service(FloodCheckService::class);
         $timeRemaining = $floodChecker->checkFlooding('alertSummarize', $visitor->user_id, $floodingLimit);
 
         return $timeRemaining > 0;
