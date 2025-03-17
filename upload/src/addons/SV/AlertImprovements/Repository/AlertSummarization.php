@@ -171,24 +171,25 @@ class AlertSummarization extends Repository
 
         $validContentTypes = [];
         $actionsByContent = [];
-        foreach ($handlers as $contentType => $handler)
-        {
-            $actionsByContent[$contentType] = array_fill_keys($handler->getSupportedActionsForSummarization(), true);
-            if (count($actionsByContent[$contentType]) !== 0)
-            {
-                $validContentTypes[] = $contentType;
-            }
-        }
-        if (count($validContentTypes) === 0)
-        {
-            return false;
-        }
         $supportedContentTypesByHandler = [];
         foreach ($handlers as $contentType => $handler)
         {
-            $supportedContentTypesByHandler[$contentType] = array_fill_keys($handler->getSupportContentTypesForSummarization(), true);
+            $actionsByHandler = $handler->getSupportedActionsForSummarization();
+            if (count($actionsByHandler) === 0)
+            {
+                continue;
+            }
+            $contentTypesByHandler = $handler->getSupportContentTypesForSummarization();
+            if (count($contentTypesByHandler) === 0)
+            {
+                continue;
+            }
+
+            $actionsByContent[$contentType] = array_fill_keys($actionsByHandler, true);
+            $supportedContentTypesByHandler[$contentType] = array_fill_keys($contentTypesByHandler, true);
+            $validContentTypes[] = $contentType;
         }
-        if (count($supportedContentTypesByHandler) === 0)
+        if (count($validContentTypes) === 0)
         {
             return false;
         }
