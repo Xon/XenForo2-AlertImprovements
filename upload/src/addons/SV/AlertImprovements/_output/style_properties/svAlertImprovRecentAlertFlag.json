@@ -1,14 +1,14 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Show recent alert icon on alert",
-    "description": "",
+    "title": "Show \"recent read alert\" icon on alert",
+    "description": "For alerts which where viewed in the last 10 minutes and are read",
     "property_type": "value",
     "css_components": [],
     "value_type": "boolean",
     "value_parameters": "",
     "has_variations": false,
     "depends_on": "",
-    "value_group": "RecentAlertIcon",
+    "value_group": "RecentReadAlertIcon",
     "property_value": 0,
     "display_order": 500
 }

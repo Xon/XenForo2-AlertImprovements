@@ -1,14 +1,14 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Show just-read alert icon on alert",
-    "description": "",
+    "title": "Show \"just toggled read alert\" icon on alert",
+    "description": "When toggling the alert's read status to read",
     "property_type": "value",
     "css_components": [],
     "value_type": "boolean",
     "value_parameters": "",
     "has_variations": false,
     "depends_on": "",
-    "value_group": "JustReadAlertIcon",
+    "value_group": "JustToggledReadAlertIcon",
     "property_value": 0,
-    "display_order": 300
+    "display_order": 400
 }

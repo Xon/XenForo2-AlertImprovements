@@ -1,1 +1,1 @@
-Show just-read alert icon on alert
+Show "just toggled read alert" icon on alert

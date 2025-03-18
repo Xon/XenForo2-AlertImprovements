@@ -1,6 +1,6 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Show unread alert icon on alert",
+    "title": "Show \"unread alert\" icon on alert",
     "description": "",
     "property_type": "value",
     "css_components": [],
@@ -10,5 +10,5 @@
     "depends_on": "",
     "value_group": "UnreadAlertIcon",
     "property_value": 0,
-    "display_order": 400
+    "display_order": 300
 }

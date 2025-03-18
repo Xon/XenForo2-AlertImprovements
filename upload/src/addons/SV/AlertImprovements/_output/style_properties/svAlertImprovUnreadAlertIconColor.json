@@ -10,5 +10,5 @@
     "depends_on": "svAlertImprovUnreadAlertFlag",
     "value_group": "UnreadAlertIcon",
     "property_value": "#b8860b",
-    "display_order": 420
+    "display_order": 320
 }

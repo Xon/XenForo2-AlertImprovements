@@ -1,1 +1,1 @@
-Show recent alert icon on alert
+Show "recent read alert" icon on alert

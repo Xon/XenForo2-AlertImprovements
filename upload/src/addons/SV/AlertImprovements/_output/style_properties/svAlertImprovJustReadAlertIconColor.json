@@ -1,6 +1,6 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Just read alert icon color",
+    "title": "Just toggled read alert icon color",
     "description": "",
     "property_type": "value",
     "css_components": [],
@@ -8,7 +8,7 @@
     "value_parameters": "",
     "has_variations": false,
     "depends_on": "svAlertImprovJustReadAlertFlag",
-    "value_group": "JustReadAlertIcon",
+    "value_group": "JustToggledReadAlertIcon",
     "property_value": "#b8860b",
-    "display_order": 320
+    "display_order": 420
 }

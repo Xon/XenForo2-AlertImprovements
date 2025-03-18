@@ -8,7 +8,7 @@
     "value_parameters": "",
     "has_variations": false,
     "depends_on": "svAlertImprovRecentAlertFlag",
-    "value_group": "RecentAlertIcon",
+    "value_group": "RecentReadAlertIcon",
     "property_value": "#b8860b",
     "display_order": 520
 }

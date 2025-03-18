@@ -1,1 +1,1 @@
-Show unread alert icon on alert
+Show "unread alert" icon on alert

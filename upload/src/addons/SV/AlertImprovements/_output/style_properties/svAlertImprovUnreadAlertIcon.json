@@ -10,5 +10,5 @@
     "depends_on": "svAlertImprovUnreadAlertFlag",
     "value_group": "UnreadAlertIcon",
     "property_value": "fas fa-star",
-    "display_order": 410
+    "display_order": 310
 }
