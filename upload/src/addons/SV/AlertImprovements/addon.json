@@ -2,7 +2,7 @@
     "legacy_addon_id": "SV_AlertImprovements",
     "title": "Alert Improvements",
     "description": "A collection of improvements to the XenForo 2 Alerts system.",
-    "version_string": "2.12.3",
+    "version_string": "2.13.0",
     "version_id": 1742237225,
     "dev": "Xon",
     "dev_url": "https://atelieraphelion.com/",
@@ -14,8 +14,8 @@
     },
     "require": {
         "SV/StandardLib": [
-            2001210000,
-            "Standard Library by Xon v1.21.0+"
+            2001220000,
+            "Standard Library by Xon v1.22.0+"
         ],
         "XF": [
             "2.2.0",
