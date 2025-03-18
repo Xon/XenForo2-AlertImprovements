@@ -274,7 +274,7 @@ SV.extendObject = SV.extendObject || XF.extendObject || jQuery.extend;
 
             if (data.redirect) {
                 // just mark alert alerts as read
-                document.querySelectorAll('.js-alert[data-alert-id]').forEach((alert) => {
+                document.querySelectorAll('.js-alert[data-alert-id].is-unread').forEach((alert) => {
                     SV.AlertImprovements.updateAlert(alert, null, false);
                 });
                 return;
