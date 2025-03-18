@@ -1,0 +1,9 @@
+{
+    "event_id": "icon_usage_analyzer_steps",
+    "execute_order": 10,
+    "callback_class": "SV\\AlertImprovements\\Listener\\IconUsage",
+    "callback_method": "analyzerSteps",
+    "active": true,
+    "hint": "",
+    "description": ""
+}
