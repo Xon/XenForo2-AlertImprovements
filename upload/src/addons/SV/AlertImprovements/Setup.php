@@ -19,6 +19,7 @@ use XF\Entity\StyleProperty as StylePropertyEntity;
 use XF\Entity\Template as TemplateEntity;
 use XF\Entity\User as UserEntity;
 use XF\Finder\Template as TemplateFinder;
+use XF\Finder\StyleProperty as StylePropertyFinder;
 use XF\Job\PermissionRebuild;
 use XF\PreEscaped;
 use XF\Repository\StyleProperty as StylePropertyRepo;
@@ -393,10 +394,10 @@ class Setup extends AbstractSetup
 
     public function copyStylePropFlag(string $oldFlag, string $newFlag): void
     {
-        $stylePropertyRepo = \XF::repository(StylePropertyRepo::class);
+        $stylePropertyRepo = Helper::repository(StylePropertyRepo::class);
 
         /** @var StylePropertyEntity[] $properties */
-        $properties = Helper::finder(StylePropertyEntity::class)
+        $properties = Helper::finder(StylePropertyFinder::class)
                         ->where('property_name', $oldFlag)
                         ->where('style_id', '!=', 0)
                         ->fetch();
