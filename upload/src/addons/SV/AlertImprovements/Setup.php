@@ -15,11 +15,13 @@ use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
 use XF\Entity\AddOn as AddOnEntity;
 use XF\Entity\Option as OptionEntity;
+use XF\Entity\StyleProperty as StylePropertyEntity;
 use XF\Entity\Template as TemplateEntity;
 use XF\Entity\User as UserEntity;
 use XF\Finder\Template as TemplateFinder;
 use XF\Job\PermissionRebuild;
 use XF\PreEscaped;
+use XF\Repository\StyleProperty as StylePropertyRepo;
 use function array_keys;
 use function max;
 use function microtime;
@@ -381,6 +383,31 @@ class Setup extends AbstractSetup
         if ($previousVersion < 1683812804)
         {
             \XF::app()->jobManager()->enqueueUnique('svMigrateAlertPreferences', MigrateAlertPreferences::class, [], false);
+        }
+
+        if ($previousVersion < 1742270102)
+        {
+            $this->copyStylePropFlag('svAlertImprovUnreadAlertFlag', 'svAlertImprovJustReadAlertFlag');
+        }
+    }
+
+    public function copyStylePropFlag(string $oldFlag, string $newFlag): void
+    {
+        $stylePropertyRepo = \XF::repository(StylePropertyRepo::class);
+
+        /** @var StylePropertyEntity[] $properties */
+        $properties = Helper::finder(StylePropertyEntity::class)
+                        ->where('property_name', $oldFlag)
+                        ->where('style_id', '!=', 0)
+                        ->fetch();
+        foreach ($properties as $property)
+        {
+            /** @var bool|int|string $propVal */
+            $propVal = $property->property_value;
+
+            $stylePropertyRepo->updatePropertyValues($property->Style, [
+                $newFlag => $propVal,
+            ], []);
         }
     }
 
