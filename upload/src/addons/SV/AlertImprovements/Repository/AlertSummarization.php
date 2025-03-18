@@ -224,7 +224,7 @@ class AlertSummarization extends Repository
             }
         }
 
-        $svAlertsSummerizeLimit = (int)($xfOptions->svAlertsSummerizeLimit ?? 0);
+        $svAlertsSummerizeLimit = $xfOptions->svAlertsSummerizeLimit ?? 0;
         if ($svAlertsSummerizeLimit > 0)
         {
             $finder->limit($svAlertsSummerizeLimit);

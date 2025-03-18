@@ -521,7 +521,7 @@ class Account extends XFCP_Account
         {
             return true;
         }
-        $floodingLimit = (int)($options->svAlertsSummarizeFlood ?? 1);
+        $floodingLimit = $options->svAlertsSummarizeFlood ?? 1;
         if ($floodingLimit <= 0)
         {
             return false;
@@ -653,7 +653,7 @@ class Account extends XFCP_Account
 
                 $alertsArr = $alerts->toArray();
                 /** @var array<int,ExtendedUserAlertEntity> $alertsArr */
-                $unreadAlertsAfterReadAlerts = (bool)(\XF::options()->svUnreadAlertsAfterReadAlerts ?? false);
+                $unreadAlertsAfterReadAlerts = \XF::options()->svUnreadAlertsAfterReadAlerts ?? false;
                 if ($unreadAlertsAfterReadAlerts)
                 {
                     $unreadAlerts = [];
