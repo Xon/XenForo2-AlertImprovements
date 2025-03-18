@@ -1,14 +1,14 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Recent alert icon",
+    "title": "Just read alert icon",
     "description": "The icon users for the recent alert",
     "property_type": "value",
     "css_components": [],
     "value_type": "string",
     "value_parameters": "",
     "has_variations": false,
-    "depends_on": "svAlertImprovRecentAlertFlag",
-    "value_group": "RecentAlertIcon",
-    "property_value": "fa fa-star",
-    "display_order": 510
+    "depends_on": "svAlertImprovJustReadAlertFlag",
+    "value_group": "JustReadAlertIcon",
+    "property_value": "fa fa-star-exclamation",
+    "display_order": 310
 }

@@ -1,6 +1,6 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Show recent alert icon on alert",
+    "title": "Show just-read alert icon on alert",
     "description": "",
     "property_type": "value",
     "css_components": [],
@@ -8,7 +8,7 @@
     "value_parameters": "",
     "has_variations": false,
     "depends_on": "",
-    "value_group": "RecentAlertIcon",
+    "value_group": "JustReadAlertIcon",
     "property_value": 0,
-    "display_order": 500
+    "display_order": 300
 }

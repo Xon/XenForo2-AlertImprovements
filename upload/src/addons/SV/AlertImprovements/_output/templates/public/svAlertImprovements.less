@@ -59,6 +59,12 @@
 
 .alert
 {
+	<xf:if is="property('svAlertImprovJustReadAlertFlag') && property('svAlertImprovJustReadAlertIconColor')">
+	.just-read-indicator-icon
+	{
+		color: @xf-svAlertImprovJustReadAlertIconColor;
+	}
+	</xf:if>
 	<xf:if is="property('svAlertImprovUnreadAlertFlag') && property('svAlertImprovUnreadAlertIconColor')">
 	.unread-indicator-icon
 	{

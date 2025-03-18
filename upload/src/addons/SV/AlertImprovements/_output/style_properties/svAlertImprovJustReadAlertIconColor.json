@@ -1,14 +1,14 @@
 {
     "group_name": "svAlertImprovements",
-    "title": "Unread alert icon color",
+    "title": "Just read alert icon color",
     "description": "",
     "property_type": "value",
     "css_components": [],
     "value_type": "color",
     "value_parameters": "",
     "has_variations": false,
-    "depends_on": "svAlertImprovUnreadAlertFlag",
-    "value_group": "UnreadAlertIcon",
+    "depends_on": "svAlertImprovJustReadAlertFlag",
+    "value_group": "JustReadAlertIcon",
     "property_value": "#b8860b",
-    "display_order": 420
+    "display_order": 320
 }

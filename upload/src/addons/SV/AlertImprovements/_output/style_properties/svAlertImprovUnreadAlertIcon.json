@@ -9,6 +9,6 @@
     "has_variations": false,
     "depends_on": "svAlertImprovUnreadAlertFlag",
     "value_group": "UnreadAlertIcon",
-    "property_value": "fa fa-star-exclamation",
-    "display_order": 510
+    "property_value": "fa fas fa-star",
+    "display_order": 410
 }

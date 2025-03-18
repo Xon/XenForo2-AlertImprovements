@@ -1,0 +1,1 @@
+Show just-read alert icon on alert

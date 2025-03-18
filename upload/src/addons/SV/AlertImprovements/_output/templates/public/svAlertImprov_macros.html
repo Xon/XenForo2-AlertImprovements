@@ -80,7 +80,15 @@
 </xf:macro>
 
 <xf:macro name="alert_recent_marker" arg-alert="!">
-	<xf:if is="$alert.view_date === 0">
+	<xf:if is="$alert.getOption('force_unread_in_ui')">
+		<xf:set var="$icon" value="{{ property('svAlertImprovJustReadAlertFlag') ? property('svAlertImprovJustReadAlertIcon') : ''}}"/>
+		<xf:if is="$icon">
+			<xf:fa icon="{$icon}"
+				   class="unread-indicator-icon"
+				   aria-hidden="true"
+				   title="{{ phrase('svAlertImprov_just_read_alert')|for_attr}}" />
+		</xf:if>
+	<xf:elseif is="$alert.view_date === 0" />
 		<xf:set var="$icon" value="{{ property('svAlertImprovUnreadAlertFlag') ? property('svAlertImprovUnreadAlertIcon') : ''}}"/>
 		<xf:if is="$icon">
 			<xf:fa icon="{$icon}"

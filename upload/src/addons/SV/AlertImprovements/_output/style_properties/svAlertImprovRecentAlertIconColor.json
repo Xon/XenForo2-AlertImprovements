@@ -9,6 +9,6 @@
     "has_variations": false,
     "depends_on": "svAlertImprovRecentAlertFlag",
     "value_group": "RecentAlertIcon",
-    "property_value": "DarkGoldenRod",
-    "display_order": 420
+    "property_value": "#b8860b",
+    "display_order": 520
 }
