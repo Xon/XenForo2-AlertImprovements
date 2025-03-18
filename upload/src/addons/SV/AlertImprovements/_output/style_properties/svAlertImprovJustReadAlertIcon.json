@@ -9,6 +9,6 @@
     "has_variations": false,
     "depends_on": "svAlertImprovJustReadAlertFlag",
     "value_group": "JustReadAlertIcon",
-    "property_value": "fa fa-star-exclamation",
+    "property_value": "fas fa-star-exclamation",
     "display_order": 310
 }

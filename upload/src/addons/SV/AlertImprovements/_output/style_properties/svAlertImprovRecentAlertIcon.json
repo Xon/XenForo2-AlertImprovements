@@ -9,6 +9,6 @@
     "has_variations": false,
     "depends_on": "svAlertImprovRecentAlertFlag",
     "value_group": "RecentAlertIcon",
-    "property_value": "fa fa-star",
+    "property_value": "far fa-star",
     "display_order": 510
 }
