@@ -748,8 +748,8 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $userId = (int)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
-        if ($userId === 0)
+        $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        if (!$userExists)
         {
             if (!$inTransaction)
             {
@@ -794,7 +794,7 @@ class UserAlert extends XFCP_UserAlert
 
     public function updateUnreadCountForUserId(int $userId): bool
     {
-        if (!$userId)
+        if ($userId === 0)
         {
             return false;
         }
@@ -806,8 +806,8 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $userId = $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
-        if (!$userId)
+        $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+        if (!$userExists)
         {
             if (!$inTransaction)
             {
@@ -865,7 +865,7 @@ class UserAlert extends XFCP_UserAlert
 
     public function cleanupPendingAlertRebuild(int $userId)
     {
-        if (!$userId)
+        if ($userId === 0)
         {
             return;
         }
