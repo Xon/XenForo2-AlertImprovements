@@ -870,7 +870,9 @@ class UserAlert extends XFCP_UserAlert
             return;
         }
 
-        \XF::db()->query('DELETE FROM xf_sv_user_alert_rebuild WHERE user_id = ?', [$userId]);
+        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($userId): void {
+            $db->query('DELETE FROM xf_sv_user_alert_rebuild WHERE user_id = ?', [$userId]);
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
 
     /**
