@@ -626,7 +626,8 @@ class AlertSummarization extends Repository
             return;
         }
 
-        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert) {
+        $unreadIncrement = $unviewedIncrement = 0;
+        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert, &$unreadIncrement, &$unviewedIncrement): void {
             $summaryId = $summaryAlert->alert_id;
             $userId = $user->user_id;
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
@@ -656,10 +657,11 @@ class AlertSummarization extends Repository
                     alerts_unviewed = LEAST(alerts_unviewed + ?, ?)
                 WHERE user_id = ?
             ', [$unreadIncrement, $svUserMaxAlertCount, $unviewedIncrement, $svUserMaxAlertCount, $userId]);
+        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
 
-            $user->setAsSaved('alerts_unread', $user->alerts_unread + $unreadIncrement);
-            $user->setAsSaved('alerts_unread', $user->alerts_unviewed + $unviewedIncrement);
-        });
+        // Apply deltas once after the transaction in-case it was re-run
+        $user->setAsSaved('alerts_unread', $user->alerts_unread + $unreadIncrement);
+        $user->setAsSaved('alerts_unread', $user->alerts_unviewed + $unviewedIncrement);
     }
 
     /**
