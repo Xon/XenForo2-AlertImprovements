@@ -6,9 +6,11 @@
     "css_components": [],
     "value_type": "string",
     "value_parameters": "",
-    "has_variations": false,
+    "has_variations": true,
     "depends_on": "svAlertImprovJustReadAlertFlag",
     "value_group": "JustToggledReadAlertIcon",
-    "property_value": "fas fa-star-exclamation",
+    "property_value": {
+        "default": "fas fa-star-exclamation"
+    },
     "display_order": 410
 }

@@ -6,9 +6,11 @@
     "css_components": [],
     "value_type": "color",
     "value_parameters": "",
-    "has_variations": false,
+    "has_variations": true,
     "depends_on": "svAlertImprovJustReadAlertFlag",
     "value_group": "JustToggledReadAlertIcon",
-    "property_value": "#b8860b",
+    "property_value": {
+        "default": "#b8860b"
+    },
     "display_order": 420
 }
