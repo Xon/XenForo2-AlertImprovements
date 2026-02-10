@@ -245,7 +245,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      *
      * @noinspection PhpUnusedParameterInspection
      */
-    public function patchAutoReadForInsertAlert(int $receiverId, string $contentType, string $action, array &$extra, array &$options = null)
+    public function patchAutoReadForInsertAlert(int $receiverId, string $contentType, string $action, array &$extra, ?array &$options = null)
     {
         /** @var UserOption|null $userOption */
         $userOption = Helper::find(UserOptionEntity::class, $receiverId);
