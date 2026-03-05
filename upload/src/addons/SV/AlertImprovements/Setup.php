@@ -443,7 +443,7 @@ class Setup extends AbstractSetup
 
         $tables['xf_sv_user_alert_summary'] = function ($table ) {
             /** @var Alter|Create $table */
-            $this->addOrChangeColumn($table, 'alert_id', 'int')->primaryKey();
+            $this->addOrChangeColumn($table, 'alert_id', 'bigint')->primaryKey();
             $this->addOrChangeColumn($table, 'alerted_user_id', 'int');
             $this->addOrChangeColumn($table, 'content_type', 'varbinary', 25);
             $this->addOrChangeColumn($table, 'content_id', 'int');
