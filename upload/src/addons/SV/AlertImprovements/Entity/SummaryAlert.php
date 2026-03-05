@@ -24,7 +24,9 @@ class SummaryAlert extends Entity
         $structure->shortName = 'SV\AlertImprovements:SummaryAlert';
         $structure->primaryKey = 'alert_id';
         $structure->columns = [
-            'alert_id' => ['type' => self::UINT, 'require' => true],
+            // XF bug: https://xenforo.com/community/threads/xf_thread_read-auto_increment-out-of-range.203415/
+            // UINT assumes 32bit value, so explicitly set 'max'
+            'alert_id' => ['type' => self::UINT,  'max' => \PHP_INT_MAX, 'require' => true],
             'alerted_user_id' => ['type' => self::UINT, 'require' => true],
             'content_type' => ['type' => self::STR, 'maxLength' => 25, 'required' => true, 'api' => true],
             'content_id' => ['type' => self::UINT, 'required' => true, 'api' => true],
