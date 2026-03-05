@@ -224,7 +224,8 @@ class UserAlert extends XFCP_UserAlert
     {
         $structure = parent::getStructure($structure);
 
-        // Pre-XF2.2.9 bug, where UINT assumes 32bit value, so explicitly set 'max'
+        // XF bug: https://xenforo.com/community/threads/xf_thread_read-auto_increment-out-of-range.203415/
+        // UINT assumes 32bit value, so explicitly set 'max'
         $structure->columns['summerize_id'] = ['type' => self::UINT, 'max' => \PHP_INT_MAX, 'nullable' => true, 'default' => null];
 
         $structure->getters['read_date'] = ['getter' => 'getReadDate', 'cache' => false];
