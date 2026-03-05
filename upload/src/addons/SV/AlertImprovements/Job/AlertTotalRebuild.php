@@ -86,6 +86,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
     {
         $this->repo->updateUnviewedCountForUserId($id);
         $this->repo->updateUnreadCountForUserId($id);
+        $this->repo->cleanupAlertSummariesForUserId($id);
     }
 
     protected function getStatusType(): Phrase
