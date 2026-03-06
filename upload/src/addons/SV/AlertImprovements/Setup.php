@@ -382,10 +382,6 @@ class Setup extends AbstractSetup
             \XF::app()->jobManager()->enqueueUnique('permissionRebuild', PermissionRebuild::class, [], true);
         }
 
-        if ($previousVersion >= 2080000 && $previousVersion < 2080400)
-        {
-            \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], true);
-        }
         if ($previousVersion < 1683812804)
         {
             \XF::app()->jobManager()->enqueueUnique('svMigrateAlertPreferences', MigrateAlertPreferences::class, [], false);
@@ -394,6 +390,11 @@ class Setup extends AbstractSetup
         if ($previousVersion < 1742270102)
         {
             $this->copyStylePropFlag('svAlertImprovUnreadAlertFlag', 'svAlertImprovJustReadAlertFlag');
+        }
+
+        if ($previousVersion < 1772720087)
+        {
+            \XF::app()->jobManager()->enqueueUnique('svMigrateAlertPreferences', MigrateAlertPreferences::class, [], false);
         }
     }
 
