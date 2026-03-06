@@ -328,6 +328,11 @@ class Setup extends AbstractSetup
         ]);
     }
 
+    public function upgrade1772720087Step1(): void // 2.14.3
+    {
+        $this->applySchemaChanges();
+    }
+
     public function uninstallStep1(): void
     {
         $sm = $this->schemaManager();
