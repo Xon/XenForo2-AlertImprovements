@@ -6,7 +6,7 @@
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
-use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use SV\StandardLib\Helper;
 use XF\Entity\ConversationMaster as ConversationMasterEntity;
 use XF\Entity\ConversationUser as ConversationUserEntity;
@@ -40,7 +40,7 @@ class Conversation extends XFCP_Conversation
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                /** @var UserAlert $alertRepo */
+                /** @var ExtendedUserAlertRepo $alertRepo */
                 $alertRepo = Helper::repository(UserAlertRepo::class);
                 $alertRepo->markAlertsReadForContentIds('conversation', [$conversation->conversation_id]);
             }
@@ -89,7 +89,7 @@ class Conversation extends XFCP_Conversation
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                /** @var UserAlert $alertRepo */
+                /** @var ExtendedUserAlertRepo $alertRepo */
                 $alertRepo = Helper::repository(UserAlertRepo::class);
 
                 $alertRepo->markAlertsReadForContentIds('user', [$visitor->user_id], $actions);
@@ -130,7 +130,7 @@ class Conversation extends XFCP_Conversation
 
         if ($visitor->user_id && $visitor->alerts_unread)
         {
-            /** @var UserAlert $alertRepo */
+            /** @var ExtendedUserAlertRepo $alertRepo */
             $alertRepo = Helper::repository(UserAlertRepo::class);
             $alertRepo->markAlertsReadForContentIds('conversation_message', $alertRepo->getContentIdKeys($contents));
         }

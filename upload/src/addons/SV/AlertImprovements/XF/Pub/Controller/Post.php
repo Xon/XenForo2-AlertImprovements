@@ -2,7 +2,7 @@
 
 namespace SV\AlertImprovements\XF\Pub\Controller;
 
-use SV\AlertImprovements\XF\Repository\UserAlert;
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use SV\StandardLib\Helper;
 use XF\Entity\Post as PostEntity;
 use XF\Mvc\ParameterBag;
@@ -32,7 +32,7 @@ class Post extends XFCP_Post
 
             if ($visitor->user_id && $visitor->alerts_unread)
             {
-                /** @var UserAlert $alertRepo */
+                /** @var ExtendedUserAlertRepo $alertRepo */
                 $alertRepo = Helper::repository(UserAlertRepo::class);
                 $alertRepo->markAlertsReadForContentIds('post', [$post->post_id]);
             }

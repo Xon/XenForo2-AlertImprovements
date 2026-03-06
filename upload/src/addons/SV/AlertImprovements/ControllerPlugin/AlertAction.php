@@ -3,7 +3,7 @@
 namespace SV\AlertImprovements\ControllerPlugin;
 
 use Closure;
-use SV\AlertImprovements\XF\Entity\UserAlert;
+use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use XF\ControllerPlugin\AbstractPlugin;
 use XF\Mvc\Reply\AbstractReply;
 use XF\Phrase;
@@ -11,20 +11,20 @@ use XF\Phrase;
 class AlertAction extends AbstractPlugin
 {
     /**
-     * @param UserAlert         $alert
-     * @param Closure          $actionCallback
-     * @param Phrase|string $contentTitle
-     * @param Phrase|string $buttonText
-     * @param Phrase|string $actionText
-     * @param string            $confirmUrl
-     * @param string|null       $redirectMsg
-     * @param string|null       $returnUrl
-     * @param string|null       $template
-     * @param array             $params
-     * @param bool              $addAccountWrapper
+     * @param ExtendedUserAlertEntity $alert
+     * @param Closure                 $actionCallback
+     * @param Phrase|string           $contentTitle
+     * @param Phrase|string           $buttonText
+     * @param Phrase|string           $actionText
+     * @param string                  $confirmUrl
+     * @param string|null             $redirectMsg
+     * @param string|null             $returnUrl
+     * @param string|null             $template
+     * @param array                   $params
+     * @param bool                    $addAccountWrapper
      * @return AbstractReply
      */
-    public function doAction(UserAlert $alert, Closure $actionCallback, $contentTitle, $buttonText, $actionText, string $confirmUrl, ?string $redirectMsg = null, ?string $returnUrl = null, ?string $template = null, array $params = [], bool $addAccountWrapper = true): AbstractReply
+    public function doAction(ExtendedUserAlertEntity $alert, Closure $actionCallback, $contentTitle, $buttonText, $actionText, string $confirmUrl, ?string $redirectMsg = null, ?string $returnUrl = null, ?string $template = null, array $params = [], bool $addAccountWrapper = true): AbstractReply
     {
         if ($alert->hasErrors())
         {

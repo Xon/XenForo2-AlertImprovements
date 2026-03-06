@@ -7,7 +7,7 @@ namespace SV\AlertImprovements\XF\Repository;
 
 use SV\AlertImprovements\Job\UnviewedAlertCleanup;
 use SV\AlertImprovements\Job\ViewedAlertCleanup;
-use SV\AlertImprovements\XF\Entity\UserOption;
+use SV\AlertImprovements\XF\Entity\UserOption as ExtendedUserOptionEntity;
 use SV\StandardLib\Helper;
 use XF\Db\AbstractAdapter;
 use XF\Db\AbstractStatement;
@@ -247,7 +247,7 @@ class UserAlertPatch extends XFCP_UserAlertPatch
      */
     public function patchAutoReadForInsertAlert(int $receiverId, string $contentType, string $action, array &$extra, ?array &$options = null)
     {
-        /** @var UserOption|null $userOption */
+        /** @var ExtendedUserOptionEntity|null $userOption */
         $userOption = Helper::find(UserOptionEntity::class, $receiverId);
         if ($userOption !== null)
         {

@@ -2,22 +2,20 @@
 
 namespace SV\AlertImprovements\Entity;
 
-use SV\AlertImprovements\XF\Entity\UserAlert;
+use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Structure;
 
 /**
- * @property int $alert_id
- * @property int $alerted_user_id
- * @property string $content_type
- * @property int $content_id
- * @property string $action
- *
- * @property-read UserAlert|null $Alert
+ * @property int                               $alert_id
+ * @property int                               $alerted_user_id
+ * @property string                            $content_type
+ * @property int                               $content_id
+ * @property string                            $action
+ * @property-read ExtendedUserAlertEntity|null $Alert
  */
 class SummaryAlert extends Entity
 {
-    /** @noinspection PhpMissingParentCallCommonInspection */
     public static function getStructure(Structure $structure): Structure
     {
         $structure->table = 'xf_sv_user_alert_summary';

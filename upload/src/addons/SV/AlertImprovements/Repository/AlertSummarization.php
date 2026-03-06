@@ -10,15 +10,18 @@ use SV\AlertImprovements\ISummarizeAlert;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
 use SV\AlertImprovements\XF\Entity\UserAlert as ExtendedUserAlertEntity;
 use SV\AlertImprovements\XF\Finder\UserAlert as ExtendedUserAlertFinder;
-use SV\AlertImprovements\XF\Repository\UserAlert;
-use SV\ContentRatings\XF\Repository\Reaction;
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
+use SV\ContentRatings\XF\Repository\Reaction as ExtendedReactionRepo;
 use SV\StandardLib\BypassAccessStatus;
 use SV\StandardLib\Helper;
 use XF\Alert\AbstractHandler;
 use XF\Db\AbstractAdapter;
+use XF\Entity\UserAlert as UserAlertEntity;
+use XF\Finder\UserAlert as UserAlertFinder;
 use XF\Mvc\Entity\AbstractCollection;
 use XF\Mvc\Entity\ArrayCollection;
 use XF\Mvc\Entity\Repository;
+use XF\Repository\Reaction as ReactionRepo;
 use XF\Repository\UserAlert as UserAlertRepo;
 use function array_fill_keys;
 use function array_key_exists;
@@ -81,7 +84,9 @@ class AlertSummarization extends Repository
             if (Globals::isSkippingExpiredAlerts())
             {
                 $skipExpiredAlertSql =  ' AND (alert.view_date >= ? OR (alert.view_date = 0 AND alert.event_date >= ?)) ';
-                $args = $this->getAlertRepo()->getIgnoreAlertCutOffs();
+                /** @var ExtendedUserAlertRepo $alertRepo */
+                $alertRepo = Helper::repository(UserAlertRepo::class);
+                $args = $alertRepo->getIgnoreAlertCutOffs();
             }
             else
             {
@@ -143,7 +148,8 @@ class AlertSummarization extends Repository
 
     protected function getFinderForSummarizeAlerts(int $userId): ExtendedUserAlertFinder
     {
-        $finder = Helper::finder(\XF\Finder\UserAlert::class);
+        /** @var ExtendedUserAlertFinder $finder */
+        $finder = Helper::finder(UserAlertFinder::class);
         $finder->where('alerted_user_id', $userId)
                ->order('event_date', 'desc');
 
@@ -207,7 +213,9 @@ class AlertSummarization extends Repository
 
         if (Globals::isSkippingExpiredAlerts())
         {
-            [$viewedCutOff, $unviewedCutOff] = $this->getAlertRepo()->getIgnoreAlertCutOffs();
+            /** @var ExtendedUserAlertRepo $alertRepo */
+            $alertRepo = Helper::repository(UserAlertRepo::class);
+            [$viewedCutOff, $unviewedCutOff] = $alertRepo->getIgnoreAlertCutOffs();
             $finder->indexHint('use', 'alertedUserId_eventDate');
             if ($ignoreReadState)
             {
@@ -390,11 +398,13 @@ class AlertSummarization extends Repository
         // update alert totals
         if ($groupedAlerts)
         {
-            $hasChange1 = $this->getAlertRepo()->updateUnreadCountForUserId($userId);
-            $hasChange2 = $this->getAlertRepo()->updateUnviewedCountForUserId($userId);
+            /** @var ExtendedUserAlertRepo $alertRepo */
+            $alertRepo = Helper::repository(UserAlertRepo::class);
+            $hasChange1 = $alertRepo->updateUnreadCountForUserId($userId);
+            $hasChange2 = $alertRepo->updateUnviewedCountForUserId($userId);
             if ($hasChange1 || $hasChange2)
             {
-                $this->getAlertRepo()->refreshUserAlertCounters($user);
+                $alertRepo->refreshUserAlertCounters($user);
             }
         }
 
@@ -441,7 +451,7 @@ class AlertSummarization extends Repository
             $visitor = null;
         }
         /** @var ExtendedUserAlertEntity $alert */
-        $alert = Helper::createEntity(\XF\Entity\UserAlert::class);
+        $alert = Helper::createEntity(UserAlertEntity::class);
         $alert->setupSummaryAlert($summaryAlert);
 
         $db = \XF::db();
@@ -562,8 +572,8 @@ class AlertSummarization extends Repository
             $addOns = \XF::app()->container('addon.cache');
             if (isset($addOns['SV/ContentRatings']))
             {
-                /** @var Reaction $reactionRepo */
-                $reactionRepo = Helper::repository(\XF\Repository\Reaction::class);
+                /** @var ExtendedReactionRepo $reactionRepo */
+                $reactionRepo = Helper::repository(ReactionRepo::class);
                 $reactions = $reactionRepo->getReactionsAsEntities();
                 $reactionIds = $reactions->keys();
             }
@@ -626,8 +636,12 @@ class AlertSummarization extends Repository
             return;
         }
 
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = Helper::repository(UserAlertRepo::class);
+        $svUserMaxAlertCount = $alertRepo->getSvUserMaxAlertCount();
+
         $unreadIncrement = $unviewedIncrement = 0;
-        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($user, $summaryAlert, &$unreadIncrement, &$unviewedIncrement): void {
+        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($svUserMaxAlertCount, $user, $summaryAlert, &$unreadIncrement, &$unviewedIncrement): void {
             $summaryId = $summaryAlert->alert_id;
             $userId = $user->user_id;
             $db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', $userId);
@@ -650,7 +664,6 @@ class AlertSummarization extends Repository
             ', [$userId, $summaryId]);
 
             // Reset unread alerts counter
-            $svUserMaxAlertCount = $this->getAlertRepo()->getSvUserMaxAlertCount();
             $db->query('
                 UPDATE xf_user
                 SET alerts_unread = LEAST(alerts_unread + ?, ?),
@@ -670,7 +683,9 @@ class AlertSummarization extends Repository
     public function getAlertHandlersForConsolidation(): array
     {
         $optOuts = \XF::visitor()->Option->alert_optout;
-        $handlers = $this->getAlertRepo()->getAlertHandlers();
+        /** @var ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = Helper::repository(UserAlertRepo::class);
+        $handlers = $alertRepo->getAlertHandlers();
         unset($handlers['bookmark_post_alt']);
         foreach ($handlers as $key => $handler)
         {
@@ -684,8 +699,10 @@ class AlertSummarization extends Repository
         return $handlers;
     }
 
-    protected function getAlertRepo(): UserAlert
+    /** @deprecated */
+    protected function getAlertRepo(): ExtendedUserAlertRepo
     {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return Helper::repository(UserAlertRepo::class);
     }
 }

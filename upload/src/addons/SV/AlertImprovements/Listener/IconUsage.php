@@ -2,12 +2,12 @@
 
 namespace SV\AlertImprovements\Listener;
 
-use XF\Service\Icon\UsageAnalyzer;
+use XF\Service\Icon\UsageAnalyzer as UsageAnalyzerService;
 
 abstract class IconUsage
 {
     /** @noinspection PhpUnusedParameterInspection */
-    public static function analyzerSteps(array &$steps, UsageAnalyzer $usageAnalyzer): void
+    public static function analyzerSteps(array &$steps, UsageAnalyzerService $usageAnalyzer): void
     {
         $steps['style_property'][] = function (?int $lastOffset, float $maxRunTime) use ($usageAnalyzer): ?int {
             $data = \XF::db()->fetchAll("

@@ -2,12 +2,13 @@
 
 namespace SV\AlertImprovements\Job;
 
-use SV\AlertImprovements\XF\Repository\UserAlert;
-use SV\AlertImprovements\XF\Repository\UserAlertPatch;
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
+use SV\AlertImprovements\XF\Repository\UserAlertPatch as ExtendedUserAlertRepoPatch;
 use SV\StandardLib\Helper;
 use XF\Db\DeadlockException;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
+use XF\Repository\UserAlert as UserAlertRepo;
 use function max;
 use function microtime;
 
@@ -92,8 +93,8 @@ class UnviewedAlertCleanup extends AbstractJob
             return $this->resume();
         }
 
-        /** @var UserAlertPatch|UserAlert $alertRepo */
-        $alertRepo = Helper::repository(\XF\Repository\UserAlert::class);
+        /** @var ExtendedUserAlertRepoPatch|ExtendedUserAlertRepo $alertRepo */
+        $alertRepo = Helper::repository(UserAlertRepo::class);
 
         if (empty($this->data['pruned']))
         {
