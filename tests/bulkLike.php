@@ -90,7 +90,10 @@ foreach ($contents as $content)
                 $user
             );
         });
-        assert(!$app->db()->inTransaction());
+        if ($app->db()->inTransaction())
+        {
+            throw new LogicException('Expected transaction to be completed');
+        }
     }
 }
 //\XF::$time = $oldTime;

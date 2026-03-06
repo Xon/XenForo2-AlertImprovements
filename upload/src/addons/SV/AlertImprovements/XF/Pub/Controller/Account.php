@@ -31,7 +31,6 @@ use function array_key_exists;
 use function array_keys;
 use function array_slice, count, max, array_merge;
 use function array_values;
-use function assert;
 use function is_array;
 use function is_callable;
 
@@ -642,8 +641,7 @@ class Account extends XFCP_Account
                 $alerts = new ArrayCollection($alerts);
                 $reply->setParam('alerts', $alerts);
             }
-            assert($alerts instanceof AbstractCollection);
-            if ($alerts->count() !== 0)
+            if ($alerts instanceof AbstractCollection && $alerts->count() !== 0)
             {
                 if (!Globals::isPrefetchRequest())
                 {

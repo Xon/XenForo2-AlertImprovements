@@ -133,8 +133,7 @@ class AlertPreferences extends Repository
     public function convertStringyOptOut(array $optOutActions, string $optOut): ?array
     {
         $parts = explode('_', $optOut);
-        assert(is_array($parts));
-        if (count($parts) < 2)
+        if (!is_array($parts) || count($parts) < 2)
         {
             return null;
         }

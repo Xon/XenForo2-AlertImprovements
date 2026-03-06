@@ -5,6 +5,7 @@
 
 namespace SV\AlertImprovements\Repository;
 
+use LogicException;
 use SV\AlertImprovements\Globals;
 use SV\AlertImprovements\ISummarizeAlert;
 use SV\AlertImprovements\XF\Entity\User as ExtendedUserEntity;
@@ -27,7 +28,6 @@ use function array_fill_keys;
 use function array_key_exists;
 use function array_keys;
 use function array_sum;
-use function assert;
 use function count;
 use function is_array;
 use function json_decode;
@@ -164,7 +164,11 @@ class AlertSummarization extends Repository
             return false;
         }
 
-        assert(!\XF::db()->inTransaction());
+        if (\XF::db()->inTransaction())
+        {
+            throw new LogicException('summarizeAlertsForUser() should not be called in a transaction!');
+        }
+
         // build the list of handlers at once, and exclude based
         $handlers = $this->getAlertHandlersForConsolidation();
         // nothing to be done
