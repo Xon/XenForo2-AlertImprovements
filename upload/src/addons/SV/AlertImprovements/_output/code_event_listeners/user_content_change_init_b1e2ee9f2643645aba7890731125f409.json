@@ -1,0 +1,9 @@
+{
+    "event_id": "user_content_change_init",
+    "execute_order": 10,
+    "callback_class": "SV\\AlertImprovements\\Listener\\UserChange",
+    "callback_method": "userContentChangeInit",
+    "active": true,
+    "hint": "",
+    "description": ""
+}
