@@ -17,8 +17,8 @@ class AlertTotalRebuild extends AbstractRebuildJob
 
     protected $jobDefaultData = [
         'pendingRebuilds' => false,
-        'pruneRebuildTable' => false,
-        'pruneRebuildTable2' => false,
+        'pruneRebuildTable' => true,
+        'pruneRebuildTable2' => true,
     ];
 
     protected function setupData(array $data): array
@@ -49,7 +49,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
             ), $start);
         }
 
-        if (!$this->data['pruneRebuildTable'])
+        if ($this->data['pruneRebuildTable'])
         {
             $db->executeTransaction(function() use ($db){
                 $db->query('
@@ -59,10 +59,10 @@ class AlertTotalRebuild extends AbstractRebuildJob
                     WHERE xf_user.user_id IS NULL
                 ');
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-            $this->data['pruneRebuildTable'] = true;
+            $this->data['pruneRebuildTable'] = false;
         }
 
-        if (!$this->data['pruneRebuildTable2'])
+        if ($this->data['pruneRebuildTable2'])
         {
             $db->executeTransaction(function() use ($db){
                 $db->query("
@@ -72,7 +72,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
                     WHERE xf_user.user_state IN ('rejected', 'disabled')
                 ");
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-            $this->data['pruneRebuildTable2'] = true;
+            $this->data['pruneRebuildTable2'] = false;
         }
 
         return $db->fetchAllColumn($db->limit(
