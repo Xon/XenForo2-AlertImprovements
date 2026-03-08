@@ -39,6 +39,12 @@ class AlertTotalRebuild extends AbstractRebuildJob
 
         if (!$this->data['pendingRebuilds'])
         {
+            if ($this->data['pruneRebuildTable'])
+            {
+                $db->emptyTable('xf_sv_user_alert_rebuild');
+                $this->data['pruneRebuildTable'] = false;
+            }
+
             return $db->fetchAllColumn($db->limit(
                 "
 				SELECT user_id
