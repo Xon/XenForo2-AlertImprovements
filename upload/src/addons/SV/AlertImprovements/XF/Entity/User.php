@@ -5,6 +5,7 @@
 
 namespace SV\AlertImprovements\XF\Entity;
 
+use SV\AlertImprovements\XF\Repository\UserAlert as ExtendedUserAlertRepo;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Structure;
 use XF\Repository\UserAlert as UserAlertRepo;
@@ -20,6 +21,19 @@ class User extends XFCP_User
     public function canCustomizeAdvAlertPreferences(): bool
     {
         return $this->hasPermission('general', 'svCustomizeAdvAlertPrefs');
+    }
+
+    protected function _postSave()
+    {
+        parent::_postSave();
+        if ($this->isUpdate() && $this->isChanged('user_state') && in_array($this->user_state, ['disabled', 'rejected']))
+        {
+            \XF::runLater(function () {
+                /** @var ExtendedUserAlertRepo $alertRepo */
+                $alertRepo = Helper::repository(UserAlertRepo::class);
+                $alertRepo->cleanupPendingAlertRebuild($this->user_id);
+            });
+        }
     }
 
     /**
