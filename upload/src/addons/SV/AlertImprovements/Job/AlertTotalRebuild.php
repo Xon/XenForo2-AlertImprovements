@@ -17,6 +17,8 @@ class AlertTotalRebuild extends AbstractRebuildJob
 
     protected $jobDefaultData = [
         'pendingRebuilds' => false,
+        'pruneRebuildTable' => false,
+        'pruneRebuildTable2' => false,
     ];
 
     protected function setupData(array $data): array
@@ -35,7 +37,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
     {
         $db = \XF::db();
 
-        if (empty($this->data['pendingRebuilds']))
+        if (!$this->data['pendingRebuilds'])
         {
             return $db->fetchAllColumn($db->limit(
                 "
@@ -47,7 +49,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
             ), $start);
         }
 
-        if (empty($this->data['pruneRebuildTable']))
+        if (!$this->data['pruneRebuildTable'])
         {
             $db->executeTransaction(function() use ($db){
                 $db->query('
@@ -60,7 +62,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
             $this->data['pruneRebuildTable'] = true;
         }
 
-        if (empty($this->data['pruneRebuildTable2']))
+        if (!$this->data['pruneRebuildTable2'])
         {
             $db->executeTransaction(function() use ($db){
                 $db->query("
