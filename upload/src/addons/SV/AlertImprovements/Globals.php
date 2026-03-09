@@ -8,7 +8,7 @@ namespace SV\AlertImprovements;
  * being loaded correctly by the dynamic class autoloader
  * Class Globals
  */
-class Globals
+abstract class Globals
 {
     /** @var bool */
     public static $skipSummarize = true;
