@@ -93,6 +93,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
 
     protected function rebuildById($id): void
     {
+        $id = (int)$id;
         $this->repo->updateUnviewedCountForUserId($id);
         $this->repo->updateUnreadCountForUserId($id);
         $this->repo->cleanupAlertSummariesForUserId($id);
