@@ -98,8 +98,8 @@ class AlertTotalRebuild extends AbstractRebuildJob
         $this->repo->cleanupAlertSummariesForUserId($id);
     }
 
-    protected function getStatusType(): Phrase
+    protected function getStatusType(): string
     {
-        return \XF::phrase('alerts');
+        return \XF::phrase('user') . ' - ' . \XF::phrase('alerts');
     }
 }

@@ -59,8 +59,8 @@ class MigrateAlertPreferences extends AbstractRebuildJob
         AlertPreferencesRepo::get()->migrateAlertPreferencesForUser($id);
     }
 
-    protected function getStatusType()
+    protected function getStatusType(): string
     {
-        // TODO: Implement getStatusType() method.
+        return '';
     }
 }
