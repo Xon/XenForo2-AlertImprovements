@@ -328,7 +328,7 @@ class Setup extends AbstractSetup
         ]);
     }
 
-    public function upgrade1772720087Step1(): void // 2.14.3
+    public function upgrade1773067739Step1(): void // 2.14.3
     {
         $this->applySchemaChanges();
     }
@@ -392,7 +392,7 @@ class Setup extends AbstractSetup
             $this->copyStylePropFlag('svAlertImprovUnreadAlertFlag', 'svAlertImprovJustReadAlertFlag');
         }
 
-        if ($previousVersion < 1772720087)
+        if ($previousVersion < 1773067739)
         {
             \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], true);
         }
