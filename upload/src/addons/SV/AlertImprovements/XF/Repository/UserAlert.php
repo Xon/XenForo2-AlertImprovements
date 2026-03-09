@@ -887,7 +887,7 @@ class UserAlert extends XFCP_UserAlert
                 DELETE alertSummary
                 FROM xf_sv_user_alert_summary AS alertSummary
                 LEFT JOIN xf_user_alert ON xf_user_alert.alert_id = alertSummary.alert_id
-                WHERE xf_user_alert.alert_id  IS NULL AND alertSummary.user_id = ?
+                WHERE xf_user_alert.alert_id  IS NULL AND alertSummary.alerted_user_id = ?
             ', [$userId]);
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
