@@ -883,6 +883,12 @@ class UserAlert extends XFCP_UserAlert
         }
 
         \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($userId): void {
+            $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+            if (!$userExists)
+            {
+                return;
+            }
+
             $db->query('
                 DELETE alertSummary
                 FROM xf_sv_user_alert_summary AS alertSummary
