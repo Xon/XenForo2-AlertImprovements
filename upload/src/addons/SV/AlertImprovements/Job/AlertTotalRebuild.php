@@ -70,16 +70,22 @@ class AlertTotalRebuild extends AbstractRebuildJob
     protected function rebuildById($id): void
     {
         $id = (int)$id;
-        $userState = (string)\XF::db()->fetchOne("select if(is_banned, 'banned', user_state) from xf_user where user_id = ?", $id);
-        if (in_array($userState, $this->skipUserAlertTotalsRebuildStates, true))
+        $db = \XF::db();
+
+        $db->beginTransaction();
+
+        $userState = (string)$db->fetchOne("SELECT IF(is_banned, 'banned', user_state) FROM xf_user WHERE user_id = ? FOR UPDATE", $id);
+        if (!in_array($userState, $this->skipUserAlertTotalsRebuildStates, true))
         {
-            $this->repo->cleanupPendingAlertRebuild($id);
-            return;
+            $this->repo->updateUnviewedCountForUserId($id, false);
+            $this->repo->updateUnreadCountForUserId($id, false);
+            $this->repo->cleanupAlertSummariesForUserId($id, false);
         }
 
-        $this->repo->updateUnviewedCountForUserId($id);
-        $this->repo->updateUnreadCountForUserId($id);
-        $this->repo->cleanupAlertSummariesForUserId($id);
+        $db->commit();
+
+        // do this outside the transaction to avoid deadlocks
+        $this->repo->cleanupPendingAlertRebuild($id);
     }
 
     protected function getStatusType(): string

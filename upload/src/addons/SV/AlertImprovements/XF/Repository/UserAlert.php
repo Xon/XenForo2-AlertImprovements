@@ -746,7 +746,7 @@ class UserAlert extends XFCP_UserAlert
         return $result;
     }
 
-    public function updateUnviewedCountForUserId(int $userId): bool
+    public function updateUnviewedCountForUserId(int $userId, bool $withRowLock = true): bool
     {
         if ($userId === 0)
         {
@@ -760,15 +760,18 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
-        if (!$userExists)
+        if ($withRowLock)
         {
-            if (!$inTransaction)
+            $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+            if (!$userExists)
             {
-                $db->commit();
-            }
+                if (!$inTransaction)
+                {
+                    $db->commit();
+                }
 
-            return false;
+                return false;
+            }
         }
 
         if (Globals::isSkippingExpiredAlerts())
@@ -804,7 +807,7 @@ class UserAlert extends XFCP_UserAlert
         return $statement->rowsAffected() > 0;
     }
 
-    public function updateUnreadCountForUserId(int $userId): bool
+    public function updateUnreadCountForUserId(int $userId, bool $withRowLock = true): bool
     {
         if ($userId === 0)
         {
@@ -818,17 +821,20 @@ class UserAlert extends XFCP_UserAlert
             $db->beginTransaction();
         }
 
-        $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
-        if (!$userExists)
+        if ($withRowLock)
         {
-            if (!$inTransaction)
+            $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
+            if (!$userExists)
             {
-                $db->commit();
+                if (!$inTransaction)
+                {
+                    $db->commit();
+                }
+
+                $this->cleanupPendingAlertRebuild($userId);
+
+                return false;
             }
-
-            $this->cleanupPendingAlertRebuild($userId);
-
-            return false;
         }
 
         if (Globals::isSkippingExpiredAlerts())
@@ -887,27 +893,31 @@ class UserAlert extends XFCP_UserAlert
         }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
     }
 
-    public function cleanupAlertSummariesForUserId(int $userId): void
+    public function cleanupAlertSummariesForUserId(int $userId, bool $withRowLock = true): void
     {
         if ($userId === 0)
         {
             return;
         }
 
-        \XF::db()->executeTransaction(function (AbstractAdapter $db) use ($userId): void {
+        $db = \XF::db();
+        if ($withRowLock && $db->inTransaction())
+        {
             $userExists = (bool)$db->fetchOne('SELECT user_id FROM xf_user WHERE user_id = ? FOR UPDATE', [$userId]);
             if (!$userExists)
             {
+                $this->cleanupPendingAlertRebuild($userId);
+
                 return;
             }
+        }
 
-            $db->query('
-                DELETE alertSummary
-                FROM xf_sv_user_alert_summary AS alertSummary
-                LEFT JOIN xf_user_alert ON xf_user_alert.alert_id = alertSummary.alert_id
-                WHERE xf_user_alert.alert_id  IS NULL AND alertSummary.alerted_user_id = ?
-            ', [$userId]);
-        }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+        $db->query('
+            DELETE alertSummary
+            FROM xf_sv_user_alert_summary AS alertSummary
+            LEFT JOIN xf_user_alert ON xf_user_alert.alert_id = alertSummary.alert_id
+            WHERE xf_user_alert.alert_id  IS NULL AND alertSummary.alerted_user_id = ?
+        ', [$userId]);
     }
 
     /**
