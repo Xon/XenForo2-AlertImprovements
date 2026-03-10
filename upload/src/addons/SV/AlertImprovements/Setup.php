@@ -392,7 +392,7 @@ class Setup extends AbstractSetup
             $this->copyStylePropFlag('svAlertImprovUnreadAlertFlag', 'svAlertImprovJustReadAlertFlag');
         }
 
-        if ($previousVersion < 1773067739)
+        if ($previousVersion < 1773114018)
         {
             \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], false);
         }
