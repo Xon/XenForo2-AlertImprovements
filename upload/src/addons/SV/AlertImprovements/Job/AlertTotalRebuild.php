@@ -9,6 +9,7 @@ use XF\Job\AbstractRebuildJob;
 use XF\Phrase;
 use XF\Repository\UserAlert as UserAlertRepo;
 use function array_merge;
+use function in_array;
 
 class AlertTotalRebuild extends AbstractRebuildJob
 {
@@ -18,7 +19,6 @@ class AlertTotalRebuild extends AbstractRebuildJob
     protected $jobDefaultData = [
         'pendingRebuilds' => false,
         'pruneRebuildTable' => true,
-        'pruneRebuildTable2' => true,
     ];
 
     protected function setupData(array $data): array
@@ -55,19 +55,6 @@ class AlertTotalRebuild extends AbstractRebuildJob
             ), $start);
         }
 
-        if ($this->data['pruneRebuildTable'])
-        {
-            $db->executeTransaction(function() use ($db){
-                $db->query("
-                    DELETE pendingRebuild 
-                    FROM xf_sv_user_alert_rebuild AS pendingRebuild
-                    JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
-                    WHERE xf_user.user_state IN ('rejected', 'disabled')
-                ");
-            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-            $this->data['pruneRebuildTable'] = false;
-        }
-
         return $db->fetchAllColumn($db->limit(
             '
 				SELECT pendingRebuild.user_id
@@ -78,9 +65,23 @@ class AlertTotalRebuild extends AbstractRebuildJob
         ));
     }
 
+    protected $skipUserStates = [
+        'rejected',
+        'disabled',
+        '', // user does not exist
+        'banned', // pseudo-state
+    ];
+
     protected function rebuildById($id): void
     {
         $id = (int)$id;
+        $userState = (string)\XF::db()->fetchOne("select if(is_banned, 'banned', user_state) from xf_user where user_id = ?", $id);
+        if (in_array($userState, $this->skipUserStates, true))
+        {
+            $this->repo->cleanupPendingAlertRebuild($id);
+            return;
+        }
+
         $this->repo->updateUnviewedCountForUserId($id);
         $this->repo->updateUnreadCountForUserId($id);
         $this->repo->cleanupAlertSummariesForUserId($id);
