@@ -15,6 +15,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
 {
     /** @var ExtendedUserAlertRepo */
     protected $repo = null;
+    protected $skipUserAlertTotalsRebuildStates = [];
 
     protected $jobDefaultData = [
         'pendingRebuilds' => false,
@@ -26,6 +27,7 @@ class AlertTotalRebuild extends AbstractRebuildJob
         if ($this->repo === null)
         {
             $this->repo = Helper::repository(UserAlertRepo::class);
+            $this->skipUserAlertTotalsRebuildStates = $this->repo->getSvSkipUserAlertTotalsRebuildStates();
         }
 
         $this->defaultData = array_merge($this->jobDefaultData, $this->defaultData);
@@ -65,18 +67,11 @@ class AlertTotalRebuild extends AbstractRebuildJob
         ));
     }
 
-    protected $skipUserStates = [
-        'rejected',
-        'disabled',
-        '', // user does not exist
-        'banned', // pseudo-state
-    ];
-
     protected function rebuildById($id): void
     {
         $id = (int)$id;
         $userState = (string)\XF::db()->fetchOne("select if(is_banned, 'banned', user_state) from xf_user where user_id = ?", $id);
-        if (in_array($userState, $this->skipUserStates, true))
+        if (in_array($userState, $this->skipUserAlertTotalsRebuildStates, true))
         {
             $this->repo->cleanupPendingAlertRebuild($id);
             return;

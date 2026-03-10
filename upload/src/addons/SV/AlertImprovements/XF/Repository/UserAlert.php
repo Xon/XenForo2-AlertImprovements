@@ -29,9 +29,21 @@ class UserAlert extends XFCP_UserAlert
     /** @var int */
     protected $svUserMaxAlertCount = 65535;
 
+    protected $svSkipUserAlertTotalsRebuildStates = [
+        'rejected',
+        'disabled',
+        '', // user does not exist
+        'banned', // pseudo-state
+    ];
+
     public function getSvUserMaxAlertCount(): int
     {
         return $this->svUserMaxAlertCount;
+    }
+
+    public function getSvSkipUserAlertTotalsRebuildStates(): array
+    {
+        return $this->svSkipUserAlertTotalsRebuildStates;
     }
 
     public function getIgnoreAlertCutOffs(): array
