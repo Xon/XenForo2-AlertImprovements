@@ -394,7 +394,7 @@ class Setup extends AbstractSetup
 
         if ($previousVersion < 1773067739)
         {
-            \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], true);
+            \XF::app()->jobManager()->enqueueUnique('svAlertTotalRebuild', AlertTotalRebuild::class, [], false);
         }
     }
 
