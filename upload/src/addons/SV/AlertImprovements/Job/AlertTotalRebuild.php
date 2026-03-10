@@ -58,19 +58,6 @@ class AlertTotalRebuild extends AbstractRebuildJob
         if ($this->data['pruneRebuildTable'])
         {
             $db->executeTransaction(function() use ($db){
-                $db->query('
-                    DELETE pendingRebuild 
-                    FROM xf_sv_user_alert_rebuild AS pendingRebuild
-                    LEFT JOIN xf_user ON xf_user.user_id = pendingRebuild.user_id 
-                    WHERE xf_user.user_id IS NULL
-                ');
-            }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-            $this->data['pruneRebuildTable'] = false;
-        }
-
-        if ($this->data['pruneRebuildTable2'])
-        {
-            $db->executeTransaction(function() use ($db){
                 $db->query("
                     DELETE pendingRebuild 
                     FROM xf_sv_user_alert_rebuild AS pendingRebuild
@@ -78,14 +65,14 @@ class AlertTotalRebuild extends AbstractRebuildJob
                     WHERE xf_user.user_state IN ('rejected', 'disabled')
                 ");
             }, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
-            $this->data['pruneRebuildTable2'] = false;
+            $this->data['pruneRebuildTable'] = false;
         }
 
         return $db->fetchAllColumn($db->limit(
             '
 				SELECT pendingRebuild.user_id
 				FROM xf_sv_user_alert_rebuild as pendingRebuild
-				INNER JOIN xf_user on xf_user.user_id = pendingRebuild.user_id 
+				LEFT JOIN xf_user on xf_user.user_id = pendingRebuild.user_id 
 				ORDER BY pendingRebuild.rebuild_date, pendingRebuild.user_id
 			', $batch
         ));
