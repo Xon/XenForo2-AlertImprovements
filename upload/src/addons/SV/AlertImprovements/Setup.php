@@ -24,6 +24,7 @@ use XF\Job\PermissionRebuild;
 use XF\PreEscaped;
 use XF\Repository\StyleProperty as StylePropertyRepo;
 use function array_keys;
+use function is_array;
 use function max;
 use function microtime;
 use function min;
@@ -331,6 +332,25 @@ class Setup extends AbstractSetup
     public function upgrade1773067739Step1(): void // 2.14.3
     {
         $this->applySchemaChanges();
+    }
+
+    public function upgrade1777163665Step1(): void // 2.14.5
+    {
+        /** @var StylePropertyEntity[] $properties */
+        $properties = Helper::finder(StylePropertyFinder::class)
+                            ->where('property_name', ['svAlertImprovJustReadAlertIcon', 'svAlertImprovRecentAlertIcon', 'svAlertImprovUnreadAlertIcon'])
+                            ->where('style_id', '!=', 0)
+                            ->fetch();
+
+        foreach ($properties as $property)
+        {
+            $value = $property->property_value;
+            if (is_array($value))
+            {
+                $property->property_value = $value['default'] ?? '';
+                $property->saveIfChanged();
+            }
+        }
     }
 
     public function uninstallStep1(): void
